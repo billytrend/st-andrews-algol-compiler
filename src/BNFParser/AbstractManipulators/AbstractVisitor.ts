@@ -8,6 +8,16 @@ import {NonTerminal} from "./../Parser";
 export abstract class AbstractVisitor<T> {
     private _curProductionName: string;
     private _productionIndex: number = 0;
+    private _nonTerminalIndex: number = 0;
+
+
+    get nonTerminalIndex():number {
+        return this._nonTerminalIndex;
+    }
+
+    set nonTerminalIndex(value:number) {
+        this._nonTerminalIndex = value;
+    }
 
     get productionIndex():number {
         return this._productionIndex;

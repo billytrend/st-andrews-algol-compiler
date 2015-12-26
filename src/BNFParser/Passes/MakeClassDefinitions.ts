@@ -4,56 +4,72 @@ import {Production} from "../Parser";
 import {MaybeObject} from "../Parser";
 import {Terminal} from "../Parser";
 import {NonTerminal} from "../Parser";
+import {compile} from "../Compiler";
+import {ReformatBNF} from "./ReformatBNF";
+import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
 export class MakeClassDefinitions extends AbstractVisitor<void> {
-    private _output: string = "";
+    private _output: string[] = [];
 
-    get output():string {
+    get output():string[] {
         return this._output;
     }
 
-    set output(value:string) {
+    set output(value:string[]) {
         this._output = value;
     }
 
+
     beforeVisitGrammar(node:Grammar):void {
-        this.output = "module SalgolTypes {";
+        this.output.push("module SalgolTypes {");
     }
 
     afterVisitGrammar(node:Grammar):void {
-        return undefined;
+        this.output.push("}");
     }
 
     beforeVisitProduction(node:Production):void {
-        return undefined;
+        if (this.firstProductionVisit) {
+            this.output.push("export class " + this.curProductionName + "{};");
+        }
+        this.output.push("export class " + this.curProductionName + this.productionIndex + " extends " + this.curProductionName + "{");
     }
 
+
     afterVisitProduction(node:Production):void {
-        return undefined;
+        this.output.push("}");
     }
 
     beforeVisitMaybeObject(node:MaybeObject):void {
-        return undefined;
+
     }
 
     afterVisitMaybeObject(node:MaybeObject):void {
-        return undefined;
+
     }
 
     beforeVisitTerminal(node:Terminal):void {
-        return undefined;
+
     }
 
     afterVisitTerminal(node:Terminal):void {
-        return undefined;
+
     }
 
     beforeVisitNonTerminal(node:NonTerminal):void {
-        return undefined;
+        this.output.push("  public " + node.value + this.nonTerminalIndex + ":" + node.value + ";");
     }
 
     afterVisitNonTerminal(node:NonTerminal):void {
-        return undefined;
+
     }
 
+}
+
+let visitor = new MakeClassDefinitions();
+let visitorPass = new VisitorPass(visitor);
+visitorPass.visit(compile());
+
+for (var o of visitor.output) {
+    console.log(o);
 }
