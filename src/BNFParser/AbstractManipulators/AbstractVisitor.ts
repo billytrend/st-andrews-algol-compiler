@@ -7,14 +7,18 @@ import {NonTerminal} from "./../Parser";
 
 export abstract class AbstractVisitor<T> {
     private _curProductionName: string;
-    private _firstProductionVisit: boolean = true;
+    private _productionIndex: number = 0;
 
-    get firstProductionVisit():boolean {
-        return this._firstProductionVisit;
+    get productionIndex():number {
+        return this._productionIndex;
     }
 
-    set firstProductionVisit(value:boolean) {
-        this._firstProductionVisit = value;
+    set productionIndex(value:number) {
+        this._productionIndex = value;
+    }
+
+    get firstProductionVisit():boolean {
+        return this.productionIndex == 0;
     }
 
     get curProductionName():string {
