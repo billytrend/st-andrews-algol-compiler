@@ -1,7 +1,7 @@
 import {AbstractPass} from "./AbstractPass";
-import {Grammar, Production, MaybeObject, Terminal, NonTerminal} from "./../Parser";
+import {Grammar, Production, MaybeObject, Terminal, NonTerminal, GrammarFeature} from "./../Parser";
 import {AbstractVisitor} from "./AbstractVisitor";
-import {GrammarFeature} from "./../Parser";
+import {} from "../Parser";
 
 export class VisitorPass extends AbstractPass<void> {
     private _visitor: AbstractVisitor<void>;
@@ -22,33 +22,36 @@ export class VisitorPass extends AbstractPass<void> {
     public visit(node:GrammarFeature) {
         this.visitor.beforeVisit(node);
         this.pass(node);
+        this.visitor.afterVisit(node);
     }
 
     passGrammar(node: Grammar) {
         for (var productionName in node.productions) {
-            this.visitor.curProduction = productionName;
-            this.visit(node.productions[productionName]);
+            this.visitor.firstProductionVisit = true;
+            this.visitor.curProductionName = productionName;
+            for (var prod of node.productions[productionName]) {
+                this.visit(prod);
+                this.visitor.firstProductionVisit = false;
+            }
         }
-        this.visitor.afterVisit(node);
     }
 
     passProduction(node:Production) {
         for (var pattern of node.mapping) {
             this.visit(pattern);
         }
-        this.visitor.afterVisit(node);
     }
 
     passMaybeObject(node: MaybeObject) {
-        this.visitor.afterVisit(node);
+        for (var pattern of node.mapping) {
+            this.visit(pattern);
+        }
     }
 
     passTerminal(node: Terminal) {
-        this.visitor.afterVisit(node);
     }
 
     passNonTerminal(node: NonTerminal) {
-        this.visitor.afterVisit(node);
     }
 }
 

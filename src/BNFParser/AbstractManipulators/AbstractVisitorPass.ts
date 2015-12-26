@@ -1,6 +1,7 @@
 import Parser = require('./../Parser');
 
 export abstract class AbstractPass<T> {
+
     pass(node: Parser.GrammarFeature): T {
         if(node instanceof Parser.Grammar) {
             return this.passGrammar(<Parser.Grammar>node)

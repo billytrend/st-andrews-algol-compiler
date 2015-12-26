@@ -5,15 +5,6 @@ import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
 export class ReformatBNF extends AbstractVisitor<void> {
-    private _lastProductionName: string;
-
-    get lastProductionName():string {
-        return this._lastProductionName;
-    }
-
-    set lastProductionName(value:string) {
-        this._lastProductionName = value;
-    }
 
     beforeVisitGrammar(node:Grammar):void {
         this.output += "<html><body>";
@@ -24,9 +15,8 @@ export class ReformatBNF extends AbstractVisitor<void> {
     }
 
     beforeVisitProduction(node:Production):void {
-        if (this.lastProductionName !== this.curProductionName) {
+        if (this.firstProductionVisit) {
             this.output += "<div><h3>" + this.curProductionName + "</h3>";
-            this.lastProductionName = this.curProductionName
         }
     }
 
