@@ -1,17 +1,17 @@
-import Parser = require('./Parser');
+import Parser = require('./../Parser');
 
-export abstract class ASTPass<T> {
-    pass(node: Parser.GrammarFeature) {
+export abstract class AbstractPass<T> {
+    pass(node: Parser.GrammarFeature): T {
         if(node instanceof Parser.Grammar) {
-            this.passGrammar(<Parser.Grammar>node)
-        } else if(node instanceof Parser.Production) {
-            this.passProduction(<Parser.Production>node)
+            return this.passGrammar(<Parser.Grammar>node)
         } else if(node instanceof Parser.MaybeObject) {
-            this.passMaybeObject(<Parser.MaybeObject>node)
+            return this.passMaybeObject(<Parser.MaybeObject>node)
+        } else if(node instanceof Parser.Production) {
+            return this.passProduction(<Parser.Production>node)
         } else if(node instanceof Parser.Terminal) {
-            this.passTerminal(<Parser.Terminal>node)
+            return this.passTerminal(<Parser.Terminal>node)
         } else if(node instanceof Parser.NonTerminal) {
-            this.passNonTerminal(<Parser.NonTerminal>node)
+            return this.passNonTerminal(<Parser.NonTerminal>node)
         }
     }
 
