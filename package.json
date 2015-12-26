@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/billytrend/st-andrews-algol-compiler/issues"
   },
-  "homepage": "https://github.com/billytrend/st-andrews-algol-compiler#readme"
+  "homepage": "https://github.com/billytrend/st-andrews-algol-compiler#readme",
+  "dependencies": {
+    "lex": "^1.7.9",
+    "promise": "^7.0.4",
+    "promises": "^0.2.5",
+    "readline-sync": "^1.2.21",
+    "typescript": "^1.6.2"
+  }
 }

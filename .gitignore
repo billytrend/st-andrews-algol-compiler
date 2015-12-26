@@ -1,3 +1,9 @@
+.idea
+out
+node_modules
+*.js
+*.map
+
 # Logs
 logs
 *.log

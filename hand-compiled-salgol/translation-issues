@@ -4,3 +4,4 @@
 - = -> ==
 - := -> =
 - tail recursion optimisation
+- stdi/o callbacks
