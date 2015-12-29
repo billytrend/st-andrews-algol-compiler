@@ -2,10 +2,10 @@
 import {VisitorPass} from "./BNFParser/AbstractManipulators/VisitorPass";
 import {buildVisitor} from './BNFParser/Passes/passIndex';
 import {compile} from './BNFParser/Compiler';
+import {grammar} from '../meta/grammar';
 
 var curInput = "";
 var argv = {};
-var grammar: string =  require('../meta/grammar.json').grammar;
 
 for (var i = 2; i < process.argv.length; i++) {
     let val = process.argv[i];
