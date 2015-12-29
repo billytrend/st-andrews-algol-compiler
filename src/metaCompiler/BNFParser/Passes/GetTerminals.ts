@@ -43,8 +43,3 @@ export class GetTerminals extends AbstractVisitor<void> {
     afterVisitNonTerminal(node:NonTerminal):void {
     }
 }
-
-let visitor = new GetTerminals();
-let visitorPass = new VisitorPass(visitor);
-visitorPass.visit(compile());
-console.log(intuitDelimeters(visitor.terminals));

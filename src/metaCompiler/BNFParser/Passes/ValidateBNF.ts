@@ -58,8 +58,3 @@ export class ValidateBNF extends AbstractVisitor<void> {
     afterVisitNonTerminal(node:NonTerminal):void {
     }
 }
-
-let visitor = new ValidateBNF();
-let visitorPass = new VisitorPass(visitor);
-visitorPass.visit(compile());
-console.log(visitor.isValid());

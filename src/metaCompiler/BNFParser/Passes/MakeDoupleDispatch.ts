@@ -71,11 +71,3 @@ export class MakeDoupleDispatch extends AbstractVisitor<void> {
     }
 
 }
-
-let visitor = new MakeClassDefinitions();
-let visitorPass = new VisitorPass(visitor);
-visitorPass.visit(compile());
-
-for (var o of visitor.output) {
-    console.log(o);
-}

@@ -61,8 +61,3 @@ export class ReformatBNF extends AbstractVisitor<void> {
         this._output = value;
     }
 }
-
-let visitor = new ReformatBNF();
-let visitorPass = new VisitorPass(visitor);
-visitorPass.visit(compile());
-console.log(visitor.output);
