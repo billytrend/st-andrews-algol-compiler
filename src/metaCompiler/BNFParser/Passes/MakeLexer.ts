@@ -23,8 +23,6 @@ export class MakeLexer extends AbstractVisitor {
             this.output.push("public function lex" + this.curProductionName + "() {");
             this.output.push("public var output:string = []");
         }
-        this.output.push("output = ");
-
         this.output.push("export class " + this.curProductionName + this.productionIndex + " extends " + this.curProductionName + "{");
     }
 
