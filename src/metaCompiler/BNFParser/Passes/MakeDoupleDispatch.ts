@@ -9,8 +9,8 @@ import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
 export class MakeDoupleDispatch extends AbstractVisitor {
-    private _name: string = "";
-    private _prefix: string = "";
+    private _name: string = "pass";
+    private _prefix: string = "pass";
 
     get prefix():string {
         return this._prefix;
@@ -29,23 +29,28 @@ export class MakeDoupleDispatch extends AbstractVisitor {
     }
 
     beforeVisitGrammar(node:Grammar) {
-        this.output.push("function " + this.name + "(node: GrammarObject) {");
+        this.output.push(this.name + "(node: GrammarObject) {");
     }
 
     afterVisitGrammar(node:Grammar) {
         this.output.push("}");
+        this.output.push("}");
+        this.output.unshift("export abstract class AbstractPass {");
+        this.output.unshift("import * as ConcreteSyntax from './ConcreteSyntax'");
+
     }
 
     beforeVisitProduction(node:Production) {
-        this.output.push("if (node typeof " + this.curProductionName + this.productionIndex + ") {");
-        this.output.push(this._prefix + "_" + this.curProductionName + this.productionIndex +
-            "(<"+this.curProductionName + this.productionIndex+">node);");
+        this.output.unshift("}");
+        this.output.unshift(this._prefix + "_" + this.curProductionName + this.productionIndex + "(node: ConcreteSyntax."+this.curProductionName + this.productionIndex+") {");
+        this.output.push("if (node instanceof ConcreteSyntax." + this.curProductionName + this.productionIndex + ") {");
+        this.output.push("this." + this._prefix + "_" + this.curProductionName + this.productionIndex +
+            "(node);");
         this.output.push("}");
     }
 
 
     afterVisitProduction(node:Production) {
-        this.output.push("}");
     }
 
     beforeVisitMaybeObject(node:MaybeObject) {

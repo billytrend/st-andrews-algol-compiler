@@ -10,11 +10,9 @@ import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
 export class MakeClassDefinitions extends AbstractVisitor {
     beforeVisitGrammar(node:Grammar) {
-        this.output.push("module SalgolTypes {");
     }
 
     afterVisitGrammar(node:Grammar) {
-        this.output.push("}");
     }
 
     beforeVisitProduction(node:Production) {
