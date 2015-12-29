@@ -8,8 +8,7 @@ import {compile} from "../Compiler";
 import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
-export class MakeClassDefinitions extends AbstractVisitor<void> {
-    private _output: string[] = [];
+export class MakeDoupleDispatch extends AbstractVisitor<void> {
     private _name: string = "";
     private _prefix: string = "";
 
@@ -28,15 +27,6 @@ export class MakeClassDefinitions extends AbstractVisitor<void> {
     set name(value:string) {
         this._name = value;
     }
-
-    get output():string[] {
-        return this._output;
-    }
-
-    set output(value:string[]) {
-        this._output = value;
-    }
-
 
     beforeVisitGrammar(node:Grammar):void {
         this.output.push("function " + this.name + "(node: GrammarObject) {");

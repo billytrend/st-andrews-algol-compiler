@@ -9,17 +9,6 @@ import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
 export class MakeClassDefinitions extends AbstractVisitor<void> {
-    private _output: string[] = [];
-
-    get output():string[] {
-        return this._output;
-    }
-
-    set output(value:string[]) {
-        this._output = value;
-    }
-
-
     beforeVisitGrammar(node:Grammar):void {
         this.output.push("module SalgolTypes {");
     }

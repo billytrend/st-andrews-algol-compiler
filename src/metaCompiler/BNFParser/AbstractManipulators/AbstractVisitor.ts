@@ -9,6 +9,15 @@ export abstract class AbstractVisitor<T> {
     private _curProductionName: string;
     private _productionIndex: number = 0;
     private _nonTerminalIndex: number = 0;
+    private _output: string[] = [];
+
+    get output():string[] {
+        return this._output;
+    }
+
+    set output(value:string[]) {
+        this._output = value;
+    }
 
 
     get nonTerminalIndex():number {
