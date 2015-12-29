@@ -12,34 +12,34 @@ export class GetTerminals extends AbstractVisitor<void> {
         return Object.keys(this._terminals);
     }
 
-    beforeVisitGrammar(node:Grammar):void {
+    beforeVisitGrammar(node:Grammar) {
     }
 
-    afterVisitGrammar(node:Grammar):void {
+    afterVisitGrammar(node:Grammar) {
     }
 
-    beforeVisitProduction(node:Production):void {
+    beforeVisitProduction(node:Production) {
     }
 
-    afterVisitProduction(node:Production):void {
+    afterVisitProduction(node:Production) {
     }
 
-    beforeVisitMaybeObject(node:MaybeObject):void {
+    beforeVisitMaybeObject(node:MaybeObject) {
     }
 
-    afterVisitMaybeObject(node:MaybeObject):void {
+    afterVisitMaybeObject(node:MaybeObject) {
     }
 
-    beforeVisitTerminal(node:Terminal):void {
+    beforeVisitTerminal(node:Terminal) {
     }
 
-    afterVisitTerminal(node:Terminal):void {
+    afterVisitTerminal(node:Terminal) {
         this._terminals[node.value] = true;
     }
 
-    beforeVisitNonTerminal(node:NonTerminal):void {
+    beforeVisitNonTerminal(node:NonTerminal) {
     }
 
-    afterVisitNonTerminal(node:NonTerminal):void {
+    afterVisitNonTerminal(node:NonTerminal) {
     }
 }

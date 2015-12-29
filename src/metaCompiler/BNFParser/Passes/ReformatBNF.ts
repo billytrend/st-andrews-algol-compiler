@@ -4,60 +4,50 @@ import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
-export class ReformatBNF extends AbstractVisitor<void> {
+export class ReformatBNF extends AbstractVisitor {
 
-    beforeVisitGrammar(node:Grammar):void {
+    beforeVisitGrammar(node:Grammar) {
         this.output += "<html><body>";
     }
 
-    afterVisitGrammar(node:Grammar):void {
+    afterVisitGrammar(node:Grammar) {
         this.output += "</body></html>";
     }
 
-    beforeVisitProduction(node:Production):void {
+    beforeVisitProduction(node:Production) {
         if (this.firstProductionVisit) {
             this.output += "<div><h3>" + this.curProductionName + "</h3>";
         }
     }
 
-    afterVisitProduction(node:Production):void {
+    afterVisitProduction(node:Production) {
         this.output += "</div>";
     }
 
-    beforeVisitMaybeObject(node:MaybeObject):void {
+    beforeVisitMaybeObject(node:MaybeObject) {
         this.output += "[";
     }
 
-    afterVisitMaybeObject(node:MaybeObject):void {
+    afterVisitMaybeObject(node:MaybeObject) {
         this.output += "]";
         if (node.many) {
             this.output += "*";
         }
     }
 
-    beforeVisitTerminal(node:Terminal):void {
+    beforeVisitTerminal(node:Terminal) {
         this.output += node.value;
     }
 
-    afterVisitTerminal(node:Terminal):void {
+    afterVisitTerminal(node:Terminal) {
         return;
     }
 
-    beforeVisitNonTerminal(node:NonTerminal):void {
+    beforeVisitNonTerminal(node:NonTerminal) {
         this.output += "&lt;" + node.value + "&gt;";
     }
 
-    afterVisitNonTerminal(node:NonTerminal):void {
+    afterVisitNonTerminal(node:NonTerminal) {
         return;
-    }
-
-    private _output: string = "";
-
-    get output():string {
-        return this._output;
-    }
-
-    set output(value:string) {
-        this._output = value;
     }
 }

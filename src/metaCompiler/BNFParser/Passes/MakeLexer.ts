@@ -8,17 +8,17 @@ import {compile} from "../Compiler";
 import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
-export class MakeLexer extends AbstractVisitor<void> {
+export class MakeLexer extends AbstractVisitor {
 
-    beforeVisitGrammar(node:Grammar):void {
+    beforeVisitGrammar(node:Grammar) {
         this.output.push("module SalgolLexer {");
     }
 
-    afterVisitGrammar(node:Grammar):void {
+    afterVisitGrammar(node:Grammar) {
         this.output.push("}");
     }
 
-    beforeVisitProduction(node:Production):void {
+    beforeVisitProduction(node:Production) {
         if (this.firstProductionVisit) {
             this.output.push("public function lex" + this.curProductionName + "() {");
             this.output.push("public var output:string = []");
@@ -29,31 +29,31 @@ export class MakeLexer extends AbstractVisitor<void> {
     }
 
 
-    afterVisitProduction(node:Production):void {
+    afterVisitProduction(node:Production) {
         this.output.push("}");
     }
 
-    beforeVisitMaybeObject(node:MaybeObject):void {
+    beforeVisitMaybeObject(node:MaybeObject) {
 
     }
 
-    afterVisitMaybeObject(node:MaybeObject):void {
+    afterVisitMaybeObject(node:MaybeObject) {
 
     }
 
-    beforeVisitTerminal(node:Terminal):void {
+    beforeVisitTerminal(node:Terminal) {
 
     }
 
-    afterVisitTerminal(node:Terminal):void {
+    afterVisitTerminal(node:Terminal) {
 
     }
 
-    beforeVisitNonTerminal(node:NonTerminal):void {
+    beforeVisitNonTerminal(node:NonTerminal) {
         this.output.push("  public " + node.value + this.nonTerminalIndex + ":" + node.value + ";");
     }
 
-    afterVisitNonTerminal(node:NonTerminal):void {
+    afterVisitNonTerminal(node:NonTerminal) {
 
     }
 

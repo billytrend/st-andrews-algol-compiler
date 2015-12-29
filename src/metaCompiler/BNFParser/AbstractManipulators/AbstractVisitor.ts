@@ -5,7 +5,7 @@ import {Production} from "./../Parser";
 import {Terminal} from "./../Parser";
 import {NonTerminal} from "./../Parser";
 
-export abstract class AbstractVisitor<T> {
+export abstract class AbstractVisitor {
     private _curProductionName: string;
     private _productionIndex: number = 0;
     private _nonTerminalIndex: number = 0;
@@ -48,7 +48,7 @@ export abstract class AbstractVisitor<T> {
         this._curProductionName = value;
     }
 
-    beforeVisit(node: GrammarFeature): T {
+    beforeVisit(node: GrammarFeature) {
         if(node instanceof Grammar) {
             return this.beforeVisitGrammar(<Grammar>node)
         } else if(node instanceof MaybeObject) {
@@ -62,7 +62,7 @@ export abstract class AbstractVisitor<T> {
         }
     }
 
-    afterVisit(node: GrammarFeature): T {
+    afterVisit(node: GrammarFeature) {
         if(node instanceof Grammar) {
             return this.afterVisitGrammar(<Grammar>node)
         } else if(node instanceof MaybeObject) {
@@ -76,24 +76,24 @@ export abstract class AbstractVisitor<T> {
         }
     }
 
-    abstract beforeVisitGrammar(node: Grammar): T;
+    abstract beforeVisitGrammar(node: Grammar);
 
-    abstract afterVisitGrammar(node: Grammar): T;
+    abstract afterVisitGrammar(node: Grammar);
 
-    abstract beforeVisitProduction(node: Production): T;
+    abstract beforeVisitProduction(node: Production);
 
-    abstract afterVisitProduction(node: Production): T;
+    abstract afterVisitProduction(node: Production);
 
-    abstract beforeVisitMaybeObject(node: MaybeObject): T;
+    abstract beforeVisitMaybeObject(node: MaybeObject);
 
-    abstract afterVisitMaybeObject(node: MaybeObject): T;
+    abstract afterVisitMaybeObject(node: MaybeObject);
 
-    abstract beforeVisitTerminal(node: Terminal): T;
+    abstract beforeVisitTerminal(node: Terminal);
 
-    abstract afterVisitTerminal(node: Terminal): T;
+    abstract afterVisitTerminal(node: Terminal);
 
-    abstract beforeVisitNonTerminal(node: NonTerminal): T;
+    abstract beforeVisitNonTerminal(node: NonTerminal);
 
-    abstract afterVisitNonTerminal(node: NonTerminal): T;
+    abstract afterVisitNonTerminal(node: NonTerminal);
 
 }

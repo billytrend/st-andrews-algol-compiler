@@ -4,7 +4,7 @@ import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
-export class ValidateBNF extends AbstractVisitor<void> {
+export class ValidateBNF extends AbstractVisitor {
     private _productions: {};
     private _missingProductions: {} = {};
 
@@ -24,37 +24,37 @@ export class ValidateBNF extends AbstractVisitor<void> {
         return this.missingProductions.length == 0;
     }
 
-    beforeVisitGrammar(node:Grammar):void {
+    beforeVisitGrammar(node:Grammar) {
         this.productions = node.productions;
     }
 
-    afterVisitGrammar(node:Grammar):void {
+    afterVisitGrammar(node:Grammar) {
     }
 
-    beforeVisitProduction(node:Production):void {
+    beforeVisitProduction(node:Production) {
     }
 
-    afterVisitProduction(node:Production):void {
+    afterVisitProduction(node:Production) {
     }
 
-    beforeVisitMaybeObject(node:MaybeObject):void {
+    beforeVisitMaybeObject(node:MaybeObject) {
     }
 
-    afterVisitMaybeObject(node:MaybeObject):void {
+    afterVisitMaybeObject(node:MaybeObject) {
     }
 
-    beforeVisitTerminal(node:Terminal):void {
+    beforeVisitTerminal(node:Terminal) {
     }
 
-    afterVisitTerminal(node:Terminal):void {
+    afterVisitTerminal(node:Terminal) {
     }
 
-    beforeVisitNonTerminal(node:NonTerminal):void {
+    beforeVisitNonTerminal(node:NonTerminal) {
         if (!this.productions.hasOwnProperty(node.value)) {
             this._missingProductions[node.value] = true;
         }
     }
 
-    afterVisitNonTerminal(node:NonTerminal):void {
+    afterVisitNonTerminal(node:NonTerminal) {
     }
 }

@@ -8,9 +8,9 @@ import {compile} from "../Compiler";
 import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
-export class MakeVisitor extends AbstractVisitor<void> {
+export class MakeVisitor extends AbstractVisitor {
 
-    beforeVisitGrammar(node:Grammar):void {
+    beforeVisitGrammar(node:Grammar) {
             this.output.push("module SalgolTypes {");
             this.output.push("export class VisitorPass extends AbstractPass<void> {");
             this.output.push("private _visitor: AbstractVisitor<void>;");
@@ -32,40 +32,40 @@ export class MakeVisitor extends AbstractVisitor<void> {
 
         }
 
-    afterVisitGrammar(node:Grammar):void {
+    afterVisitGrammar(node:Grammar) {
         this.output.push("}");
     }
 
-    beforeVisitProduction(node:Production):void {
+    beforeVisitProduction(node:Production) {
         this.output.push("export function pass_" + this.curProductionName + this.productionIndex + "(node:" + this.curProductionName + this.productionIndex + ") {");
     }
 
 
-    afterVisitProduction(node:Production):void {
+    afterVisitProduction(node:Production) {
         this.output.push("}");
     }
 
-    beforeVisitMaybeObject(node:MaybeObject):void {
+    beforeVisitMaybeObject(node:MaybeObject) {
 
     }
 
-    afterVisitMaybeObject(node:MaybeObject):void {
+    afterVisitMaybeObject(node:MaybeObject) {
 
     }
 
-    beforeVisitTerminal(node:Terminal):void {
+    beforeVisitTerminal(node:Terminal) {
 
     }
 
-    afterVisitTerminal(node:Terminal):void {
+    afterVisitTerminal(node:Terminal) {
 
     }
 
-    beforeVisitNonTerminal(node:NonTerminal):void {
+    beforeVisitNonTerminal(node:NonTerminal) {
         this.output.push("this.visit(" + node.value + this.nonTerminalIndex + ")");
     }
 
-    afterVisitNonTerminal(node:NonTerminal):void {
+    afterVisitNonTerminal(node:NonTerminal) {
 
     }
 
