@@ -1,5 +1,5 @@
-import Lexer = require('./Lexer');
-import Parser = require('./Parser');
+import * as Lexer from './Lexer';
+import * as Parser from './Parser';
 
 function compiler(input: string): Parser.Grammar {
     var tokens: Lexer.Symbol[] = Lexer.lex(input);

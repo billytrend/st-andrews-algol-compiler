@@ -7,36 +7,36 @@ import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 export class ReformatBNF extends AbstractVisitor {
 
     beforeVisitGrammar(node:Grammar) {
-        this.output += "<html><body>";
+        this.output.push("<html><body>");
     }
 
     afterVisitGrammar(node:Grammar) {
-        this.output += "</body></html>";
+        this.output.push("</body></html>");
     }
 
     beforeVisitProduction(node:Production) {
         if (this.firstProductionVisit) {
-            this.output += "<div><h3>" + this.curProductionName + "</h3>";
+            this.output.push("<div><h3>" + this.curProductionName + "</h3>");
         }
     }
 
     afterVisitProduction(node:Production) {
-        this.output += "</div>";
+        this.output.push("</div>");
     }
 
     beforeVisitMaybeObject(node:MaybeObject) {
-        this.output += "[";
+        this.output.push("[");
     }
 
     afterVisitMaybeObject(node:MaybeObject) {
-        this.output += "]";
+        this.output.push("]");
         if (node.many) {
-            this.output += "*";
+            this.output.push("*");
         }
     }
 
     beforeVisitTerminal(node:Terminal) {
-        this.output += node.value;
+        this.output.push(node.value);
     }
 
     afterVisitTerminal(node:Terminal) {
@@ -44,7 +44,7 @@ export class ReformatBNF extends AbstractVisitor {
     }
 
     beforeVisitNonTerminal(node:NonTerminal) {
-        this.output += "&lt;" + node.value + "&gt;";
+        this.output.push("&lt;" + node.value + "&gt;");
     }
 
     afterVisitNonTerminal(node:NonTerminal) {

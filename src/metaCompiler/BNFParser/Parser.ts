@@ -1,5 +1,5 @@
-import Lexer = require('./Lexer');
-import Parser = require('./Parser');
+import * as Lexer from './Lexer';
+import * as Parser from './Parser';
 
 export class GrammarFeature {}
 

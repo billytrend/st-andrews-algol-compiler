@@ -13,14 +13,14 @@ export class MakeVisitor extends AbstractVisitor {
     beforeVisitGrammar(node:Grammar) {
             this.output.push("module SalgolTypes {");
             this.output.push("export class VisitorPass extends AbstractPass<void> {");
-            this.output.push("private _visitor: AbstractVisitor<void>;");
-            this.output.push("get visitor():AbstractVisitor<void> {");
+            this.output.push("private _visitor: AbstractVisitor;");
+            this.output.push("get visitor():AbstractVisitor {");
             this.output.push("return this._visitor;");
             this.output.push("}");
-            this.output.push("set visitor(value:AbstractVisitor<void>) {");
+            this.output.push("set visitor(value:AbstractVisitor) {");
             this.output.push("this._visitor = value;");
             this.output.push("}");
-            this.output.push("constructor(visitor: AbstractVisitor<void>) {");
+            this.output.push("constructor(visitor: AbstractVisitor) {");
             this.output.push("super();");
             this.output.push("this.visitor = visitor;");
             this.output.push("}");

@@ -4,17 +4,17 @@ import {AbstractVisitor} from "./AbstractVisitor";
 import {} from "../Parser";
 
 export class VisitorPass extends AbstractPass<void> {
-    private _visitor: AbstractVisitor<void>;
+    private _visitor: AbstractVisitor;
 
-    get visitor():AbstractVisitor<void> {
+    get visitor():AbstractVisitor {
         return this._visitor;
     }
 
-    set visitor(value:AbstractVisitor<void>) {
+    set visitor(value:AbstractVisitor) {
         this._visitor = value;
     }
 
-    constructor(visitor: AbstractVisitor<void>) {
+    constructor(visitor: AbstractVisitor) {
         super();
         this.visitor = visitor;
     }

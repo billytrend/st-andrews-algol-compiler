@@ -1,5 +1,5 @@
 /// <reference path="../../typings/lodash/lodash.d.ts" />
-import lodash = require('lodash');
+import * as lodash from 'lodash';
 
 export function intuitDelimeters(terminals: string[]) {
     let delimeters: string[] = [];

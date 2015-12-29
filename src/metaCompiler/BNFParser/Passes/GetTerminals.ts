@@ -5,7 +5,7 @@ import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 import {intuitDelimeters} from "../../Utilities";
 
-export class GetTerminals extends AbstractVisitor<void> {
+export class GetTerminals extends AbstractVisitor {
     private _terminals: {} = {};
 
     get terminals():string[] {

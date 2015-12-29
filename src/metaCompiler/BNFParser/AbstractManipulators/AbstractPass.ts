@@ -1,4 +1,4 @@
-import Parser = require('./../Parser');
+import * as Parser from './../Parser';
 
 export abstract class AbstractPass<T> {
     pass(node: Parser.GrammarFeature): T {

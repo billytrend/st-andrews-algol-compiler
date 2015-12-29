@@ -1,7 +1,9 @@
+typings
+dist
 .idea
 out
 node_modules
-*.js
+src/**/*.js
 *.map
 
 # Logs

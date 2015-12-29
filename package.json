@@ -17,14 +17,21 @@
   },
   "homepage": "https://github.com/billytrend/st-andrews-algol-compiler#readme",
   "dependencies": {
+    "babel-core": "^6.3.26",
+    "babel-loader": "^6.2.0",
+    "json-loader": "^0.5.4",
     "lex": "^1.7.9",
     "lodash": "^3.10.1",
     "promise": "^7.0.4",
     "promises": "^0.2.5",
+    "raw-loader": "^0.5.1",
     "readline-sync": "^1.2.21",
     "ts-loader": "^0.7.2",
     "tsd": "^0.6.5",
     "typescript": "^1.6.2",
     "webpack": "^1.12.9"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^0.15.9"
   }
 }

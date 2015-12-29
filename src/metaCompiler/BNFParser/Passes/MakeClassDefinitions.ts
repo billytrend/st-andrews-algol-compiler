@@ -8,7 +8,7 @@ import {compile} from "../Compiler";
 import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 
-export class MakeClassDefinitions extends AbstractVisitor<void> {
+export class MakeClassDefinitions extends AbstractVisitor {
     beforeVisitGrammar(node:Grammar) {
         this.output.push("module SalgolTypes {");
     }
