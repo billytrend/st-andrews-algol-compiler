@@ -3,29 +3,16 @@ import {Grammar, Production, MaybeObject, Terminal, NonTerminal, GrammarFeature}
 import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
+import {intuitDelimeters} from "../../Utilities";
 
-export class ValidateBNF extends AbstractVisitor<void> {
-    private _productions: {};
-    private _missingProductions: {} = {};
+export class GetTerminals extends AbstractVisitor<void> {
+    private _terminals: {} = {};
 
-    get productions():{} {
-        return this._productions;
-    }
-
-    get missingProductions():string[] {
-        return Object.keys(this._missingProductions);
-    }
-
-    set productions(value:{}) {
-        this._productions = value;
-    }
-
-    isValid(): boolean {
-        return this.missingProductions.length == 0;
+    get terminals():string[] {
+        return Object.keys(this._terminals);
     }
 
     beforeVisitGrammar(node:Grammar):void {
-        this.productions = node.productions;
     }
 
     afterVisitGrammar(node:Grammar):void {
@@ -47,19 +34,17 @@ export class ValidateBNF extends AbstractVisitor<void> {
     }
 
     afterVisitTerminal(node:Terminal):void {
+        this._terminals[node.value] = true;
     }
 
     beforeVisitNonTerminal(node:NonTerminal):void {
-        if (!this.productions.hasOwnProperty(node.value)) {
-            this._missingProductions[node.value] = true;
-        }
     }
 
     afterVisitNonTerminal(node:NonTerminal):void {
     }
 }
 
-let visitor = new ValidateBNF();
+let visitor = new GetTerminals();
 let visitorPass = new VisitorPass(visitor);
 visitorPass.visit(compile());
-console.log(visitor.isValid());
+console.log(intuitDelimeters(visitor.terminals));
