@@ -5,7 +5,7 @@ export class GrammarFeature {}
 
 export class Grammar extends GrammarFeature {
     private _entry: string;
-    private _maybeIndex: number;
+    private _maybeIndex: number = 0;
     private _productions: {} = {};
 
     get maybeIndex():number {
@@ -41,7 +41,7 @@ export class Grammar extends GrammarFeature {
 }
 
 export class Production extends GrammarFeature {
-    private _sequence: ParseSymbol[];
+    private _sequence: ParseSymbol[] = [];
 
     set sequence(value: ParseSymbol[]) {
         this._sequence = value;
@@ -182,6 +182,7 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
 
     let emptyProduction: Production = new Production();
     emptyProduction.sequence.push(new Empty());
+    grammar.productions[maybeReference.value] = [];
     grammar.productions[maybeReference.value].push(emptyProduction);
 
     let regularProduction: Production = new Production();
@@ -197,7 +198,8 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
         regularProduction.sequence.push(maybeReference);
     }
 
-    grammar.productions[maybeReference.value].push(emptyProduction);
+    grammar.productions[maybeReference.value].push(regularProduction);
+    console.log(grammar.productions[maybeReference.value])
     return maybeReference;
 }
 
