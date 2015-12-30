@@ -11,6 +11,8 @@ export abstract class AbstractPass<T> {
             return this.passTerminal(<Parser.Terminal>node)
         } else if(node instanceof Parser.NonTerminal) {
             return this.passNonTerminal(<Parser.NonTerminal>node)
+        } else if(node instanceof Parser.Empty) {
+            return this.passEmpty(<Parser.Empty>node)
         }
     }
 
@@ -21,4 +23,6 @@ export abstract class AbstractPass<T> {
     abstract passTerminal(node: Parser.Terminal): T;
 
     abstract passNonTerminal(node: Parser.NonTerminal): T;
+
+    abstract passEmpty(node: Parser.Empty): T;
 }

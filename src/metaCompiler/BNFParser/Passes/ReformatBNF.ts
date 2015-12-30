@@ -3,6 +3,7 @@ import {Grammar, Production, Terminal, NonTerminal, GrammarFeature} from "../Par
 import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
+import {Empty} from "../Parser";
 
 export class ReformatBNF extends AbstractVisitor {
 
@@ -39,4 +40,13 @@ export class ReformatBNF extends AbstractVisitor {
     afterVisitNonTerminal(node:NonTerminal) {
         return;
     }
+
+    beforeVisitEmpty(empty:Empty) {
+        this.output.push("E");
+
+    }
+
+    afterVisitEmpty(empty:Empty) {
+    }
+
 }

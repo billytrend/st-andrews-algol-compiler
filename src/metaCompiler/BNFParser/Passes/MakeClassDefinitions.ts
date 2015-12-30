@@ -6,13 +6,9 @@ import {NonTerminal} from "../Parser";
 import {compile} from "../Compiler";
 import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
+import {Empty} from "../Parser";
 
 export class MakeClassDefinitions extends AbstractVisitor {
-    beforeVisitGrammar(node:Grammar) {
-    }
-
-    afterVisitGrammar(node:Grammar) {
-    }
 
     beforeVisitProduction(node:Production) {
         if (this.firstProductionVisit) {
@@ -42,4 +38,15 @@ export class MakeClassDefinitions extends AbstractVisitor {
 
     }
 
+    beforeVisitEmpty(empty:Empty) {
+    }
+
+    afterVisitEmpty(empty:Empty) {
+    }
+
+    beforeVisitGrammar(node:Grammar) {
+    }
+
+    afterVisitGrammar(node:Grammar) {
+    }
 }

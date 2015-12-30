@@ -6,6 +6,7 @@ import {NonTerminal} from "../Parser";
 import {compile} from "../Compiler";
 import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
+import {Empty} from "../Parser";
 
 export class MakeLexer extends AbstractVisitor {
 
@@ -44,6 +45,12 @@ export class MakeLexer extends AbstractVisitor {
 
     afterVisitNonTerminal(node:NonTerminal) {
 
+    }
+
+    beforeVisitEmpty(empty:Empty) {
+    }
+
+    afterVisitEmpty(empty:Empty) {
     }
 
 }

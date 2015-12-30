@@ -4,6 +4,7 @@ import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
 import {intuitDelimeters} from "../../Utilities";
+import {Empty} from "../Parser";
 
 export class GetTerminals extends AbstractVisitor {
     private _terminals: {} = {};
@@ -35,5 +36,11 @@ export class GetTerminals extends AbstractVisitor {
     }
 
     afterVisitNonTerminal(node:NonTerminal) {
+    }
+
+    beforeVisitEmpty(empty:Empty) {
+    }
+
+    afterVisitEmpty(empty:Empty) {
     }
 }

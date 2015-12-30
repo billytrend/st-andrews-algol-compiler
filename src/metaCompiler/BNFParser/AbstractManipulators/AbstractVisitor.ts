@@ -3,6 +3,7 @@ import {Grammar} from "./../Parser";
 import {Production} from "./../Parser";
 import {Terminal} from "./../Parser";
 import {NonTerminal} from "./../Parser";
+import {Empty} from "../Parser";
 
 export abstract class AbstractVisitor {
     private _curProductionName: string;
@@ -56,6 +57,8 @@ export abstract class AbstractVisitor {
             return this.beforeVisitTerminal(<Terminal>node)
         } else if(node instanceof NonTerminal) {
             return this.beforeVisitNonTerminal(<NonTerminal>node)
+        }  else if(node instanceof NonTerminal) {
+            return this.beforeVisitEmpty(<Empty>node)
         }
     }
 
@@ -68,6 +71,8 @@ export abstract class AbstractVisitor {
             return this.afterVisitTerminal(<Terminal>node)
         } else if(node instanceof NonTerminal) {
             return this.afterVisitNonTerminal(<NonTerminal>node)
+        } else if(node instanceof NonTerminal) {
+            return this.afterVisitEmpty(<Empty>node)
         }
     }
 
@@ -87,4 +92,7 @@ export abstract class AbstractVisitor {
 
     abstract afterVisitNonTerminal(node: NonTerminal);
 
+    abstract beforeVisitEmpty(empty:Empty);
+
+    abstract afterVisitEmpty(empty:Empty);
 }

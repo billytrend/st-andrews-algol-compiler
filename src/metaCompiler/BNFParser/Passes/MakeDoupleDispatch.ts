@@ -6,6 +6,7 @@ import {NonTerminal} from "../Parser";
 import {compile} from "../Compiler";
 import {ReformatBNF} from "./ReformatBNF";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
+import {Empty} from "../Parser";
 
 export class MakeDoupleDispatch extends AbstractVisitor {
     private _name: string = "pass";
@@ -66,4 +67,9 @@ export class MakeDoupleDispatch extends AbstractVisitor {
     afterVisitNonTerminal(node:NonTerminal) {
     }
 
+    beforeVisitEmpty(empty:Empty) {
+    }
+
+    afterVisitEmpty(empty:Empty) {
+    }
 }

@@ -3,6 +3,7 @@ import {Grammar, Production, Terminal, NonTerminal, GrammarFeature} from "../Par
 import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
+import {Empty} from "../Parser";
 
 export class ValidateBNF extends AbstractVisitor {
     private _productions: {};
@@ -51,4 +52,12 @@ export class ValidateBNF extends AbstractVisitor {
 
     afterVisitNonTerminal(node:NonTerminal) {
     }
+
+    beforeVisitEmpty(empty:Empty) {
+    }
+
+    afterVisitEmpty(empty:Empty) {
+    }
+
+
 }

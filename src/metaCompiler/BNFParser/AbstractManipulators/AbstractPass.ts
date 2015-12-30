@@ -10,10 +10,14 @@ export abstract class AbstractPass<T> {
             return this.passTerminal(<Parser.Terminal>node)
         } else if(node instanceof Parser.NonTerminal) {
             return this.passNonTerminal(<Parser.NonTerminal>node)
+        } else if(node instanceof Parser.Empty) {
+            return this.passEmpty(<Parser.Empty>node)
         }
     }
 
     abstract passGrammar(node: Parser.Grammar): T;
+
+    abstract passEmpty(node: Parser.Empty): T;
 
     abstract passProduction(node: Parser.Production): T;
 
