@@ -46,8 +46,9 @@ export class MaybeObject extends Production {
         this._many = value;
     }
 }
+export class ParseSymbol extends GrammarFeature {}
 
-export class Terminal extends GrammarFeature {
+export class Terminal extends ParseSymbol {
     private _value: string;
 
     get value():string {
@@ -59,15 +60,15 @@ export class Terminal extends GrammarFeature {
     }
 }
 
-export class NonTerminal extends GrammarFeature {
+export class NonTerminal extends ParseSymbol {
     value: string;
 }
 
-function err(symbol: Lexer.Symbol) {
+function err(symbol: Lexer.LexedSymbol) {
     console.log("Unexpected: ", Lexer.symmap[symbol.type]);
 }
 
-function expect(symbol: Lexer.Symbol, toBe: Lexer.SymbolType): boolean {
+function expect(symbol: Lexer.LexedSymbol, toBe: Lexer.SymbolType): boolean {
     if (symbol.type != toBe) {
         console.log("Expected ", Lexer.symmap[symbol.type], " to be ", Lexer.symmap[toBe], ".");
         return false;
@@ -75,14 +76,14 @@ function expect(symbol: Lexer.Symbol, toBe: Lexer.SymbolType): boolean {
     return true;
 }
 
-function accept(symbol: Lexer.Symbol, toBe: Lexer.SymbolType): boolean {
+function accept(symbol: Lexer.LexedSymbol, toBe: Lexer.SymbolType): boolean {
     if (symbol.type != toBe) {
         return false;
     }
     return true;
 }
 
-export function grammar(input: Lexer.Symbol[]): Grammar {
+export function grammar(input: Lexer.LexedSymbol[]): Grammar {
     let grammar: Grammar = new Grammar();
 
     while (true) {
@@ -101,7 +102,7 @@ export function grammar(input: Lexer.Symbol[]): Grammar {
         while (true) {
             grammar.addProduction(productionName.value, production(input));
 
-            let next: Lexer.Symbol = input.shift();
+            let next: Lexer.LexedSymbol = input.shift();
             if (accept(next, Lexer.SymbolType.BAR)) continue;
             else if (!expect(next, Lexer.SymbolType.SC)) return null;
             else break;
@@ -111,13 +112,13 @@ export function grammar(input: Lexer.Symbol[]): Grammar {
     return grammar;
 }
 
-function production(input: Lexer.Symbol[]): Production {
+function production(input: Lexer.LexedSymbol[]): Production {
     let production: Production = new Production();
     production.sequence = grammarFeature(input);
     return production;
 }
 
-function grammarFeature(input: Lexer.Symbol[]): GrammarFeature[] {
+function grammarFeature(input: Lexer.LexedSymbol[]): GrammarFeature[] {
     let grammarFeatures: GrammarFeature[] = [];
     while (true) {
         switch (input[0].type) {
@@ -146,14 +147,14 @@ function grammarFeature(input: Lexer.Symbol[]): GrammarFeature[] {
     }
 }
 
-function terminal(input: Lexer.Symbol[]): Terminal {
+function terminal(input: Lexer.LexedSymbol[]): Terminal {
     //if (!expect(input[0], Lexer.SymbolType.ID)) return null;
     let term: Terminal = new Terminal();
     term.value = input.shift().value;
     return term;
 }
 
-function nonTerminal(input: Lexer.Symbol[]): NonTerminal {
+function nonTerminal(input: Lexer.LexedSymbol[]): NonTerminal {
     let nonTerm: NonTerminal = new NonTerminal();
 
     if (!expect(input.shift(), Lexer.SymbolType.LAB)) return null;
@@ -165,7 +166,7 @@ function nonTerminal(input: Lexer.Symbol[]): NonTerminal {
     return nonTerm;
 }
 
-function maybeObject(input: Lexer.Symbol[]): MaybeObject {
+function maybeObject(input: Lexer.LexedSymbol[]): MaybeObject {
     let maybeObject: MaybeObject = new MaybeObject();
 
     if (!expect(input.shift(), Lexer.SymbolType.LSB)) return null;
@@ -181,7 +182,7 @@ function maybeObject(input: Lexer.Symbol[]): MaybeObject {
     return maybeObject;
 }
 
-function escapeSequence(input: Lexer.Symbol[]): Terminal {
+function escapeSequence(input: Lexer.LexedSymbol[]): Terminal {
     if (!expect(input.shift(), Lexer.SymbolType.ESC)) return null;
     let terminal: Terminal = new Terminal();
     terminal.value = input.shift().value;

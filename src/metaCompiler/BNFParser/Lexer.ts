@@ -8,7 +8,7 @@
 export var symmap: string[] = ['BAR', 'LAB', 'RAB', 'STAR', 'LSB', 'RSB', 'SC', 'ID', 'EQ', 'ESC'];
 export enum SymbolType  { BAR, LAB, RAB, STAR, LSB, RSB, SC, ID, EQ, ESC }
 
-export class Symbol {
+export class LexedSymbol {
     private _type: SymbolType;
     private _value: string;
 
@@ -44,26 +44,26 @@ obj["]"] = SymbolType.RSB;
 obj[";"] = SymbolType.SC;
 obj["'"] = SymbolType.ESC;
 
-export function lex(input: string): Symbol[] {
+export function lex(input: string): LexedSymbol[] {
     input = input.replace(/\s+/g, '');
     let inputArray: string[] = input.split('');
-    let inputSyntax:Symbol[] = [];
+    let inputSyntax:LexedSymbol[] = [];
     let currentString = "";
 
     inputArray.forEach(function(cur) {
         //noinspection TypeScriptValidateTypes
         if (obj.hasOwnProperty(cur)) {
             if (currentString.length > 0) {
-                inputSyntax.push(new Symbol(SymbolType.ID, currentString))
+                inputSyntax.push(new LexedSymbol(SymbolType.ID, currentString))
                 currentString = "";
             }
-            inputSyntax.push(new Symbol(obj[cur], cur));
+            inputSyntax.push(new LexedSymbol(obj[cur], cur));
         } else {
             currentString += cur;
         }
 
         if (currentString == "::=") {
-            inputSyntax.push(new Symbol(SymbolType.EQ, currentString));
+            inputSyntax.push(new LexedSymbol(SymbolType.EQ, currentString));
             currentString = "";
         }
     });
