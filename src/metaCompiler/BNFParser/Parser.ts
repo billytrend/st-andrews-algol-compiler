@@ -24,13 +24,13 @@ export class Grammar extends GrammarFeature {
 }
 
 export class Production extends GrammarFeature {
-    private _sequence: GrammarFeature[];
+    private _sequence: ParseSymbol[];
 
-    set sequence(value: GrammarFeature[]) {
+    set sequence(value: ParseSymbol[]) {
         this._sequence = value;
     }
 
-    get sequence():GrammarFeature[] {
+    get sequence(): ParseSymbol[] {
         return this._sequence;
     }
 }
