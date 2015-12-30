@@ -9,9 +9,11 @@ import {grammar} from "../../../../meta/grammar";
 import {Map} from "../../../../assorted/Map";
 import {Set} from "../../../../assorted/Set";
 import {ParseSymbol} from "../../Parser";
-import {Production} from "../../Parser";
-import {MaybeObject} from "../../Parser";
 import {NonTerminal} from "../../Parser";
+import {Production} from "../../Parser";
+import {Empty} from "../../Parser";
+import {Production} from "../../Parser";
+import {proc_decl} from "../../../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
 
 export function generatePredictionTable(grammar: Grammar) {
     var tes: Map<String, Set<string>> = new Map<String,  Set<string>>();
@@ -23,51 +25,45 @@ export function generatePredictionTable(grammar: Grammar) {
     }
 }
 
-let firstMemoize: Map<string, Set<string>> = new Map<string, Set<string>>();
+let firstMemoize: Map<string, ParseSymbol[]> = new Map<string, ParseSymbol[]>();
+let stack: ParseSymbol[] = [];
 
-function getFirstSet(productions: {}, entry: (MaybeObject|ParseSymbol)): Set<string> {
+function getFirstSet(productions: {}, entry: ParseSymbol) {
+    let thisStackStart: number = stack.length;
 
     if (entry instanceof NonTerminal && firstMemoize.contains(entry.value)) {
         return firstMemoize.get(entry.value);
     }
 
-    var maybeSet: Set<string> = new Set<string>();
-
-    if (entry instanceof Terminal) {
-        let theSet = new Set<string>();
-        theSet.add(entry.value);
-        return theSet;
+    else if (entry instanceof Terminal) {
+        stack.push(entry);
+        return;
     }
 
-    else if (entry instanceof NonTerminal && productions[entry.value] !== undefined) {
-        let firstSets: (production: Production) =>  Set<string>;
-        firstSets = function(production: Production): Set<string> {
-            let pos = 0;
-            let newEntry: (ParseSymbol|MaybeObject) = production.sequence[pos];
+    else if (entry instanceof NonTerminal) {
+        let correspondingProductions: Production[] = productions[entry.value];
 
-            while (newEntry instanceof MaybeObject) {
-                pos += 1;
-                maybeSet = getFirstSet(productions, (<MaybeObject>newEntry).sequence[0]);
-                newEntry = production.sequence[pos];
-            }
+        for (var production of correspondingProductions) {
+            getFirstSet(productions, production.sequence[0]);
+        }
 
-            return Set.union([maybeSet, getFirstSet(productions, <ParseSymbol>newEntry)]);
-        };
-
-        let entryFirstSet: Set<string> =  Set.union((<Production[]>productions[entry.value]).map(firstSets));
-        firstMemoize.put(entry.value, entryFirstSet);
-        console.log(entry.value, entryFirstSet);
-        return entryFirstSet;
+        let out: ParseSymbol[] = [];
+        for (var item of stack) {
+            out.push(item);
+        }
+        firstMemoize.put(entry.value, out);
     }
+
 }
-
 var syntaxTree = compile(grammar);
 
-var lol = new NonTerminal();
+var productionNames = Object.keys(syntaxTree.productions);
 
-for (var productionName in syntaxTree.productions) {
+for (var i = 0; i < productionNames.length; i++) {
+    stack = [];
+    var productionName = productionNames[i];
     var lol = new NonTerminal();
     lol.value = productionName;
-    var items = getFirstSet(syntaxTree.productions, lol).items();
-    console.log(productionName, " : ", items);
+    var items = getFirstSet(syntaxTree.productions, lol);
+    console.log(productionName, " : ", firstMemoize.get(productionName));
 }
