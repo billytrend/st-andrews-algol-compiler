@@ -10,7 +10,7 @@ export class Set<T extends Object> {
     }
 
     add(item: T) {
-        this.dict[item.toString()] = true;
+        this.dict[item.toString()] = item;
     }
 
     remove(item: T) {
@@ -22,19 +22,19 @@ export class Set<T extends Object> {
     }
 
     items(): T[] {
-        return Object.keys(this.dict);
+        return Object.keys(this.dict).map((key) => this.dict[key]);
     }
 
-    static union(setA: Set<T>, setB: Set<T>): Set<T> {
-        let newSet: Set<T> = new Set<T>();
+    static union<A>(setA: Set<A>, setB: Set<A>): Set<A> {
+        let newSet: Set<A> = new Set<A>();
         newSet.addAll(setA.items());
         newSet.addAll(setB.items());
         return newSet;
     }
 
-    static intersection(setA: Set<T>, setB: Set<T>): Set<T> {
-        let newSet: Set<T> = new Set<T>();
-        let newItems: T[] = [];
+    static intersection<A>(setA: Set<A>, setB: Set<A>): Set<A> {
+        let newSet: Set<A> = new Set<A>();
+        let newItems: A[] = [];
 
         for (let item of setA.items()) {
             if (setB.contains(item)) {
