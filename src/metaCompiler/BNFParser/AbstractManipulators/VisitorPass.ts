@@ -3,6 +3,7 @@ import {Grammar, Production, Terminal, NonTerminal, GrammarFeature} from "./../P
 import {AbstractVisitor} from "./AbstractVisitor";
 import {} from "../Parser";
 import {Empty} from "../Parser";
+import {Empty} from "../Parser";
 
 export class VisitorPass extends AbstractPass<void> {
     private _visitor: AbstractVisitor;
@@ -47,8 +48,8 @@ export class VisitorPass extends AbstractPass<void> {
     passTerminal(node: Terminal) {
     }
 
-    passEmpty(node:Empty) {
-    }
+    passEmpty(node: Empty) {
+            }
 
     passNonTerminal(node: NonTerminal) {
         this.visitor.nonTerminalIndex += 1;
