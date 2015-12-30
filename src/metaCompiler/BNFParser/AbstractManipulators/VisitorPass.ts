@@ -38,13 +38,13 @@ export class VisitorPass extends AbstractPass<void> {
     }
 
     passProduction(node:Production) {
-        for (var pattern of node.mapping) {
+        for (var pattern of node.sequence) {
             this.visit(pattern);
         }
     }
 
     passMaybeObject(node: MaybeObject) {
-        for (var pattern of node.mapping) {
+        for (var pattern of node.sequence) {
             this.visit(pattern);
         }
     }

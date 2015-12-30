@@ -24,14 +24,14 @@ export class Grammar extends GrammarFeature {
 }
 
 export class Production extends GrammarFeature {
-    private _mapping: GrammarFeature[];
+    private _sequence: GrammarFeature[];
 
-    set mapping(value: GrammarFeature[]) {
-        this._mapping = value;
+    set sequence(value: GrammarFeature[]) {
+        this._sequence = value;
     }
 
-    get mapping():GrammarFeature[] {
-        return this._mapping;
+    get sequence():GrammarFeature[] {
+        return this._sequence;
     }
 }
 
@@ -113,7 +113,7 @@ export function grammar(input: Lexer.Symbol[]): Grammar {
 
 function production(input: Lexer.Symbol[]): Production {
     let production: Production = new Production();
-    production.mapping = grammarFeature(input);
+    production.sequence = grammarFeature(input);
     return production;
 }
 
@@ -169,7 +169,7 @@ function maybeObject(input: Lexer.Symbol[]): MaybeObject {
     let maybeObject: MaybeObject = new MaybeObject();
 
     if (!expect(input.shift(), Lexer.SymbolType.LSB)) return null;
-    maybeObject.mapping = grammarFeature(input);
+    maybeObject.sequence = grammarFeature(input);
 
     if (!expect(input.shift(), Lexer.SymbolType.RSB)) {
         return null;
