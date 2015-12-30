@@ -53,7 +53,7 @@ export class Production extends GrammarFeature {
 }
 
 export class ParseSymbol extends GrammarFeature {
-    private _value: string;
+    protected _value: string;
 
     get value():string {
         return this._value;
@@ -68,6 +68,7 @@ export class Terminal extends ParseSymbol {
 }
 
 export class Empty extends ParseSymbol {
+    protected _value = "EMPTY"
 }
 
 export class NonTerminal extends ParseSymbol {
