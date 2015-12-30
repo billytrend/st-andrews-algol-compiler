@@ -42,11 +42,9 @@ export class ReformatBNF extends AbstractVisitor {
     }
 
     beforeVisitEmpty(empty:Empty) {
-        this.output.push("E");
-
+                this.output.push("E");
     }
 
     afterVisitEmpty(empty:Empty) {
     }
-
 }
