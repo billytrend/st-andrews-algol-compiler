@@ -1,5 +1,5 @@
 import {AbstractPass} from'../AbstractManipulators/AbstractPass';
-import {Grammar, Production, MaybeObject, Terminal, NonTerminal, GrammarFeature} from "../Parser";
+import {Grammar, Production, Terminal, NonTerminal, GrammarFeature} from "../Parser";
 import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
@@ -22,17 +22,6 @@ export class ReformatBNF extends AbstractVisitor {
 
     afterVisitProduction(node:Production) {
         this.output.push("</div>");
-    }
-
-    beforeVisitMaybeObject(node:MaybeObject) {
-        this.output.push("[");
-    }
-
-    afterVisitMaybeObject(node:MaybeObject) {
-        this.output.push("]");
-        if (node.many) {
-            this.output.push("*");
-        }
     }
 
     beforeVisitTerminal(node:Terminal) {

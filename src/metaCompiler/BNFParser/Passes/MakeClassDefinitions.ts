@@ -1,7 +1,6 @@
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {Grammar} from "../Parser";
 import {Production} from "../Parser";
-import {MaybeObject} from "../Parser";
 import {Terminal} from "../Parser";
 import {NonTerminal} from "../Parser";
 import {compile} from "../Compiler";
@@ -25,14 +24,6 @@ export class MakeClassDefinitions extends AbstractVisitor {
 
     afterVisitProduction(node:Production) {
         this.output.push("}");
-    }
-
-    beforeVisitMaybeObject(node:MaybeObject) {
-
-    }
-
-    afterVisitMaybeObject(node:MaybeObject) {
-
     }
 
     beforeVisitTerminal(node:Terminal) {

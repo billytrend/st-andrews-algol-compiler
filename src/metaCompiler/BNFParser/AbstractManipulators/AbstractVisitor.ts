@@ -1,6 +1,5 @@
 import {GrammarFeature} from "./../Parser";
 import {Grammar} from "./../Parser";
-import {MaybeObject} from "./../Parser";
 import {Production} from "./../Parser";
 import {Terminal} from "./../Parser";
 import {NonTerminal} from "./../Parser";
@@ -51,8 +50,6 @@ export abstract class AbstractVisitor {
     beforeVisit(node: GrammarFeature) {
         if(node instanceof Grammar) {
             return this.beforeVisitGrammar(<Grammar>node)
-        } else if(node instanceof MaybeObject) {
-            return this.beforeVisitMaybeObject(<MaybeObject>node)
         } else if(node instanceof Production) {
             return this.beforeVisitProduction(<Production>node)
         } else if(node instanceof Terminal) {
@@ -65,8 +62,6 @@ export abstract class AbstractVisitor {
     afterVisit(node: GrammarFeature) {
         if(node instanceof Grammar) {
             return this.afterVisitGrammar(<Grammar>node)
-        } else if(node instanceof MaybeObject) {
-            return this.afterVisitMaybeObject(<MaybeObject>node)
         } else if(node instanceof Production) {
             return this.afterVisitProduction(<Production>node)
         } else if(node instanceof Terminal) {
@@ -83,10 +78,6 @@ export abstract class AbstractVisitor {
     abstract beforeVisitProduction(node: Production);
 
     abstract afterVisitProduction(node: Production);
-
-    abstract beforeVisitMaybeObject(node: MaybeObject);
-
-    abstract afterVisitMaybeObject(node: MaybeObject);
 
     abstract beforeVisitTerminal(node: Terminal);
 

@@ -1,5 +1,5 @@
 import {AbstractPass} from "./AbstractPass";
-import {Grammar, Production, MaybeObject, Terminal, NonTerminal, GrammarFeature} from "./../Parser";
+import {Grammar, Production, Terminal, NonTerminal, GrammarFeature} from "./../Parser";
 import {AbstractVisitor} from "./AbstractVisitor";
 import {} from "../Parser";
 
@@ -38,12 +38,6 @@ export class VisitorPass extends AbstractPass<void> {
     }
 
     passProduction(node:Production) {
-        for (var pattern of node.sequence) {
-            this.visit(pattern);
-        }
-    }
-
-    passMaybeObject(node: MaybeObject) {
         for (var pattern of node.sequence) {
             this.visit(pattern);
         }

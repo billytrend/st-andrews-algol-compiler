@@ -4,8 +4,6 @@ export abstract class AbstractPass<T> {
     pass(node: Parser.GrammarFeature): T {
         if(node instanceof Parser.Grammar) {
             return this.passGrammar(<Parser.Grammar>node)
-        } else if(node instanceof Parser.MaybeObject) {
-            return this.passMaybeObject(<Parser.MaybeObject>node)
         } else if(node instanceof Parser.Production) {
             return this.passProduction(<Parser.Production>node)
         } else if(node instanceof Parser.Terminal) {
@@ -18,8 +16,6 @@ export abstract class AbstractPass<T> {
     abstract passGrammar(node: Parser.Grammar): T;
 
     abstract passProduction(node: Parser.Production): T;
-
-    abstract passMaybeObject(node: Parser.MaybeObject): T;
 
     abstract passTerminal(node: Parser.Terminal): T;
 

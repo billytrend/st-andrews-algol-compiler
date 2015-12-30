@@ -5,7 +5,24 @@ export class GrammarFeature {}
 
 export class Grammar extends GrammarFeature {
     private _entry: string;
-    productions: {} = {};
+    private _maybeIndex: number;
+    private _productions: {} = {};
+
+    get maybeIndex():number {
+        return this._maybeIndex;
+    }
+
+    set maybeIndex(value:number) {
+        this._maybeIndex = value;
+    }
+
+    get productions():{} {
+        return this._productions;
+    }
+
+    set productions(value:{}) {
+        this._productions = value;
+    }
 
     get entry():string {
         return this._entry;
@@ -16,10 +33,10 @@ export class Grammar extends GrammarFeature {
     }
 
     addProduction(name: string, production: Production) {
-        if (this.productions[name] === undefined) {
-            this.productions[name] = [];
+        if (this._productions[name] === undefined) {
+            this._productions[name] = [];
         }
-        this.productions[name].push(production);
+        this._productions[name].push(production);
     }
 }
 
@@ -35,20 +52,7 @@ export class Production extends GrammarFeature {
     }
 }
 
-export class MaybeObject extends Production {
-    private _many: boolean = false;
-
-    get many():boolean {
-        return this._many;
-    }
-
-    set many(value:boolean) {
-        this._many = value;
-    }
-}
-export class ParseSymbol extends GrammarFeature {}
-
-export class Terminal extends ParseSymbol {
+export class ParseSymbol extends GrammarFeature {
     private _value: string;
 
     get value():string {
@@ -60,8 +64,13 @@ export class Terminal extends ParseSymbol {
     }
 }
 
+export class Terminal extends ParseSymbol {
+}
+
+export class Empty extends ParseSymbol {
+}
+
 export class NonTerminal extends ParseSymbol {
-    value: string;
 }
 
 function err(symbol: Lexer.LexedSymbol) {
@@ -100,7 +109,7 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
         }
 
         while (true) {
-            grammar.addProduction(productionName.value, production(input));
+            grammar.addProduction(productionName.value, production(input, grammar));
 
             let next: Lexer.LexedSymbol = input.shift();
             if (accept(next, Lexer.SymbolType.BAR)) continue;
@@ -112,14 +121,14 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
     return grammar;
 }
 
-function production(input: Lexer.LexedSymbol[]): Production {
+function production(input: Lexer.LexedSymbol[], grammar: Grammar): Production {
     let production: Production = new Production();
-    production.sequence = grammarFeature(input);
+    production.sequence = grammarFeature(input, grammar);
     return production;
 }
 
-function grammarFeature(input: Lexer.LexedSymbol[]): GrammarFeature[] {
-    let grammarFeatures: GrammarFeature[] = [];
+function grammarFeature(input: Lexer.LexedSymbol[], grammar: Grammar): ParseSymbol[] {
+    let grammarFeatures: ParseSymbol[] = [];
     while (true) {
         switch (input[0].type) {
             case Lexer.SymbolType.LAB :
@@ -128,7 +137,7 @@ function grammarFeature(input: Lexer.LexedSymbol[]): GrammarFeature[] {
             case Lexer.SymbolType.RSB :
                 return grammarFeatures;
             case Lexer.SymbolType.LSB :
-                grammarFeatures.push(maybeObject(input));
+                grammarFeatures.push(maybeObject(input, grammar));
                 continue;
             case Lexer.SymbolType.ESC:
                 grammarFeatures.push(escapeSequence(input));
@@ -166,20 +175,30 @@ function nonTerminal(input: Lexer.LexedSymbol[]): NonTerminal {
     return nonTerm;
 }
 
-function maybeObject(input: Lexer.LexedSymbol[]): MaybeObject {
-    let maybeObject: MaybeObject = new MaybeObject();
+function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal {
+    let maybeReference: NonTerminal = new NonTerminal();
+    maybeReference.value = "maybe" + grammar.maybeIndex;
+    grammar.maybeIndex++;
 
+    let emptyProduction: Production = new Production();
+    emptyProduction.sequence.push(new Empty());
+    grammar.productions[maybeReference.value].push(emptyProduction);
+
+    let regularProduction: Production = new Production();
     if (!expect(input.shift(), Lexer.SymbolType.LSB)) return null;
-    maybeObject.sequence = grammarFeature(input);
+    regularProduction.sequence = grammarFeature(input, grammar);
 
     if (!expect(input.shift(), Lexer.SymbolType.RSB)) {
         return null;
     }
+
     if (accept(input[0], Lexer.SymbolType.STAR)) {
         input.shift();
-        maybeObject.many = true;
+        regularProduction.sequence.push(maybeReference);
     }
-    return maybeObject;
+
+    grammar.productions[maybeReference.value].push(emptyProduction);
+    return maybeReference;
 }
 
 function escapeSequence(input: Lexer.LexedSymbol[]): Terminal {
