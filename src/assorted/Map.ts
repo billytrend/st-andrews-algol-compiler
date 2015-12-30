@@ -1,5 +1,6 @@
-export class Set<T extends Object> {
+export class Map<Key extends Object, Val> {
     private _dict: {} = {};
+    private _keys: {} = {};
 
     get dict():{} {
         return this._dict;
@@ -9,52 +10,34 @@ export class Set<T extends Object> {
         this._dict = value;
     }
 
-    add(item: T) {
-        this.dict[item.toString()] = item;
+    get keys():{} {
+        return this._keys;
     }
 
-    remove(item: T) {
-        delete this.dict[item.toString()];
+    set keys(value:{}) {
+        this._keys = value;
     }
 
-    contains(item: T) {
-        return this.dict[item.toString()] !== undefined;
+    put(key: Key, item: Val) {
+        this.dict[key.toString()] = item;
+        this.keys[key.toString()] = key;
     }
 
-    items(): T[] {
-        return Object.keys(this.dict).map((key) => this.dict[key]);
+    get(key: Key): Val {
+        return this.dict[key.toString()];
     }
 
-    static union<A>(setA: Set<A>, setB: Set<A>): Set<A> {
-        let newSet: Set<A> = new Set<A>();
-        newSet.addAll(setA.items());
-        newSet.addAll(setB.items());
-        return newSet;
+    remove(key: Key) {
+        delete this.dict[key.toString()];
+        delete this.keys[key.toString()];
     }
 
-    static intersection<A>(setA: Set<A>, setB: Set<A>): Set<A> {
-        let newSet: Set<A> = new Set<A>();
-        let newItems: A[] = [];
-
-        for (let item of setA.items()) {
-            if (setB.contains(item)) {
-                newItems.push(item);
-            }
-        }
-
-        for (let item of setB.items()) {
-            if (setA.contains(item)) {
-                newItems.push(item);
-            }
-        }
-
-        newSet.addAll(newItems);
-        return newSet;
+    contains(key: Key) {
+        return this.dict[key.toString()] !== undefined;
     }
 
-    addAll(items: T[]) {
-        for (var item of items) {
-            this.add(item);
-        }
+    items(): [Key, Val][] {
+        return Object.keys(this.dict).map((key): [Key, Val] => [this.keys[key], this.dict[key]]);
     }
+
 }
