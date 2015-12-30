@@ -2,20 +2,20 @@ var path = require('path');
 
 module.exports = {
     entry: {
-        metaCompiler: "./src/metaCompiler/index.ts",
+        //sAlgolCompiler: "./src/sAlgolCompiler/index.ts",
+        metaCompiler: "./src/metaCompiler/index.ts"
     },
     output: {
         path: path.join(__dirname, "dist"),
         filename: "[name].entry.js"
     },
     resolve: {
-        extensions: ['', '.webpack.js', '.web.js', '.ts', '.js', '.json']
+        extensions: ['', '.ts', '.js', '.json']
     },
     target: "node",
+    sourceMaps: false,
     module: {
         loaders: [
-            { test: /\.json$/, loader: "json-loader" },
-            { test: /\.txt$/, loader: "raw-loader" },
             { test: /\.ts$/, loader: 'awesome-typescript-loader' }
         ]
     }
