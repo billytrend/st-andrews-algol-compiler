@@ -1,4 +1,4 @@
-/// <reference path="../../typings/node/node.d.ts" />
+/// <reference path="../../typings/tsd.d.ts" />
 import {VisitorPass} from "./BNFParser/AbstractManipulators/VisitorPass";
 import {buildVisitor} from './BNFParser/Passes/passIndex';
 import {compile} from './BNFParser/Compiler';
@@ -17,6 +17,7 @@ for (var i = 2; i < process.argv.length; i++) {
     }
 }
 
+//noinspection TypeScriptValidateTypes
 if (argv.hasOwnProperty('pass')) {
     doPass(argv['pass'][0]);
 }

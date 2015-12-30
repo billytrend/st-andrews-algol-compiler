@@ -51,6 +51,7 @@ export function lex(input: string): Symbol[] {
     let currentString = "";
 
     inputArray.forEach(function(cur) {
+        //noinspection TypeScriptValidateTypes
         if (obj.hasOwnProperty(cur)) {
             if (currentString.length > 0) {
                 inputSyntax.push(new Symbol(SymbolType.ID, currentString))
