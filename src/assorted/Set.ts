@@ -25,10 +25,11 @@ export class Set<T extends Object> {
         return Object.keys(this.dict).map((key) => this.dict[key]);
     }
 
-    static union<A>(setA: Set<A>, setB: Set<A>): Set<A> {
+    static union<A>(sets: Set<A>[]): Set<A> {
         let newSet: Set<A> = new Set<A>();
-        newSet.addAll(setA.items());
-        newSet.addAll(setB.items());
+        for (var aSet of sets) {
+            newSet.addAll(aSet.items());
+        }
         return newSet;
     }
 
