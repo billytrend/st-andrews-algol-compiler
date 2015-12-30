@@ -1,4 +1,4 @@
-/// <reference path="../../typings/lodash/lodash.d.ts" />
+/// <reference path="../../typings/tsd.d.ts" />
 import * as lodash from 'lodash';
 
 export function intuitDelimeters(terminals: string[]) {
