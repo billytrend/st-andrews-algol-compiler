@@ -27,11 +27,16 @@
     "raw-loader": "^0.5.1",
     "readline-sync": "^1.2.21",
     "ts-loader": "^0.7.2",
+    "ts-npm-module": "^1.0.5",
     "tsd": "^0.6.5",
     "typescript": "^1.6.2",
+    "typescript-collections": "^1.0.5",
+    "typescript-require": "^0.2.9",
     "webpack": "^1.12.9"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^0.15.9"
+    "awesome-typescript-loader": "^0.15.9",
+    "chai": "^3.4.1",
+    "mocha": "^2.3.4"
   }
 }
