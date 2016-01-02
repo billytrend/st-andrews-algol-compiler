@@ -55,6 +55,11 @@ export class Production extends GrammarFeature {
 export class ParseSymbol extends GrammarFeature {
     protected _value: string;
 
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+
     get value():string {
         return this._value;
     }
@@ -68,7 +73,9 @@ export class Terminal extends ParseSymbol {
 }
 
 export class Empty extends ParseSymbol {
-    protected _value = "EMPTY"
+    constructor() {
+        super("EMPTY");
+    }
 }
 
 export class NonTerminal extends ParseSymbol {
@@ -159,26 +166,22 @@ function grammarFeature(input: Lexer.LexedSymbol[], grammar: Grammar): ParseSymb
 
 function terminal(input: Lexer.LexedSymbol[]): Terminal {
     //if (!expect(input[0], Lexer.SymbolType.ID)) return null;
-    let term: Terminal = new Terminal();
-    term.value = input.shift().value;
+    let term: Terminal = new Terminal(input.shift().value);
     return term;
 }
 
 function nonTerminal(input: Lexer.LexedSymbol[]): NonTerminal {
-    let nonTerm: NonTerminal = new NonTerminal();
-
     if (!expect(input.shift(), Lexer.SymbolType.LAB)) return null;
 
     if (!expect(input[0], Lexer.SymbolType.ID)) return null;
-    nonTerm.value = input.shift().value;
+    let nonTerm: NonTerminal = new NonTerminal(input.shift().value);
 
     if (!expect(input.shift(), Lexer.SymbolType.RAB)) return null;
     return nonTerm;
 }
 
 function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal {
-    let maybeReference: NonTerminal = new NonTerminal();
-    maybeReference.value = "maybe" + grammar.maybeIndex;
+    let maybeReference: NonTerminal = new NonTerminal("maybe" + grammar.maybeIndex);
     grammar.maybeIndex++;
 
     let emptyProduction: Production = new Production();
@@ -200,14 +203,12 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
     }
 
     grammar.productions[maybeReference.value].push(regularProduction);
-    console.log(grammar.productions[maybeReference.value])
     return maybeReference;
 }
 
 function escapeSequence(input: Lexer.LexedSymbol[]): Terminal {
     if (!expect(input.shift(), Lexer.SymbolType.ESC)) return null;
-    let terminal: Terminal = new Terminal();
-    terminal.value = input.shift().value;
+    let terminal: Terminal = new Terminal(input.shift().value);
 
     if (!expect(input.shift(), Lexer.SymbolType.ESC)) return null;
     return terminal;
