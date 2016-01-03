@@ -80,19 +80,16 @@ describe('Left factoring tests:', () => {
             child1.addChild(new NonTerminal("three"));
             parent.inheritChildren([child1, child2]);
 
-            console.log(JSON.stringify(parent));
             expect(parent.followingNodes['one']).to.have.lengthOf(2);
             expect(parent.followingNodes['two']).to.have.lengthOf(2);
             expect(parent.followingNodes['three']).to.have.lengthOf(1);
             expect(parent.followingNodes['four']).to.have.lengthOf(1);
 
-            console.log(JSON.stringify(parent));
             done();
         });
 
         it('should disambiguate an unambiguous tree', (done) => {
             let disambiguated: {} = LeftFactoring.disambiguate("entry", ambiguousTree);
-            console.log(JSON.stringify(disambiguated));
             expect(disambiguated).to.have.all.keys(['entry', 'disambiguated_one']);
             expect(disambiguated['entry'][0].followingNodes['one']).to.have.lengthOf(1);
             expect(disambiguated['entry'][0].followingNodes['one'][0].followingNodes).to.have.all.keys(['disambiguated_one']);

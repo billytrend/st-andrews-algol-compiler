@@ -26,6 +26,7 @@ export default class LeftFactoring {
         let disambiguated: {} = {
             [name]: [nextTreeHead]
         };
+
         for (let symbolValue in nextTreeHead.followingNodes) {
             let following: TreeNode[] = nextTreeHead.followingNodes[symbolValue];
 
