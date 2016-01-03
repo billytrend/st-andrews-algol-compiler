@@ -5,8 +5,7 @@ import {Terminal} from "../../metaCompiler/BNFParser/Parser";
 import {NonTerminal} from "../../metaCompiler/BNFParser/Parser";
 import LeftFactoring from "../../metaCompiler/BNFParser/LeftFactoring";
 import {TreeNode} from "../../metaCompiler/BNFParser/LeftFactoring";
-import LeftHandSideExpression = ts.LeftHandSideExpression;
-import LeftFactoring from "../../metaCompiler/BNFParser/LeftFactoring";
+import {NonTerminal} from "../../metaCompiler/BNFParser/Parser";
 var expect = chai.expect;
 
 describe('Left factoring tests:', () => {
@@ -75,7 +74,7 @@ describe('Left factoring tests:', () => {
             let child1: TreeNode = new TreeNode();
             child1.addChild(new NonTerminal("one"));
             child1.addChild(new NonTerminal("two"));
-            
+
             let child2: TreeNode = new TreeNode();
             child1.addChild(new NonTerminal("one"));
             child1.addChild(new NonTerminal("three"));
@@ -88,6 +87,16 @@ describe('Left factoring tests:', () => {
             expect(parent.followingNodes['four']).to.have.lengthOf(1);
 
             console.log(JSON.stringify(parent));
+            done();
+        });
+
+        it('should disambiguate an unambiguous tree', (done) => {
+            let disambiguated: {} = LeftFactoring.disambiguate("entry", ambiguousTree);
+            console.log(JSON.stringify(disambiguated));
+            expect(disambiguated).to.have.all.keys(['entry', 'disambiguated_one']);
+            expect(disambiguated['entry'][0].followingNodes['one']).to.have.lengthOf(1);
+            expect(disambiguated['entry'][0].followingNodes['one'][0].followingNodes).to.have.all.keys(['disambiguated_one']);
+            expect(disambiguated['disambiguated_one']).to.have.lengthOf(1);
             done();
         });
 
