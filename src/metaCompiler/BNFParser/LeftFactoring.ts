@@ -45,6 +45,22 @@ export default class LeftFactoring {
         }
         return disambiguated;
     }
+
+    static generateSequences(head: TreeNode): ParseSymbol[][] {
+        let out: ParseSymbol[][] = [];
+        let followingTreeNodes: TreeNode[] = head.followingTreeNodes;
+        if (followingTreeNodes.length == 0) {
+            return [[]];
+        } else {
+            for (let nodeStringPair of head.followingTreeNodesStringPairs) {
+                var thisSymbol: ParseSymbol = ParseSymbol.build(nodeStringPair[0]);
+                let sequences: ParseSymbol[][] = LeftFactoring.generateSequences(nodeStringPair[1]);
+                sequences.forEach((arr) => arr.unshift(thisSymbol));
+                out = out.concat(sequences);
+            }
+        }
+        return out;
+    }
 }
 
 export class TreeNode {
@@ -78,6 +94,21 @@ export class TreeNode {
 
     get followingNodes():{} {
         return this._followingNodes;
+    }
+
+    get followingTreeNodes(): TreeNode[] {
+        return Object.keys(this.followingNodes).reduce((
+            (prev, cur) => prev.concat(this.followingNodes[cur])), []);
+    }
+
+    get followingTreeNodesStringPairs(): [string, TreeNode][] {
+        var collection = [];
+        Object.keys(this.followingNodes).forEach(
+            (cur) =>
+                this.followingNodes[cur].forEach(
+                    (curNode) =>
+                        collection.push([cur, curNode])));
+        return collection;
     }
 }
 

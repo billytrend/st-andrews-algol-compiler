@@ -55,6 +55,18 @@ describe('Left factoring tests:', () => {
             done();
         });
 
+        it('should create sequences from tree', (done) => {
+            let disambiguated: ParseSymbol[][] = LeftFactoring.generateSequences(ambiguousTree);
+            expect(disambiguated).to.have.lengthOf(2);
+            done();
+        });
+
+        it('should create sequences from tree', (done) => {
+            let disambiguated: ParseSymbol[][] = LeftFactoring.generateSequences(unAmbiguousTree);
+            expect(disambiguated).to.have.lengthOf(2);
+            done();
+        });
+
         it('should recognise an ambiguous tree', (done) => {
             expect(LeftFactoring.isAmbiguous(ambiguousTree)).to.be.true;
             done();
