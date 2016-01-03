@@ -67,5 +67,29 @@ describe('Left factoring tests:', () => {
             done();
         });
 
+        it('should inherit children', (done) => {
+            let parent: TreeNode = new TreeNode();
+            parent.addChild(new NonTerminal("two"));
+            parent.addChild(new NonTerminal("four"));
+
+            let child1: TreeNode = new TreeNode();
+            child1.addChild(new NonTerminal("one"));
+            child1.addChild(new NonTerminal("two"));
+            
+            let child2: TreeNode = new TreeNode();
+            child1.addChild(new NonTerminal("one"));
+            child1.addChild(new NonTerminal("three"));
+            parent.inheritChildren([child1, child2]);
+
+            console.log(JSON.stringify(parent));
+            expect(parent.followingNodes['one']).to.have.lengthOf(2);
+            expect(parent.followingNodes['two']).to.have.lengthOf(2);
+            expect(parent.followingNodes['three']).to.have.lengthOf(1);
+            expect(parent.followingNodes['four']).to.have.lengthOf(1);
+
+            console.log(JSON.stringify(parent));
+            done();
+        });
+
     });
 });

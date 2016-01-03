@@ -24,13 +24,28 @@ export class TreeNode {
     private _followingNodes: {} = {};
 
     addChild(val: ParseSymbol): TreeNode {
-        if (!this.followingNodes.hasOwnProperty(val.value)) {
-            this.followingNodes[val.value] = [];
+        return this.addChildStr(val.value);
+    }
+
+    private addChildStr(str: string): TreeNode {
+        return this.addChildWithNext(str, new TreeNode);
+    }
+
+    private addChildWithNext(str: string, next: (TreeNode|TreeNode[])): TreeNode {
+        if (!this.followingNodes.hasOwnProperty(str)) {
+            this.followingNodes[str] = [];
         }
 
-        let next = new TreeNode();
-        this.followingNodes[val.value].push(next);
+        this.followingNodes[str] = this.followingNodes[str].concat(next);
         return next;
+    }
+
+    inheritChildren(children: TreeNode[]) {
+        for (let child of children) {
+            for (let childKey in child.followingNodes) {
+                this.addChildWithNext(childKey, child.followingNodes[childKey]);
+            }
+        }
     }
 
     get followingNodes():{} {
