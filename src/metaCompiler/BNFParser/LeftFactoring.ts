@@ -4,9 +4,8 @@ import {ParseSymbol} from "./Parser";
 import {NonTerminal} from "./Parser";
 import * as _ from 'lodash';
 import {Grammar} from "./Parser";
-import {Grammar} from "./Parser";
-import LeftHandSideExpression = ts.LeftHandSideExpression;
 import {Production} from "./Parser";
+import {sequence} from "../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
 
 export default class LeftFactoring {
     static insertSequence(nextTreeHead: TreeNode, sequence: ParseSymbol[]) {
@@ -25,7 +24,7 @@ export default class LeftFactoring {
         return false;
     }
 
-    static disambiguate(name: string, nextTreeHead: TreeNode): {} {
+    static leftFactor(name: string, nextTreeHead: TreeNode): {} {
         let disambiguated: {} = {
             [name]: [nextTreeHead]
         };
@@ -42,7 +41,7 @@ export default class LeftFactoring {
                 replacementNonTermNode.addChild(replacementNonTerm);
                 nextTreeHead.followingNodes[symbolValue] = [replacementNonTermNode];
 
-                let recursiveDisambiguation = this.disambiguate(replacementNonTerm.value, tailTree);
+                let recursiveDisambiguation = this.leftFactor(replacementNonTerm.value, tailTree);
                 _.extend(disambiguated, recursiveDisambiguation);
             }
         }
@@ -52,11 +51,23 @@ export default class LeftFactoring {
     static convertToGrammar(head: {}): Grammar {
         let newGrammar = new Grammar();
         for (var key in head) {
-            let sequences: ParseSymbol[][] = this.generateSequences(head[key]);
+            let sequences: ParseSymbol[][] = this.generateSequences(head[key][0]);
             let productions: Production[] = sequences.map((seq) => new Production(seq));
             productions.forEach((prod) => newGrammar.addProduction(key, prod));
         }
         return newGrammar;
+    }
+
+    static convertToTree(grammar: Grammar): {} {
+        let tree = {};
+        for (var key in grammar.productions) {
+            let root: TreeNode = new TreeNode();
+            for (var production of grammar.productions[key]) {
+                this.insertSequence(root, production.sequence);
+            }
+            tree[key] = root;
+        }
+        return tree;
     }
 
     static generateSequences(head: TreeNode): ParseSymbol[][] {
@@ -67,12 +78,22 @@ export default class LeftFactoring {
         } else {
             for (let nodeStringPair of head.followingTreeNodesStringPairs) {
                 var thisSymbol: ParseSymbol = ParseSymbol.build(nodeStringPair[0]);
+                if(nodeStringPair[1]=== undefined )console.log(nodeStringPair)
                 let sequences: ParseSymbol[][] = LeftFactoring.generateSequences(nodeStringPair[1]);
                 sequences.forEach((arr) => arr.unshift(thisSymbol));
                 out = out.concat(sequences);
             }
         }
         return out;
+    }
+
+    static leftFactorGrammar(grammar: Grammar): Grammar {
+        let tree: {} = this.convertToTree(grammar);
+        let leftFactored: {} = {};
+        for (var key in grammar.productions) {
+            _.extend(leftFactored, this.leftFactor(key, tree[key]));
+        }
+        return this.convertToGrammar(leftFactored);
     }
 }
 
@@ -94,7 +115,7 @@ export class TreeNode {
         }
 
         this.followingNodes[str] = this.followingNodes[str].concat(next);
-        return next;
+        return this.followingNodes[str];
     }
 
     inheritChildren(children: TreeNode[]) {

@@ -1,4 +1,5 @@
 /// <reference path="../../../typings/tsd.d.ts" />
+///<reference path="../../metaCompiler/BNFParser/AbstractManipulators/VisitorPass.ts"/>
 import chai = require('chai');
 import {ParseSymbol} from "../../metaCompiler/BNFParser/Parser";
 import {Terminal} from "../../metaCompiler/BNFParser/Parser";
@@ -6,6 +7,9 @@ import {NonTerminal} from "../../metaCompiler/BNFParser/Parser";
 import LeftFactoring from "../../metaCompiler/BNFParser/LeftFactoring";
 import {TreeNode} from "../../metaCompiler/BNFParser/LeftFactoring";
 import {Grammar} from "../../metaCompiler/BNFParser/Parser";
+import {compileDefault} from "../../metaCompiler/BNFParser/Compiler";
+import {VisitorPass} from "../../metaCompiler/BNFParser/AbstractManipulators/VisitorPass";
+import {ReformatBNF} from "../../metaCompiler/BNFParser/Passes/ReformatBNF";
 var expect = chai.expect;
 
 describe('Left factoring tests:', () => {
@@ -14,8 +18,10 @@ describe('Left factoring tests:', () => {
         let input = [new Terminal("one"), new Terminal("two"), new Terminal("three")];
         let input1 = [new Terminal("three"), new Terminal("four"), new Terminal("five")];
         let input2 = [new Terminal("one"), new Terminal("four"), new Terminal("five")];
+        let input3 = [new Terminal("one"), new Terminal("four"), new Terminal("six")];
         let ambiguousTree: TreeNode = new TreeNode();
         let unAmbiguousTree: TreeNode = new TreeNode();
+        let aTree: TreeNode = new TreeNode();
 
         it('should build node', (done) => {
             let tree: TreeNode = new TreeNode();
@@ -53,6 +59,18 @@ describe('Left factoring tests:', () => {
             expect(ambiguousTree.followingNodes['one'][1].followingNodes).to.have.any.keys(['four', 'two']);
             expect(ambiguousTree.followingNodes['one'][0].followingNodes)
                 .to.not.have.any.keys(ambiguousTree.followingNodes['one'][1].followingNodes);
+            done();
+        });
+
+        it('should build a simple ambiguous tree for multiple very common head sequences', (done) => {
+            LeftFactoring.insertSequence(aTree, input2);
+            LeftFactoring.insertSequence(aTree, input3);
+            expect(ambiguousTree.followingNodes).to.have.all.keys(['one']);
+            expect(ambiguousTree.followingNodes['one']).to.have.lengthOf(1);
+            expect(ambiguousTree.followingNodes['one'][0].followingNodes).to.have.all.keys(['four']);
+            expect(ambiguousTree.followingNodes['one'][0].followingNodes['four']).to.have.lengthOf(2);
+            expect(ambiguousTree.followingNodes['one'][0].followingNodes['four'][0].followingNodes)
+                .to.not.have.any.keys(ambiguousTree.followingNodes['one'][0].followingNodes['four'][1].followingNodes);
             done();
         });
 
@@ -111,14 +129,29 @@ describe('Left factoring tests:', () => {
             done();
         });
 
-        it('should disambiguate an unambiguous tree', (done) => {
-            let disambiguated: {} = LeftFactoring.disambiguate("<entry>", ambiguousTree);
+        it('should leftFactor an unambiguous tree', (done) => {
+            let disambiguated: {} = LeftFactoring.leftFactor("<entry>", ambiguousTree);
             expect(disambiguated).to.have.all.keys(['<entry>', '<disambiguated_one>']);
             expect(disambiguated['<entry>'][0].followingNodes['one']).to.have.lengthOf(1);
             expect(disambiguated['<entry>'][0].followingNodes['one'][0].followingNodes).to.have.all.keys(['<disambiguated_one>']);
             expect(disambiguated['<disambiguated_one>']).to.have.lengthOf(1);
             done();
         });
+
+        it('should left factor whole grammar', (done) => {
+            var g: Grammar = compileDefault();
+            let lFac = LeftFactoring.leftFactorGrammar(g);
+            let visitor = new ReformatBNF();
+            let visitorPass = new VisitorPass(visitor);
+            visitorPass.visit(lFac);
+            var a = ""
+            for (var lol of visitor.output) {
+                a+=lol;
+            }
+            console.log(a)
+            done();
+        });
+
 
     });
 });
