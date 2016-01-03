@@ -5,6 +5,7 @@ import {Terminal} from "../../metaCompiler/BNFParser/Parser";
 import {NonTerminal} from "../../metaCompiler/BNFParser/Parser";
 import LeftFactoring from "../../metaCompiler/BNFParser/LeftFactoring";
 import {TreeNode} from "../../metaCompiler/BNFParser/LeftFactoring";
+import {Grammar} from "../../metaCompiler/BNFParser/Parser";
 var expect = chai.expect;
 
 describe('Left factoring tests:', () => {
@@ -55,15 +56,26 @@ describe('Left factoring tests:', () => {
             done();
         });
 
-        it('should create sequences from tree', (done) => {
+        it('should create sequences from ambiguous tree', (done) => {
             let disambiguated: ParseSymbol[][] = LeftFactoring.generateSequences(ambiguousTree);
             expect(disambiguated).to.have.lengthOf(2);
             done();
         });
 
-        it('should create sequences from tree', (done) => {
+        it('should create sequences from unambiguous tree', (done) => {
             let disambiguated: ParseSymbol[][] = LeftFactoring.generateSequences(unAmbiguousTree);
             expect(disambiguated).to.have.lengthOf(2);
+            done();
+        });
+
+        it('should create grammar from tree node map', (done) => {
+            let grammar: Grammar = LeftFactoring.convertToGrammar({
+                entry: ambiguousTree
+            });
+            expect(grammar.productions).to.have.all.keys('entry');
+            expect(grammar.productions['entry']).to.have.lengthOf(2);
+            expect(grammar.productions['entry'][0].sequence).to.have.lengthOf(3);
+            expect(grammar.productions['entry'][1].sequence).to.have.lengthOf(3);
             done();
         });
 

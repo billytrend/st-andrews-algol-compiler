@@ -4,6 +4,9 @@ import {ParseSymbol} from "./Parser";
 import {NonTerminal} from "./Parser";
 import * as _ from 'lodash';
 import {Grammar} from "./Parser";
+import {Grammar} from "./Parser";
+import LeftHandSideExpression = ts.LeftHandSideExpression;
+import {Production} from "./Parser";
 
 export default class LeftFactoring {
     static insertSequence(nextTreeHead: TreeNode, sequence: ParseSymbol[]) {
@@ -44,6 +47,16 @@ export default class LeftFactoring {
             }
         }
         return disambiguated;
+    }
+
+    static convertToGrammar(head: {}): Grammar {
+        let newGrammar = new Grammar();
+        for (var key in head) {
+            let sequences: ParseSymbol[][] = this.generateSequences(head[key]);
+            let productions: Production[] = sequences.map((seq) => new Production(seq));
+            productions.forEach((prod) => newGrammar.addProduction(key, prod));
+        }
+        return newGrammar;
     }
 
     static generateSequences(head: TreeNode): ParseSymbol[][] {
