@@ -1,9 +1,9 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 
 import {ParseSymbol} from "./Parser";
-import {Grammar} from "./Parser";
 import {NonTerminal} from "./Parser";
 import * as _ from 'lodash';
+import {Grammar} from "./Parser";
 
 export default class LeftFactoring {
     static insertSequence(nextTreeHead: TreeNode, sequence: ParseSymbol[]) {
@@ -31,16 +31,15 @@ export default class LeftFactoring {
             let following: TreeNode[] = nextTreeHead.followingNodes[symbolValue];
 
             if (following.length > 1) {
-                let replacementNonTermReference = "disambiguated_" + symbolValue;
-                let replacementNonTerm = new TreeNode();
+                let replacementNonTerm = new NonTerminal("disambiguated_" + symbolValue);
+                let replacementNonTermNode = new TreeNode();
                 let tailTree:TreeNode = new TreeNode();
                 tailTree.inheritChildren(following);
 
-                replacementNonTerm.addChild(new NonTerminal(replacementNonTermReference));
-                nextTreeHead.followingNodes[symbolValue] = [replacementNonTerm];
+                replacementNonTermNode.addChild(replacementNonTerm);
+                nextTreeHead.followingNodes[symbolValue] = [replacementNonTermNode];
 
-
-                let recursiveDisambiguation = this.disambiguate(replacementNonTermReference, tailTree);
+                let recursiveDisambiguation = this.disambiguate(replacementNonTerm.value, tailTree);
                 _.extend(disambiguated, recursiveDisambiguation);
             }
         }
@@ -50,13 +49,14 @@ export default class LeftFactoring {
 
 export class TreeNode {
     private _followingNodes: {} = {};
+    private nodeSymbol: ParseSymbol;
 
     addChild(val: ParseSymbol): TreeNode {
         return this.addChildStr(val.value);
     }
 
     private addChildStr(str: string): TreeNode {
-        return this.addChildWithNext(str, new TreeNode);
+        return this.addChildWithNext(str, new TreeNode());
     }
 
     private addChildWithNext(str: string, next: (TreeNode|TreeNode[])): any {

@@ -5,15 +5,14 @@ import {Terminal} from "../../metaCompiler/BNFParser/Parser";
 import {NonTerminal} from "../../metaCompiler/BNFParser/Parser";
 import LeftFactoring from "../../metaCompiler/BNFParser/LeftFactoring";
 import {TreeNode} from "../../metaCompiler/BNFParser/LeftFactoring";
-import {NonTerminal} from "../../metaCompiler/BNFParser/Parser";
 var expect = chai.expect;
 
 describe('Left factoring tests:', () => {
 
     describe('insertSequence', () => {
-        let input = [new Terminal("one"), new NonTerminal("two"), new NonTerminal("three")];
-        let input1 = [new Terminal("three"), new NonTerminal("four"), new NonTerminal("five")];
-        let input2 = [new Terminal("one"), new NonTerminal("four"), new NonTerminal("five")];
+        let input = [new Terminal("one"), new Terminal("two"), new Terminal("three")];
+        let input1 = [new Terminal("three"), new Terminal("four"), new Terminal("five")];
+        let input2 = [new Terminal("one"), new Terminal("four"), new Terminal("five")];
         let ambiguousTree: TreeNode = new TreeNode();
         let unAmbiguousTree: TreeNode = new TreeNode();
 
@@ -68,16 +67,16 @@ describe('Left factoring tests:', () => {
 
         it('should inherit children', (done) => {
             let parent: TreeNode = new TreeNode();
-            parent.addChild(new NonTerminal("two"));
-            parent.addChild(new NonTerminal("four"));
+            parent.addChild(new Terminal("two"));
+            parent.addChild(new Terminal("four"));
 
             let child1: TreeNode = new TreeNode();
-            child1.addChild(new NonTerminal("one"));
-            child1.addChild(new NonTerminal("two"));
+            child1.addChild(new Terminal("one"));
+            child1.addChild(new Terminal("two"));
 
             let child2: TreeNode = new TreeNode();
-            child1.addChild(new NonTerminal("one"));
-            child1.addChild(new NonTerminal("three"));
+            child1.addChild(new Terminal("one"));
+            child1.addChild(new Terminal("three"));
             parent.inheritChildren([child1, child2]);
 
             expect(parent.followingNodes['one']).to.have.lengthOf(2);
@@ -89,11 +88,11 @@ describe('Left factoring tests:', () => {
         });
 
         it('should disambiguate an unambiguous tree', (done) => {
-            let disambiguated: {} = LeftFactoring.disambiguate("entry", ambiguousTree);
-            expect(disambiguated).to.have.all.keys(['entry', 'disambiguated_one']);
-            expect(disambiguated['entry'][0].followingNodes['one']).to.have.lengthOf(1);
-            expect(disambiguated['entry'][0].followingNodes['one'][0].followingNodes).to.have.all.keys(['disambiguated_one']);
-            expect(disambiguated['disambiguated_one']).to.have.lengthOf(1);
+            let disambiguated: {} = LeftFactoring.disambiguate("<entry>", ambiguousTree);
+            expect(disambiguated).to.have.all.keys(['<entry>', '<disambiguated_one>']);
+            expect(disambiguated['<entry>'][0].followingNodes['one']).to.have.lengthOf(1);
+            expect(disambiguated['<entry>'][0].followingNodes['one'][0].followingNodes).to.have.all.keys(['<disambiguated_one>']);
+            expect(disambiguated['<disambiguated_one>']).to.have.lengthOf(1);
             done();
         });
 
