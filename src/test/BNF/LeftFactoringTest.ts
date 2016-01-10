@@ -97,6 +97,7 @@ describe('Left factoring tests:', () => {
         });
 
         it('should leftFactor an ambiguous tree', (done) => {
+            console.log("!!!", ambiguousTree);
             let disambiguated: {} = LeftFactoring.leftFactor("<entry>", ambiguousTree);
             expect(disambiguated).to.have.all.keys(['<entry>', '<disambiguated_one>']);
             expect(disambiguated['<entry>'].one).to.have.all.keys('<disambiguated_one>');
@@ -109,14 +110,14 @@ describe('Left factoring tests:', () => {
             expect(LeftFactoring.grammarIsAmbiguous(g)).to.be.true;
             let lFac = LeftFactoring.leftFactorGrammar(g);
             expect(LeftFactoring.grammarIsAmbiguous(lFac)).to.be.false;
-            //let visitor = new ReformatBNF();
-            //let visitorPass = new VisitorPass(visitor);
-            //visitorPass.visit(lFac);
-            //var a = "";
-            //for (var lol of visitor.output) {
-            //    a+=lol;
-            //}
-            //console.log(a)
+            let visitor = new ReformatBNF();
+            let visitorPass = new VisitorPass(visitor);
+            visitorPass.visit(lFac);
+            var a = "";
+            for (var lol of visitor.output) {
+                a+=lol;
+            }
+            console.log(a);
             done();
         });
 

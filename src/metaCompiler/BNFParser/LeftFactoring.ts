@@ -23,7 +23,7 @@ export default class LeftFactoring {
     static isAmbiguous(head: {}): boolean {
         for (let symbolValue in head) {
             if (Object.keys(head[symbolValue]).length > 1 || this.isAmbiguous(head[symbolValue])) {
-                console.log(JSON.stringify(head[symbolValue]))
+                //console.log(JSON.stringify(head[symbolValue]))
 
                 return true;
             }
@@ -31,32 +31,38 @@ export default class LeftFactoring {
         return false;
     }
 
-    static leftFactor(name: string, head: {}): {} {
 
-        var disambiguated: {} = {
-            [name]: {}
-        };
+
+    static leftFactor(name: string, head: {}): {} {
+        let disambiguated = {};
+        disambiguated[name] = head;
 
         for (let symbolValue in head) {
-            let following: string[] = Object.keys(head[symbolValue]);
-
-            if (following.length > 1) {
-                var replacementNonTerm = new NonTerminal("disambiguated_" + symbolValue);
-                var brokenBranch = head[symbolValue];
-
-                head[symbolValue] = {
-                    [replacementNonTerm.value]: {}
-                };
-
-                debugger;
-                _.extend(disambiguated, this.leftFactor(replacementNonTerm.value, brokenBranch));
-            }
-
-            let recursiveDisambiguation = this.leftFactor(symbolValue, head[symbolValue]);
-            _.extend(disambiguated[name], recursiveDisambiguation);
+            this.leftFactorRecurse(symbolValue, head, disambiguated);
         }
 
         return disambiguated;
+    }
+
+    static leftFactorRecurse(name: string, head: {}, disambiguated: {}) {
+        let following: string[] = Object.keys(head[name]);
+
+        if (following.length > 1) {
+            var replacementNonTerm = new NonTerminal("disambiguated_" + name);
+            var brokenBranch = head[name];
+
+            head[name] = {
+                [replacementNonTerm.value]: {}
+            };
+
+            disambiguated[replacementNonTerm.value] = brokenBranch;
+
+            for (let symbolValue in disambiguated[replacementNonTerm.value]) {
+                this.leftFactorRecurse(symbolValue, disambiguated[replacementNonTerm.value], disambiguated);
+            }
+        } else if (following.length == 1) {
+            this.leftFactorRecurse(following[0], head[name], disambiguated);
+        }
     }
 
     static convertToGrammar(head: {}): Grammar {
