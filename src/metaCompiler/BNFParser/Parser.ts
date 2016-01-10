@@ -45,6 +45,13 @@ export class Grammar extends GrammarFeature {
 export class Production extends GrammarFeature {
     private _sequence: ParseSymbol[] = [];
 
+    constructor(value?: ParseSymbol[]) {
+        super();
+        if (value !== undefined) {
+            this.sequence = value;
+        }
+    }
+
     set sequence(value: ParseSymbol[]) {
         this._sequence = value;
     }
@@ -62,9 +69,9 @@ export class ParseSymbol extends GrammarFeature {
         this._value = value;
     }
 
-    buildParseSymbol(value: string): ParseSymbol {
+    static build(value: string): ParseSymbol {
         if (value.startsWith("<") && value.endsWith(">")) {
-            return new NonTerminal(value);
+            return new NonTerminal(value.substr(1, value.length - 2));
         } else if (value === "EMPTY") {
             return new Empty();
         } else {
