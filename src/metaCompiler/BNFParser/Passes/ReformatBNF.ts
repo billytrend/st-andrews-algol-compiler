@@ -15,6 +15,12 @@ export class ReformatBNF extends AbstractVisitor {
         this.output.push("</body></html>");
     }
 
+    beforeVisitProductionName(node: string) {
+    }
+
+    afterVisitProductionName(node: string) {
+    }
+
     beforeVisitProduction(node:Production) {
         if (this.firstProductionVisit) {
             this.output.push("<div><h3>" + this.curProductionName + "</h3>");

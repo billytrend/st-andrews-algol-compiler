@@ -32,6 +32,12 @@ export class ValidateBNF extends AbstractVisitor {
     afterVisitGrammar(node:Grammar) {
     }
 
+    beforeVisitProductionName(node: string) {
+    }
+
+    afterVisitProductionName(node: string) {
+    }
+
     beforeVisitProduction(node:Production) {
     }
 

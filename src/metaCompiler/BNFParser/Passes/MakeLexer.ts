@@ -18,6 +18,12 @@ export class MakeLexer extends AbstractVisitor {
         this.output.push("}");
     }
 
+    beforeVisitProductionName(node: string) {
+    }
+
+    afterVisitProductionName(node: string) {
+    }
+
     beforeVisitProduction(node:Production) {
         if (this.firstProductionVisit) {
             this.output.push("public function lex" + this.curProductionName + "() {");

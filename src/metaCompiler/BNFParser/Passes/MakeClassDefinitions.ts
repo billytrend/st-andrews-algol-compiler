@@ -10,6 +10,18 @@ import {Empty} from "../Parser";
 
 export class MakeClassDefinitions extends AbstractVisitor {
 
+    beforeVisitGrammar(node:Grammar) {
+    }
+
+    afterVisitGrammar(node:Grammar) {
+    }
+
+    beforeVisitProductionName(node:string) {
+    }
+
+    afterVisitProductionName(node:string) {
+    }
+
     beforeVisitProduction(node:Production) {
         if (this.firstProductionVisit) {
             this.output.push("export class " + this.curProductionName + "{};");
@@ -42,11 +54,5 @@ export class MakeClassDefinitions extends AbstractVisitor {
     }
 
     afterVisitEmpty(empty:Empty) {
-    }
-
-    beforeVisitGrammar(node:Grammar) {
-    }
-
-    afterVisitGrammar(node:Grammar) {
     }
 }

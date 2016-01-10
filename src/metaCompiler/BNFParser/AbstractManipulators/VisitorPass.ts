@@ -3,7 +3,6 @@ import {Grammar, Production, Terminal, NonTerminal, GrammarFeature} from "./../P
 import {AbstractVisitor} from "./AbstractVisitor";
 import {} from "../Parser";
 import {Empty} from "../Parser";
-import {Empty} from "../Parser";
 
 export class VisitorPass extends AbstractPass<void> {
     private _visitor: AbstractVisitor;
@@ -32,11 +31,13 @@ export class VisitorPass extends AbstractPass<void> {
         for (var productionName in node.productions) {
             this.visitor.curProductionName = productionName;
             this.visitor.productionIndex = 0;
+            this.visitor.beforeVisit(productionName);
             for (var prod of node.productions[productionName]) {
                 this.visitor.nonTerminalIndex = 0;
                 this.visit(prod);
                 this.visitor.productionIndex += 1;
             }
+            this.visitor.afterVisit(productionName);
         }
     }
 

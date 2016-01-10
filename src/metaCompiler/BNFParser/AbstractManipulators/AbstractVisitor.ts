@@ -64,6 +64,8 @@ export abstract class AbstractVisitor {
             return this.beforeVisitNonTerminal(<NonTerminal>node)
         }  else if(node instanceof Empty) {
             return this.beforeVisitEmpty(<Empty>node)
+        } else if(typeof node === "string") {
+            return this.beforeVisitProductionName(<string>node)
         }
     }
 
@@ -78,6 +80,8 @@ export abstract class AbstractVisitor {
             return this.afterVisitNonTerminal(<NonTerminal>node)
         } else if(node instanceof Empty) {
             return this.afterVisitEmpty(<Empty>node)
+        } else if(typeof node === "string") {
+            return this.afterVisitProductionName(<string>node)
         }
     }
 
@@ -100,4 +104,8 @@ export abstract class AbstractVisitor {
     abstract beforeVisitEmpty(empty:Empty);
 
     abstract afterVisitEmpty(empty:Empty);
+
+    abstract beforeVisitProductionName(node:string);
+
+    abstract afterVisitProductionName(node:string);
 }

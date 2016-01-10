@@ -40,6 +40,12 @@ export class MakeDoupleDispatch extends AbstractVisitor {
 
     }
 
+    beforeVisitProductionName(node: string) {
+    }
+
+    afterVisitProductionName(node: string) {
+    }
+
     beforeVisitProduction(node:Production) {
         this.output.unshift("}");
         this.output.unshift(this._prefix + "_" + this.curProductionName + this.productionIndex + "(node: ConcreteSyntax."+this.curProductionName + this.productionIndex+") {");
