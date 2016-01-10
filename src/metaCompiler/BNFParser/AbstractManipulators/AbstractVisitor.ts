@@ -4,14 +4,13 @@ import {Production} from "./../Parser";
 import {Terminal} from "./../Parser";
 import {NonTerminal} from "./../Parser";
 import {Empty} from "../Parser";
-import {Empty} from "../Parser";
-import {Empty} from "../Parser";
 
 export abstract class AbstractVisitor {
     private _curProductionName: string;
     private _productionIndex: number = 0;
     private _nonTerminalIndex: number = 0;
     private _output: string[] = [];
+    private grammar: Grammar;
 
     get output():string[] {
         return this._output;
@@ -40,6 +39,10 @@ export abstract class AbstractVisitor {
 
     get firstProductionVisit():boolean {
         return this.productionIndex == 0;
+    }
+
+    get lastProductionVisit():boolean {
+        return this.productionIndex == this.grammar.productions[this.curProductionName].length - 1;
     }
 
     get curProductionName():string {

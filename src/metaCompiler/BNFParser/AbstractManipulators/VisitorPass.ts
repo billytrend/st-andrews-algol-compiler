@@ -28,6 +28,7 @@ export class VisitorPass extends AbstractPass<void> {
     }
 
     passGrammar(node: Grammar) {
+        this.visitor.grammar = node;
         for (var productionName in node.productions) {
             this.visitor.curProductionName = productionName;
             this.visitor.productionIndex = 0;
