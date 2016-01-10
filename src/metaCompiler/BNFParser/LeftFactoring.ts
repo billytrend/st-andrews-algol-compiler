@@ -8,50 +8,61 @@ import {Production} from "./Parser";
 import {sequence} from "../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
 
 export default class LeftFactoring {
-    static insertSequence(nextTreeHead: TreeNode, sequence: ParseSymbol[]) {
+    static insertSequence(head: {}, sequence: ParseSymbol[]) {
+        let nextHead = head;
         for (let sym of sequence) {
-            nextTreeHead = nextTreeHead.addChild(sym);
+            if (!nextHead.hasOwnProperty(sym.value)) {
+                nextHead[sym.value] = {};
+            }
+            nextHead = nextHead[sym.value];
+
         }
+        return head;
     }
 
-    static isAmbiguous(nextTreeHead: TreeNode): boolean {
-        for (let symbolValue in nextTreeHead.followingNodes) {
-            let following: TreeNode[] = nextTreeHead.followingNodes[symbolValue];
-            if (following.length > 1 || this.isAmbiguous(following[0])) {
+    static isAmbiguous(head: {}): boolean {
+        for (let symbolValue in head) {
+            if (Object.keys(head[symbolValue]).length > 1 || this.isAmbiguous(head[symbolValue])) {
+                console.log(JSON.stringify(head[symbolValue]))
+
                 return true;
             }
         }
         return false;
     }
 
-    static leftFactor(name: string, nextTreeHead: TreeNode): {} {
-        let disambiguated: {} = {
-            [name]: [nextTreeHead]
+    static leftFactor(name: string, head: {}): {} {
+
+        var disambiguated: {} = {
+            [name]: {}
         };
 
-        for (let symbolValue in nextTreeHead.followingNodes) {
-            let following: TreeNode[] = nextTreeHead.followingNodes[symbolValue];
+        for (let symbolValue in head) {
+            let following: string[] = Object.keys(head[symbolValue]);
 
             if (following.length > 1) {
-                let replacementNonTerm = new NonTerminal("disambiguated_" + symbolValue);
-                let replacementNonTermNode = new TreeNode();
-                let tailTree:TreeNode = new TreeNode();
-                tailTree.inheritChildren(following);
+                var replacementNonTerm = new NonTerminal("disambiguated_" + symbolValue);
+                var brokenBranch = head[symbolValue];
 
-                replacementNonTermNode.addChild(replacementNonTerm);
-                nextTreeHead.followingNodes[symbolValue] = [replacementNonTermNode];
+                head[symbolValue] = {
+                    [replacementNonTerm.value]: {}
+                };
 
-                let recursiveDisambiguation = this.leftFactor(replacementNonTerm.value, tailTree);
-                _.extend(disambiguated, recursiveDisambiguation);
+                debugger;
+                _.extend(disambiguated, this.leftFactor(replacementNonTerm.value, brokenBranch));
             }
+
+            let recursiveDisambiguation = this.leftFactor(symbolValue, head[symbolValue]);
+            _.extend(disambiguated[name], recursiveDisambiguation);
         }
+
         return disambiguated;
     }
 
     static convertToGrammar(head: {}): Grammar {
         let newGrammar = new Grammar();
         for (var key in head) {
-            let sequences: ParseSymbol[][] = this.generateSequences(head[key][0]);
+            let sequences: ParseSymbol[][] = this.generateSequences(head[key]);
             let productions: Production[] = sequences.map((seq) => new Production(seq));
             productions.forEach((prod) => newGrammar.addProduction(key, prod));
         }
@@ -61,7 +72,7 @@ export default class LeftFactoring {
     static convertToTree(grammar: Grammar): {} {
         let tree = {};
         for (var key in grammar.productions) {
-            let root: TreeNode = new TreeNode();
+            let root: {} = {};
             for (var production of grammar.productions[key]) {
                 this.insertSequence(root, production.sequence);
             }
@@ -70,16 +81,16 @@ export default class LeftFactoring {
         return tree;
     }
 
-    static generateSequences(head: TreeNode): ParseSymbol[][] {
+    static generateSequences(head: {}): ParseSymbol[][] {
         let out: ParseSymbol[][] = [];
-        let followingTreeNodes: TreeNode[] = head.followingTreeNodes;
-        if (followingTreeNodes.length == 0) {
+        let followingSyms: string[] = Object.keys(head);
+
+        if (followingSyms.length == 0) {
             return [[]];
         } else {
-            for (let nodeStringPair of head.followingTreeNodesStringPairs) {
-                var thisSymbol: ParseSymbol = ParseSymbol.build(nodeStringPair[0]);
-                if(nodeStringPair[1]=== undefined )console.log(nodeStringPair)
-                let sequences: ParseSymbol[][] = LeftFactoring.generateSequences(nodeStringPair[1]);
+            for (let sym of followingSyms) {
+                var thisSymbol: ParseSymbol = ParseSymbol.build(sym);
+                let sequences: ParseSymbol[][] = LeftFactoring.generateSequences(head[sym]);
                 sequences.forEach((arr) => arr.unshift(thisSymbol));
                 out = out.concat(sequences);
             }
@@ -95,54 +106,14 @@ export default class LeftFactoring {
         }
         return this.convertToGrammar(leftFactored);
     }
-}
 
-export class TreeNode {
-    private _followingNodes: {} = {};
-    private nodeSymbol: ParseSymbol;
-
-    addChild(val: ParseSymbol): TreeNode {
-        return this.addChildStr(val.value);
-    }
-
-    private addChildStr(str: string): TreeNode {
-        return this.addChildWithNext(str, new TreeNode());
-    }
-
-    private addChildWithNext(str: string, next: (TreeNode|TreeNode[])): any {
-        if (!this.followingNodes.hasOwnProperty(str)) {
-            this.followingNodes[str] = [];
-        }
-
-        this.followingNodes[str] = this.followingNodes[str].concat(next);
-        return this.followingNodes[str];
-    }
-
-    inheritChildren(children: TreeNode[]) {
-        for (let child of children) {
-            for (let childKey in child.followingNodes) {
-                this.addChildWithNext(childKey, child.followingNodes[childKey]);
+    static grammarIsAmbiguous(grammar: Grammar): boolean {
+        let tree: {} = this.convertToTree(grammar);
+        for (var key in tree) {
+            if (this.isAmbiguous(tree[key])) {
+                return true;
             }
         }
-    }
-
-    get followingNodes():{} {
-        return this._followingNodes;
-    }
-
-    get followingTreeNodes(): TreeNode[] {
-        return Object.keys(this.followingNodes).reduce((
-            (prev, cur) => prev.concat(this.followingNodes[cur])), []);
-    }
-
-    get followingTreeNodesStringPairs(): [string, TreeNode][] {
-        var collection = [];
-        Object.keys(this.followingNodes).forEach(
-            (cur) =>
-                this.followingNodes[cur].forEach(
-                    (curNode) =>
-                        collection.push([cur, curNode])));
-        return collection;
+        return false;
     }
 }
-

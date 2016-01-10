@@ -10,6 +10,7 @@ import {Grammar} from "../../metaCompiler/BNFParser/Parser";
 import {compileDefault} from "../../metaCompiler/BNFParser/Compiler";
 import {VisitorPass} from "../../metaCompiler/BNFParser/AbstractManipulators/VisitorPass";
 import {ReformatBNF} from "../../metaCompiler/BNFParser/Passes/ReformatBNF";
+import LeftHandSideExpression = ts.LeftHandSideExpression;
 var expect = chai.expect;
 
 describe('Left factoring tests:', () => {
@@ -19,58 +20,46 @@ describe('Left factoring tests:', () => {
         let input1 = [new Terminal("three"), new Terminal("four"), new Terminal("five")];
         let input2 = [new Terminal("one"), new Terminal("four"), new Terminal("five")];
         let input3 = [new Terminal("one"), new Terminal("four"), new Terminal("six")];
-        let ambiguousTree: TreeNode = new TreeNode();
-        let unAmbiguousTree: TreeNode = new TreeNode();
-        let aTree: TreeNode = new TreeNode();
-
-        it('should build node', (done) => {
-            let tree: TreeNode = new TreeNode();
-            LeftFactoring.insertSequence(tree, input);
-            expect(tree).to.have.deep.property('_followingNodes.one');
-            done();
-        });
+        let ambiguousTree: any = {};
+        let unAmbiguousTree: any = {};
+        let aTree: any = {};
 
         it('should build sequence', (done) => {
-            let tree: TreeNode = new TreeNode();
+            let tree: any = {};
             LeftFactoring.insertSequence(tree, input);
-            expect(tree).to.have.deep.property('_followingNodes.one');
-            expect(tree).to.have.deep.property('_followingNodes.one[0]._followingNodes.two');
-            expect(tree).to.have.deep.property('_followingNodes.one[0]._followingNodes.two[0]._followingNodes.three');
+            expect(tree).to.have.all.keys('one');
+            expect(tree.one).to.have.all.keys('two');
+            expect(tree.one.two).to.have.all.keys('three');
             done();
         });
 
         it('should build an un-ambiguous tree for multiple distinct sequences', (done) => {
             LeftFactoring.insertSequence(unAmbiguousTree, input);
             LeftFactoring.insertSequence(unAmbiguousTree, input1);
-            expect(unAmbiguousTree.followingNodes).to.have.all.keys(['one', 'three']);
-            expect(unAmbiguousTree.followingNodes['one']).to.have.lengthOf(1);
-            expect(unAmbiguousTree.followingNodes['three']).to.have.lengthOf(1);
-            expect(unAmbiguousTree.followingNodes['one'][0].followingNodes).to.have.all.keys(['two']);
-            expect(unAmbiguousTree.followingNodes['three'][0].followingNodes).to.have.all.keys(['four']);
+            expect(unAmbiguousTree).to.have.all.keys(['one', 'three']);
+            expect(unAmbiguousTree.one).to.have.all.keys('two');
+            expect(unAmbiguousTree.three).to.have.all.keys('four');
+            expect(unAmbiguousTree.one.two).to.have.all.keys('three');
+            expect(unAmbiguousTree.three.four).to.have.all.keys('five');
             done();
         });
 
         it('should build an ambiguous tree for multiple common head sequences', (done) => {
             LeftFactoring.insertSequence(ambiguousTree, input);
             LeftFactoring.insertSequence(ambiguousTree, input2);
-            expect(ambiguousTree.followingNodes).to.have.all.keys(['one']);
-            expect(ambiguousTree.followingNodes['one']).to.have.lengthOf(2);
-            expect(ambiguousTree.followingNodes['one'][0].followingNodes).to.have.any.keys(['four', 'two']);
-            expect(ambiguousTree.followingNodes['one'][1].followingNodes).to.have.any.keys(['four', 'two']);
-            expect(ambiguousTree.followingNodes['one'][0].followingNodes)
-                .to.not.have.any.keys(ambiguousTree.followingNodes['one'][1].followingNodes);
+            expect(ambiguousTree).to.have.all.keys(['one']);
+            expect(ambiguousTree.one).to.have.all.keys(['two', 'four']);
+            expect(ambiguousTree.one.two).to.have.all.keys('three');
+            expect(ambiguousTree.one.four).to.have.all.keys('five');
             done();
         });
 
         it('should build a simple ambiguous tree for multiple very common head sequences', (done) => {
             LeftFactoring.insertSequence(aTree, input2);
             LeftFactoring.insertSequence(aTree, input3);
-            expect(ambiguousTree.followingNodes).to.have.all.keys(['one']);
-            expect(ambiguousTree.followingNodes['one']).to.have.lengthOf(1);
-            expect(ambiguousTree.followingNodes['one'][0].followingNodes).to.have.all.keys(['four']);
-            expect(ambiguousTree.followingNodes['one'][0].followingNodes['four']).to.have.lengthOf(2);
-            expect(ambiguousTree.followingNodes['one'][0].followingNodes['four'][0].followingNodes)
-                .to.not.have.any.keys(ambiguousTree.followingNodes['one'][0].followingNodes['four'][1].followingNodes);
+            expect(aTree).to.have.all.keys(['one']);
+            expect(aTree.one).to.have.all.keys(['four']);
+            expect(aTree.one.four).to.have.all.keys(['five', 'six']);
             done();
         });
 
@@ -107,48 +96,27 @@ describe('Left factoring tests:', () => {
             done();
         });
 
-        it('should inherit children', (done) => {
-            let parent: TreeNode = new TreeNode();
-            parent.addChild(new Terminal("two"));
-            parent.addChild(new Terminal("four"));
-
-            let child1: TreeNode = new TreeNode();
-            child1.addChild(new Terminal("one"));
-            child1.addChild(new Terminal("two"));
-
-            let child2: TreeNode = new TreeNode();
-            child1.addChild(new Terminal("one"));
-            child1.addChild(new Terminal("three"));
-            parent.inheritChildren([child1, child2]);
-
-            expect(parent.followingNodes['one']).to.have.lengthOf(2);
-            expect(parent.followingNodes['two']).to.have.lengthOf(2);
-            expect(parent.followingNodes['three']).to.have.lengthOf(1);
-            expect(parent.followingNodes['four']).to.have.lengthOf(1);
-
-            done();
-        });
-
-        it('should leftFactor an unambiguous tree', (done) => {
+        it('should leftFactor an ambiguous tree', (done) => {
             let disambiguated: {} = LeftFactoring.leftFactor("<entry>", ambiguousTree);
             expect(disambiguated).to.have.all.keys(['<entry>', '<disambiguated_one>']);
-            expect(disambiguated['<entry>'][0].followingNodes['one']).to.have.lengthOf(1);
-            expect(disambiguated['<entry>'][0].followingNodes['one'][0].followingNodes).to.have.all.keys(['<disambiguated_one>']);
-            expect(disambiguated['<disambiguated_one>']).to.have.lengthOf(1);
+            expect(disambiguated['<entry>'].one).to.have.all.keys('<disambiguated_one>');
+            expect(disambiguated['<disambiguated_one>']).to.have.all.keys('two', 'four');
             done();
         });
 
         it('should left factor whole grammar', (done) => {
             var g: Grammar = compileDefault();
+            expect(LeftFactoring.grammarIsAmbiguous(g)).to.be.true;
             let lFac = LeftFactoring.leftFactorGrammar(g);
-            let visitor = new ReformatBNF();
-            let visitorPass = new VisitorPass(visitor);
-            visitorPass.visit(lFac);
-            var a = ""
-            for (var lol of visitor.output) {
-                a+=lol;
-            }
-            console.log(a)
+            expect(LeftFactoring.grammarIsAmbiguous(lFac)).to.be.false;
+            //let visitor = new ReformatBNF();
+            //let visitorPass = new VisitorPass(visitor);
+            //visitorPass.visit(lFac);
+            //var a = "";
+            //for (var lol of visitor.output) {
+            //    a+=lol;
+            //}
+            //console.log(a)
             done();
         });
 
