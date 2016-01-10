@@ -10,7 +10,15 @@ export abstract class AbstractVisitor {
     private _productionIndex: number = 0;
     private _nonTerminalIndex: number = 0;
     private _output: string[] = [];
-    private grammar: Grammar;
+    private _grammar: Grammar;
+
+    get grammar():Grammar {
+        return this._grammar;
+    }
+
+    set grammar(value:Grammar) {
+        this._grammar = value;
+    }
 
     get output():string[] {
         return this._output;
@@ -42,7 +50,7 @@ export abstract class AbstractVisitor {
     }
 
     get lastProductionVisit():boolean {
-        return this.productionIndex == this.grammar.productions[this.curProductionName].length - 1;
+        return this.productionIndex == this._grammar.productions[this.curProductionName].length - 1;
     }
 
     get curProductionName():string {
