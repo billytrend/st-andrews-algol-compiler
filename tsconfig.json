@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs"
+    "module": "commonjs",
+    "outDir": "bin",
+    "rootDir": "src",
+    "sourceMap": true
   },
   "exclude": ["node_modules", "src/sAlgolCompiler/GeneratedFiles"]
 }

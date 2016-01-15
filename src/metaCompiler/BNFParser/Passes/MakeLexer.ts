@@ -46,7 +46,7 @@ export class MakeLexer extends AbstractVisitor {
     }
 
     beforeVisitNonTerminal(node:NonTerminal) {
-        this.output.push("  public " + node.value + this.nonTerminalIndex + ":" + node.value + ";");
+        this.output.push("  public " + node.prettyValue + this.nonTerminalIndex + ":" + node.prettyValue + ";");
     }
 
     afterVisitNonTerminal(node:NonTerminal) {

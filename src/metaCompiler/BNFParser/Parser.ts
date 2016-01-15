@@ -71,7 +71,7 @@ export class ParseSymbol extends GrammarFeature {
 
     static build(value: string): ParseSymbol {
         if (value.startsWith("<") && value.endsWith(">")) {
-            return new NonTerminal(value.substr(1, value.length - 2));
+            return new NonTerminal(value.slice(1, -1));
         } else if (value === "EMPTY") {
             return new Empty();
         } else {
@@ -86,6 +86,10 @@ export class ParseSymbol extends GrammarFeature {
     set value(value:string) {
         this._value = value;
     }
+
+    get prettyValue():string {
+        return this.value;
+    }
 }
 
 export class Terminal extends ParseSymbol {
@@ -98,10 +102,13 @@ export class Empty extends ParseSymbol {
 }
 
 export class NonTerminal extends ParseSymbol {
-    get value():string {
+    get prettyValue():string {
         return "<" + this._value + ">";
     }
 
+    get normalValue():string {
+        return this._value
+    }
 }
 
 function err(symbol: Lexer.LexedSymbol) {
@@ -132,7 +139,7 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
         let productionName: NonTerminal = nonTerminal(input);
 
         if (grammar.entry === undefined) {
-            grammar.entry = productionName.value;
+            grammar.entry = productionName.prettyValue;
         }
 
         if (!expect(input.shift(), Lexer.SymbolType.EQ)) {
@@ -140,7 +147,7 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
         }
 
         while (true) {
-            grammar.addProduction(productionName.value, production(input, grammar));
+            grammar.addProduction(productionName.prettyValue, production(input, grammar));
 
             let next: Lexer.LexedSymbol = input.shift();
             if (accept(next, Lexer.SymbolType.BAR)) continue;
@@ -209,8 +216,8 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
 
     let emptyProduction: Production = new Production();
     emptyProduction.sequence.push(new Empty());
-    grammar.productions[maybeReference.value] = [];
-    grammar.productions[maybeReference.value].push(emptyProduction);
+    grammar.productions[maybeReference.prettyValue] = [];
+    grammar.productions[maybeReference.prettyValue].push(emptyProduction);
 
     let regularProduction: Production = new Production();
     if (!expect(input.shift(), Lexer.SymbolType.LSB)) return null;
@@ -225,7 +232,7 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
         regularProduction.sequence.push(maybeReference);
     }
 
-    grammar.productions[maybeReference.value].push(regularProduction);
+    grammar.productions[maybeReference.prettyValue].push(regularProduction);
     return maybeReference;
 }
 

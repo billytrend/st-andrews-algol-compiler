@@ -5,6 +5,7 @@ import {MakeVisitorTraversal} from './MakeVisitorTraversal';
 import {ReformatBNF} from './ReformatBNF';
 import {ValidateBNF} from './ValidateBNF';
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
+import {MakeLexerEnum} from "./MakeLexerEnum";
 
 export function buildVisitor(visitorName: string): AbstractVisitor {
     switch (visitorName) {
@@ -13,5 +14,6 @@ export function buildVisitor(visitorName: string): AbstractVisitor {
         case "MakeVisitorTraversal" : return new MakeVisitorTraversal();
         case "ReformatBNF" : return new ReformatBNF();
         case "ValidateBNF" : return new ValidateBNF();
+        case "MakeLexerEnum" : return new MakeLexerEnum();
     }
 }

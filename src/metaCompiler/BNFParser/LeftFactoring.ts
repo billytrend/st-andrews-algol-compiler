@@ -52,13 +52,13 @@ export default class LeftFactoring {
             var brokenBranch = head[name];
 
             head[name] = {
-                [replacementNonTerm.value]: {}
+                [replacementNonTerm.prettyValue]: {}
             };
 
-            disambiguated[replacementNonTerm.value] = brokenBranch;
+            disambiguated[replacementNonTerm.prettyValue] = brokenBranch;
 
-            for (let symbolValue in disambiguated[replacementNonTerm.value]) {
-                this.leftFactorRecurse(symbolValue, disambiguated[replacementNonTerm.value], disambiguated);
+            for (let symbolValue in disambiguated[replacementNonTerm.prettyValue]) {
+                this.leftFactorRecurse(symbolValue, disambiguated[replacementNonTerm.prettyValue], disambiguated);
             }
         } else if (following.length == 1) {
             this.leftFactorRecurse(following[0], head[name], disambiguated);

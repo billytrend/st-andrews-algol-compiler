@@ -1,16 +1,12 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 ///<reference path="../../metaCompiler/BNFParser/AbstractManipulators/VisitorPass.ts"/>
+
 import chai = require('chai');
-import {ParseSymbol} from "../../metaCompiler/BNFParser/Parser";
-import {Terminal} from "../../metaCompiler/BNFParser/Parser";
-import {NonTerminal} from "../../metaCompiler/BNFParser/Parser";
+import {ParseSymbol, Terminal, NonTerminal, Grammar} from "../../metaCompiler/BNFParser/Parser";
 import LeftFactoring from "../../metaCompiler/BNFParser/LeftFactoring";
-import {TreeNode} from "../../metaCompiler/BNFParser/LeftFactoring";
-import {Grammar} from "../../metaCompiler/BNFParser/Parser";
 import {compileDefault} from "../../metaCompiler/BNFParser/Compiler";
 import {VisitorPass} from "../../metaCompiler/BNFParser/AbstractManipulators/VisitorPass";
 import {ReformatBNF} from "../../metaCompiler/BNFParser/Passes/ReformatBNF";
-import LeftHandSideExpression = ts.LeftHandSideExpression;
 var expect = chai.expect;
 
 describe('Left factoring tests:', () => {
@@ -97,7 +93,6 @@ describe('Left factoring tests:', () => {
         });
 
         it('should leftFactor an ambiguous tree', (done) => {
-            console.log("!!!", ambiguousTree);
             let disambiguated: {} = LeftFactoring.leftFactor("<entry>", ambiguousTree);
             expect(disambiguated).to.have.all.keys(['<entry>', '<disambiguated_one>']);
             expect(disambiguated['<entry>'].one).to.have.all.keys('<disambiguated_one>');
@@ -110,14 +105,14 @@ describe('Left factoring tests:', () => {
             expect(LeftFactoring.grammarIsAmbiguous(g)).to.be.true;
             let lFac = LeftFactoring.leftFactorGrammar(g);
             expect(LeftFactoring.grammarIsAmbiguous(lFac)).to.be.false;
-            let visitor = new ReformatBNF();
-            let visitorPass = new VisitorPass(visitor);
-            visitorPass.visit(lFac);
-            var a = "";
-            for (var lol of visitor.output) {
-                a+=lol;
-            }
-            console.log(a);
+            //let visitor = new ReformatBNF();
+            //let visitorPass = new VisitorPass(visitor);
+            //visitorPass.visit(lFac);
+            //var a = "";
+            //for (var lol of visitor.output) {
+            //    a+=lol;
+            //}
+            //console.log(a);
             done();
         });
 

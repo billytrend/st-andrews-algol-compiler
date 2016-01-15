@@ -3,7 +3,7 @@ var path = require('path');
 module.exports = {
     entry: {
         //sAlgolCompiler: "./src/sAlgolCompiler/index.ts",
-        metaCompiler: "./src/metaCompiler/index.ts"
+        metaCompiler: "./src/test/index.ts"
     },
     output: {
         path: path.join(__dirname, "dist"),

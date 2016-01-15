@@ -3,39 +3,27 @@ import {Grammar, Production, Terminal, NonTerminal, GrammarFeature} from "../Par
 import {compile} from "../Compiler";
 import {AbstractVisitor} from "../AbstractManipulators/AbstractVisitor";
 import {VisitorPass} from "../AbstractManipulators/VisitorPass";
+import {intuitDelimeters} from "../../Utilities";
 import {Empty} from "../Parser";
+import {Constants} from "../Constants";
 
-export class ValidateBNF extends AbstractVisitor {
-    private _productions: {};
-    private _missingProductions: {} = {};
-
-    get productions():{} {
-        return this._productions;
-    }
-
-    get missingProductions():string[] {
-        return Object.keys(this._missingProductions);
-    }
-
-    set productions(value:{}) {
-        this._productions = value;
-    }
-
-    isValid(): boolean {
-        return this.missingProductions.length == 0;
-    }
+export class GenerateParser extends AbstractVisitor {
 
     beforeVisitGrammar(node:Grammar) {
-        this.productions = node.productions;
+        this.output.push("import Parser from '@{Constants.parserHelper}'");
+        this.output.push("public class SalgolParser extends Parser<SalgolLexSymbol> {");
     }
 
     afterVisitGrammar(node:Grammar) {
+        this.output.push("}");
     }
 
-    beforeVisitProductionName(node: string) {
+    beforeVisitProductionName(node:string) {
+        this.output.push("public parse" + node + "(): " + node + "{");
     }
 
-    afterVisitProductionName(node: string) {
+    afterVisitProductionName(node:string) {
+        this.output.push("}");
     }
 
     beforeVisitProduction(node:Production) {
@@ -51,9 +39,6 @@ export class ValidateBNF extends AbstractVisitor {
     }
 
     beforeVisitNonTerminal(node:NonTerminal) {
-        if (!this.productions.hasOwnProperty(node.prettyValue)) {
-            this._missingProductions[node.prettyValue] = true;
-        }
     }
 
     afterVisitNonTerminal(node:NonTerminal) {
@@ -64,6 +49,5 @@ export class ValidateBNF extends AbstractVisitor {
 
     afterVisitEmpty(empty:Empty) {
     }
-
 
 }

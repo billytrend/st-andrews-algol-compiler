@@ -45,7 +45,7 @@ export class ReformatBNF extends AbstractVisitor {
     }
 
     beforeVisitNonTerminal(node:NonTerminal) {
-        this.output.push(escape(node.value));
+        this.output.push(escape(node.prettyValue));
     }
 
     afterVisitNonTerminal(node:NonTerminal) {
