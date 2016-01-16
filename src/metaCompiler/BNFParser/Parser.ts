@@ -70,7 +70,7 @@ export class ParseSymbol extends GrammarFeature {
     }
 
     static build(value: string): ParseSymbol {
-        if (value.startsWith("<") && value.endsWith(">")) {
+        if (/^<.*>$/.test(value)) {
             return new NonTerminal(value.slice(1, -1));
         } else if (value === "EMPTY") {
             return new Empty();
