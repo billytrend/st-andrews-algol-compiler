@@ -105,10 +105,6 @@ export class NonTerminal extends ParseSymbol {
     get prettyValue():string {
         return "<" + this._value + ">";
     }
-
-    get normalValue():string {
-        return this._value
-    }
 }
 
 function err(symbol: Lexer.LexedSymbol) {
@@ -124,10 +120,7 @@ function expect(symbol: Lexer.LexedSymbol, toBe: Lexer.SymbolType): boolean {
 }
 
 function accept(symbol: Lexer.LexedSymbol, toBe: Lexer.SymbolType): boolean {
-    if (symbol.type != toBe) {
-        return false;
-    }
-    return true;
+    return symbol.type != toBe;
 }
 
 export function grammar(input: Lexer.LexedSymbol[]): Grammar {
@@ -150,8 +143,12 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
             grammar.addProduction(productionName.prettyValue, production(input, grammar));
 
             let next: Lexer.LexedSymbol = input.shift();
-            if (accept(next, Lexer.SymbolType.BAR)) continue;
-            else if (!expect(next, Lexer.SymbolType.SC)) return null;
+            if (accept(next, Lexer.SymbolType.BAR)) {
+                continue;
+            }
+            else if (!expect(next, Lexer.SymbolType.SC)) {
+                return null;
+            }
             else break;
         }
     }
@@ -237,9 +234,18 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
 }
 
 function escapeSequence(input: Lexer.LexedSymbol[]): Terminal {
-    if (!expect(input.shift(), Lexer.SymbolType.ESC)) return null;
-    let terminal: Terminal = new Terminal(input.shift().value);
+    if (!expect(input.shift(), Lexer.SymbolType.ESC)) {
+        return null;
+    }
 
-    if (!expect(input.shift(), Lexer.SymbolType.ESC)) return null;
+    let escapedSequence = input.shift().value;
+    while (!accept(input[0], Lexer.SymbolType.ESC)) {
+        escapedSequence += input.shift().value;
+    }
+    let terminal: Terminal = new Terminal(escapedSequence);
+
+    if (!expect(input.shift(), Lexer.SymbolType.ESC)) {
+        return null;
+    }
     return terminal;
 }
