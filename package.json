@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./test.sh"
+    "test": "./test.sh",
+    "test-debug": "./node_modules/.bin/mocha ./bin/test/**/*.js --debug-brk",
+    "watch": "./node_modules/.bin/tsc -w"
   },
   "repository": {
     "type": "git",
@@ -34,7 +36,8 @@
     "typescript": "^1.6.2",
     "typescript-collections": "^1.0.5",
     "typescript-require": "^0.2.9",
-    "webpack": "^1.12.9"
+    "webpack": "^1.12.9",
+    "mocha": "~2.3.4"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^0.15.9",
