@@ -17,7 +17,6 @@ for (var i = 2; i < process.argv.length; i++) {
     }
 }
 
-//noinspection TypeScriptValidateTypes
 if (argv.hasOwnProperty('pass')) {
     doPass(argv['pass'][0]);
 }
@@ -35,3 +34,5 @@ export function doPass(name: string) {
     visitorPass.visit(syntaxTree);
     logArray(visitor.output);
 }
+
+doPass("MakeLexerEnum");
