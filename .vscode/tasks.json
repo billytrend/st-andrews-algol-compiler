@@ -1,0 +1,17 @@
+{
+	"version": "0.1.0",
+	"command": "npm",
+	"isShellCommand": true,
+	"args": [],
+	"echoCommand": true,
+	"tasks": [
+		{
+			"args": [
+				"run", "test-debug" 
+			],
+			"suppressTaskName": true,
+			"taskName": "mocha-debug",
+			"isBuildCommand": true
+		}
+	]
+}

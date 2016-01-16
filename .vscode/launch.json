@@ -1,0 +1,15 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "request": "attach",
+            "name": "Attach",
+            "type": "node",
+            "port": 5858,
+            "preLaunchTask": "mocha-debug",
+            "sourceMaps": true,
+            "outDir": "build"
+        }
+
+    ]
+}
