@@ -120,7 +120,7 @@ function expect(symbol: Lexer.LexedSymbol, toBe: Lexer.SymbolType): boolean {
 }
 
 function accept(symbol: Lexer.LexedSymbol, toBe: Lexer.SymbolType): boolean {
-    return symbol.type != toBe;
+    return !(symbol.type != toBe);
 }
 
 export function grammar(input: Lexer.LexedSymbol[]): Grammar {
