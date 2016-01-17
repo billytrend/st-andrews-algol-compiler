@@ -1294,7 +1294,6 @@ export class AbstractPass {
             this.pass_standard_id9(node);
         }
         if (node instanceof ConcreteSyntax.standard_id10) {
-            console.log("hi!")
             this.pass_standard_id10(node);
         }
     }

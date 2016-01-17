@@ -44,7 +44,7 @@ export class MakeClassDefinitions extends AbstractVisitor {
     }
 
     beforeVisitNonTerminal(node:NonTerminal) {
-        this.output.push("  public " + Constants.nonTerminalFieldName(node.prettyValue, this.nonTerminalIndex) + ":" + node.prettyValue + ";");
+        this.output.push("  public " + Constants.nonTerminalFieldName(node.value, this.nonTerminalIndex) + ":" + node.prettyValue + ";");
     }
 
     afterVisitNonTerminal(node:NonTerminal) {

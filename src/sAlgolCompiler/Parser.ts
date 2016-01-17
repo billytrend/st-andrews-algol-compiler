@@ -1,10 +1,14 @@
 import * as ConcreteSyntax from "./GeneratedFiles/ConcreteSyntax";
 import {Grammar} from "../metaCompiler/BNFParser/Parser";
-import {Constants} from "../metaCompiler/BNFParser/Constants";
 import {Terminal} from "../metaCompiler/BNFParser/Parser";
 import {NonTerminal} from "../metaCompiler/BNFParser/Parser";
 import {SalgolSymbol} from "./Lexer";
 import PredictionTable from "../metaCompiler/BNFParser/Passes/parsePrediction/PredictionTable";
+import {ParseSymbol} from "../metaCompiler/BNFParser/Parser";
+import {Production} from "../metaCompiler/BNFParser/Parser";
+import {SalgolTerminal} from "./GeneratedFiles/SalgolTerminal";
+import {Empty} from "../metaCompiler/BNFParser/Parser";
+import {Constants} from "../metaCompiler/BNFParser/Constants";
 
 export default class Parser<SalgolSymbol> {
     private _input: SalgolSymbol[];
@@ -41,7 +45,7 @@ export default class Parser<SalgolSymbol> {
         this.parseTable = PredictionTable.generatePredictionTable(grammar);
     }
 
-    expect(symbol: any, toBe: any): boolean {
+    expect(symbol: Terminal, toBe: SalgolSymbol): boolean {
         if (!this.accept(symbol, toBe)) {
             console.log("Expected", symbol, "to be of type", toBe, ".");
             return false;
@@ -49,52 +53,71 @@ export default class Parser<SalgolSymbol> {
         return true;
     }
 
-    accept(symbol: any, toBe: any): boolean {
-        if (symbol.type === toBe) {
+    accept(symbol: Terminal, toBe: SalgolSymbol): boolean {
+        if (SalgolTerminal[Constants.getEnumFromTerminal(symbol.value)] === toBe.type) {
             return true;
         }
         return false;
     }
 
     private recognise(expected:NonTerminal, symbol: any): number {
-        return this.parseTable[expected.prettyValue][symbol.prettyValue];
+        return this.parseTable[expected.prettyValue][symbol.value];
     }
 
     parse(): {} {
 
-        return {};
+        return this.recogniseAndParseNonTerminal(ParseSymbol.build("<program>"));
     }
 
-    parseObj(productionName: string, index: number): {} {
+    parseObj(entry: NonTerminal, index: number): {} {
         let encountered = 0;
-        let obj: {} = new ConcreteSyntax[Constants.className(productionName, index)]();
-        let productionSequence = this.grammar.productions[productionName][index];
-        for (let expected of productionSequence) {
+        let className = Constants.className(entry.value, index);
+        let obj: {} = new ConcreteSyntax[className]();
+        let production: Production = this.grammar.productions[entry.prettyValue][index];
+        for (let expected of production.sequence) {
             if (expected instanceof Terminal) {
-                if (!this.parseTerminal(expected)) {
+                if (!this.acceptTerminal(expected)) {
                     return null;
                 }
             } else if (expected instanceof NonTerminal) {
-
+                let variableToBeFilled = Constants.nonTerminalFieldName(expected.value, encountered);
+                obj[variableToBeFilled] = this.recogniseAndParseNonTerminal(expected);
+                encountered++;
             }
         }
-        return {};
+        return obj;
     }
 
-    parseTerminal(expected: Terminal) {
+    acceptTerminal(expected: Terminal) {
         let next: SalgolSymbol = this.input.shift();
-        if (!this.expect(expected, next.symbolType)) {
+        if (!this.expect(expected, next)) {
             return false;
         }
         return true;
     }
 
-    parseNonTerminal(expected: NonTerminal) {
-        let next: SalgolSymbol = this.input.shift();
-        if (!this.expect(expected, next.symbolType)) {
-            return false;
+    allowEmpty(nonTerm: NonTerminal):boolean {
+        let productions: Production[] = this.grammar.productions[nonTerm.prettyValue];
+        for (let production of productions) {
+            if (production.sequence.length === 1 && production.sequence[0] instanceof Empty) {
+                return true;
+            }
         }
+        return false;
+    }
+
+    /**
+     * Takes the NonTerminal that is expected, looks up the index of the production that the next
+     * symbol in input represents and parses that production.
+     * @param expected
+     * @returns {any}
+     */
+    recogniseAndParseNonTerminal(expected: NonTerminal) {
+        let next: SalgolSymbol = this.input[0];
         let productionIndex: number = this.recognise(expected, next);
-        return this.parseObj(expected.prettyValue, productionIndex);
+        if (productionIndex === undefined && this.allowEmpty(expected)) {
+            return {};
+        }
+        return this.parseObj(expected, productionIndex);
     }
 }

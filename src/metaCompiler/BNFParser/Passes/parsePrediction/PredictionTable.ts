@@ -28,9 +28,6 @@ export default class PredictionTable {
                 this.stack = [];
                 this.getFirstSet(grammar.productions, production.sequence[0]);
                 for (let term of this.stack) {
-                    if (table[nonTerminalName][term.value] != undefined && table[nonTerminalName][term.value] != parseInt(productionIndex)) {
-                        console.log('!!!!', nonTerminalName, term.value, productionIndex, "seen at", table[nonTerminalName][term.value]);
-                    }
                     table[nonTerminalName][term.value] = parseInt(productionIndex);
                 }
             }

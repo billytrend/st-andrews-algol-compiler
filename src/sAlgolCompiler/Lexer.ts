@@ -5,7 +5,7 @@
 //  <lsb> ::= [
 //  <rsb> ::= ]
 
-import {SalgolSymbolType} from './GeneratedFiles/SalgolSymbolType';
+import {SalgolTerminal} from './GeneratedFiles/SalgolTerminal';
 import {SalgolKeywords} from './GeneratedFiles/SalgolKeywords';
 import {ASCII} from '../assorted/ASCII';
 export class SalgolSymbol {
@@ -35,17 +35,17 @@ export class SalgolSymbol {
 }
 
 var delimters = {};
-delimters['?'] = SalgolSymbolType[ASCII['?']];
-delimters['['] = SalgolSymbolType[ASCII['[']];
-delimters[']'] = SalgolSymbolType[ASCII[']']];
-delimters['('] = SalgolSymbolType[ASCII['(']];
-delimters[')'] = SalgolSymbolType[ASCII[')']];
-delimters[','] = SalgolSymbolType[ASCII[',']];
-delimters['*'] = SalgolSymbolType[ASCII['*']];
-delimters['&'] = SalgolSymbolType[ASCII['&']];
-delimters['@'] = SalgolSymbolType[ASCII['@']];
-delimters["'"] = SalgolSymbolType[ASCII["'"]];
-delimters['"'] = SalgolSymbolType[ASCII['"']];
+delimters['?'] = SalgolTerminal[ASCII['?']];
+delimters['['] = SalgolTerminal[ASCII['[']];
+delimters[']'] = SalgolTerminal[ASCII[']']];
+delimters['('] = SalgolTerminal[ASCII['(']];
+delimters[')'] = SalgolTerminal[ASCII[')']];
+delimters[','] = SalgolTerminal[ASCII[',']];
+delimters['*'] = SalgolTerminal[ASCII['*']];
+delimters['&'] = SalgolTerminal[ASCII['&']];
+delimters['@'] = SalgolTerminal[ASCII['@']];
+delimters["'"] = SalgolTerminal[ASCII["'"]];
+delimters['"'] = SalgolTerminal[ASCII['"']];
 
 export function lexDelimeters(input: string): (string|SalgolSymbol)[] {
     let inputArray: string[] = input.split('');
@@ -98,6 +98,3 @@ export function lexKeyWordsOrIds(input: (string|SalgolSymbol)[]): SalgolSymbol[]
 
     return output;
 }
-
-
-console.log(lexDelimeters("let n := 0 ; let more := true let pos = vector 1::8 of 0 procedure add.a.queen ; { n := n + 1 ; pos( n ) := 1 } procedure alter if pos( n ) = 8 then begin n := n - 1 if n = 0 then more := false else alter end else pos( n ) := pos( n ) + 1 procedure cantake( int i,j -> bool ) ( pos( i ) = pos( j ) ) or ( abs( pos( i ) - pos( j ) ) = abs( i - j ) ) procedure incheck( -> bool ) begin let check := false ; let i := 1 while i < n and ~check do  begin if cantake( i,n ) do check := true  i := i + 1 end check end while more and n < 8 do  begin  add.a queen while more and incheck do alter  end if more then begin write \"The solution to the 8 queens problem is'n\" for i = 1 to 8 do write pos( i ) : 3 end else write \"No solution exists'n\"  ?  "))

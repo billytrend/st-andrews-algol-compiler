@@ -11,10 +11,10 @@ export default class LeftFactoring {
     static insertSequence(head: {}, sequence: ParseSymbol[]) {
         let nextHead = head;
         for (let sym of sequence) {
-            if (!nextHead.hasOwnProperty(sym.value)) {
-                nextHead[sym.value] = {};
+            if (!nextHead.hasOwnProperty(sym.prettyValue)) {
+                nextHead[sym.prettyValue] = {};
             }
-            nextHead = nextHead[sym.value];
+            nextHead = nextHead[sym.prettyValue];
 
         }
         return head;

@@ -10,6 +10,5 @@
             "sourceMaps": true,
             "outDir": "build"
         }
-
     ]
 }

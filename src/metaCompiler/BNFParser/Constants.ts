@@ -1,5 +1,6 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import path = require('path');
+import {ASCII} from "../../assorted/ASCII";
 
 export class Constants {
     static compilerRoot: string = '../';
@@ -10,7 +11,7 @@ export class Constants {
     static compilerClassesModuleName: string = "SalgolTypes";
     static lexerEnumName: string = "SalgolTerminal";
 
-    static  className(name: string, index: number) {
+    static className(name: string, index: number) {
         return name + index;
     }
 
@@ -24,5 +25,16 @@ export class Constants {
 
     static nonTerminalFieldName(name: string, index: number) {
         return name + index;
+    }
+
+    static getEnumFromTerminal(symbol: string) {
+        let symbol = symbol.replace(/[ -@[-`{-~]/g, function (substring) {
+            return "_" + ASCII[substring] + "_";
+        });
+
+        symbol = symbol.replace(/(_(?=_)|^_|_$)/g, "");
+
+        return symbol.toLowerCase();
+
     }
 }

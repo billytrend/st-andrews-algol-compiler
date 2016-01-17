@@ -35,15 +35,7 @@ export class MakeLexerEnum extends AbstractVisitor {
     }
 
     beforeVisitTerminal(node:Terminal) {
-        let symbol = node.value;
-
-        symbol = symbol.replace(/[ -@[-`{-~]/g, function (substring) {
-            return "_" + ASCII[substring] + "_";
-        });
-
-        symbol = symbol.replace(/(_(?=_)|^_|_$)/g, "");
-
-        symbol = symbol.toLowerCase();
+        let symbol = Constants.getEnumFromTerminal(node.value);
 
         if (!this.seen.hasOwnProperty(symbol)) {
             this.seen[symbol] = true;
