@@ -156,7 +156,7 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
     return grammar;
 }
 
-function production(input: Lexer.LexedSymbol[], grammar: Grammar): Production {
+export function production(input: Lexer.LexedSymbol[], grammar: Grammar): Production {
     let production: Production = new Production();
     production.sequence = grammarFeature(input, grammar);
     return production;
@@ -165,6 +165,7 @@ function production(input: Lexer.LexedSymbol[], grammar: Grammar): Production {
 function grammarFeature(input: Lexer.LexedSymbol[], grammar: Grammar): ParseSymbol[] {
     let grammarFeatures: ParseSymbol[] = [];
     while (true) {
+        if (input.length == 0) return grammarFeatures;
         switch (input[0].type) {
             case Lexer.SymbolType.LAB :
                 grammarFeatures.push(nonTerminal(input));
@@ -172,6 +173,7 @@ function grammarFeature(input: Lexer.LexedSymbol[], grammar: Grammar): ParseSymb
             case Lexer.SymbolType.RSB :
                 return grammarFeatures;
             case Lexer.SymbolType.LSB :
+            case Lexer.SymbolType.LCB :
                 grammarFeatures.push(maybeObject(input, grammar));
                 continue;
             case Lexer.SymbolType.ESC:
@@ -179,10 +181,10 @@ function grammarFeature(input: Lexer.LexedSymbol[], grammar: Grammar): ParseSymb
                 continue;
             case Lexer.SymbolType.ID:
             case Lexer.SymbolType.STAR:
+            case Lexer.SymbolType.SC  :
                 grammarFeatures.push(terminal(input));
                 continue;
             case Lexer.SymbolType.BAR :
-            case Lexer.SymbolType.SC  :
                 return grammarFeatures;
             default:
                 err(input[0]);
@@ -208,28 +210,53 @@ function nonTerminal(input: Lexer.LexedSymbol[]): NonTerminal {
 }
 
 function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal {
-    let maybeReference: NonTerminal = new NonTerminal("maybe" + grammar.maybeIndex);
     grammar.maybeIndex++;
+    let localIndex = grammar.maybeIndex;
 
-    let emptyProduction: Production = new Production();
-    emptyProduction.sequence.push(new Empty());
-    grammar.productions[maybeReference.prettyValue] = [];
-    grammar.productions[maybeReference.prettyValue].push(emptyProduction);
-
-    let regularProduction: Production = new Production();
-    if (!expect(input.shift(), Lexer.SymbolType.LSB)) return null;
-    regularProduction.sequence = grammarFeature(input, grammar);
-
-    if (!expect(input.shift(), Lexer.SymbolType.RSB)) {
+    let maybeReference: NonTerminal = new NonTerminal("maybe" + localIndex);
+    let isSquareBrackets = accept(input[0], Lexer.SymbolType.LSB);
+    if (!expect(input.shift(), isSquareBrackets ? Lexer.SymbolType.LSB : Lexer.SymbolType.LCB)) {
         return null;
+    }
+
+    let productions: Production[] = [];
+
+    while (!accept(input[0], Lexer.SymbolType.RSB) && !accept(input[0], Lexer.SymbolType.RCB)) {
+        if (accept(input[0], Lexer.SymbolType.BAR)) {
+            input.shift();
+        }
+        productions.push(production(input, grammar));
     }
 
     if (accept(input[0], Lexer.SymbolType.STAR)) {
         input.shift();
-        regularProduction.sequence.push(maybeReference);
+        let maybeAgain: NonTerminal = new NonTerminal("maybe_again" + localIndex);
+        let prod1: Production = new Production();
+        let prod2: Production = new Production();
+        prod1.sequence.push(new Empty());
+        prod2.sequence.push(maybeReference);
+        grammar.addProduction(maybeAgain.prettyValue, prod1);
+        grammar.addProduction(maybeAgain.prettyValue, prod2);
+
+        for (let production of productions) {
+            production.sequence.push(maybeAgain);
+        }
     }
 
-    grammar.productions[maybeReference.prettyValue].push(regularProduction);
+    if (!isSquareBrackets) {
+        let emptyProduction: Production = new Production();
+        emptyProduction.sequence.push(new Empty());
+        productions.push(emptyProduction);
+    }
+
+    if (!expect(input.shift(), isSquareBrackets ? Lexer.SymbolType.RSB : Lexer.SymbolType.RCB)) {
+        return null;
+    }
+
+    for (let production of productions) {
+        grammar.addProduction(maybeReference.prettyValue, production);
+    }
+
     return maybeReference;
 }
 

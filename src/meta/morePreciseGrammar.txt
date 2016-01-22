@@ -6,27 +6,18 @@
 <void-sequence) ::= <declaration>;
 
 <void-clause> ::=
-if<bool-clause>do<void-clause)|
-repeat<void-clause>while<bool-clause><maybe_do>|
+if<bool-clause>do<void-clause>|
+repeat<void-clause>while<bool-clause>{do<void—clause>}|
 while<bool-clause>do<void-clause>|
-for<int-identifier>=<int—c1ause>to<int-clause>do<void—clause><maybe_by>|
+for<int-identifier>=<int—c1ause>to<int-clause>{by<int-clause)}do<void—clause>|
 <write>|
 <T4—assign>:=<T4-clause>|
 <void-expression>;
 
-<maybe_do> :: =
-do<void—clause> | <E>
-
-<maybe_by> :: =
-by<int-clause> | <E>
-
 <T5-clause> ::=
 if<boo1—clause>then<T5-clause>else<T5-clause>
-case<T4—clause>of[<T4-clause><maybe_comma>:<T5-clause);]*defau1t:<T5-clause>|
+case<T4—clause>of[<T4-clause>{,T4-clause>}*:<T5-clause);]*defau1t:<T5-clause>|
 <T4-expression>
-
-<maybe_comma> :: =
-,<T4-clause><maybe_comma> | <E>
 
 --
 
@@ -36,29 +27,16 @@ wr1te<write.list>|
 output<fi1e—clause>,<write.list>|
 out.byte<file-clause),<int-clause>,<int—clause>;
 
-<write.list> ::= <T2—c1ause><maybe_colon><maybe_comma_write>;
-
-<maybe_colon> :: =
-:<int-c1ause> | <E>
-
-<maybe_comma_write> :: =
-,<write.list> | <E>
+<write.list> ::= <T2—c1ause>{:<int-c1ause>}{,<write.list>};
 
 <T5-expression> ::=
 <T5—exp3>
 
 <bool-expression) ::=
-<bool-exp0><maybe_or>
-
-<maybe_or> :: =
-or<boo1-exp0><maybe_or> | <E>
+<bool-exp0>{or<boo1-exp0>}*
 
 <boo1-exp0> ::=
-<boo1—exp1><maybe_and>
-
-<maybe_and> :: =
-and<boo1-exp1><maybe_and> | <E>
-
+<boo1—exp1>{and<boo1-exp1>}*
 
 <boo1—exp1> ::=
 <T1-exp3>[<ang>[5|<g1e>[1]<T1-exp3>I
@@ -66,10 +44,7 @@ and<boo1-exp1><maybe_and> | <E>
 <pntr—exp3>[is|isnt]<structure-identifier>
 
 <boo1-exp2> ::=
-<maybe_not><boo1—exp3>
-
-<maybe_not> ::=
-~ | <E>
+{~}<boo1—exp3>
 
 <T5-exp2> ::=
 <T5—exp3>
@@ -121,10 +96,7 @@ begin<T5—sequence>end
 @<int—clause>of<T4-type1><bra><T4-clause.list><ket>|
 vector<bounds>of<T4-clause>
 
-<bounds> ::= <int—c1ause>::<int—c1ause><maybe_comma_bounds>
-
-<maybe_comma_bounds> ::=
-,<bounds> | <E>
+<bounds> ::= <int—c1ause>::<int—c1ause>{,<bounds>}
 
 <T4—assign> ::=
 <T4-identifier>I<T4—vec.exp>|<T4-struct.exp>
@@ -139,10 +111,7 @@ vector<bounds>of<T4-clause>
 <pntr-expression)[(<T4.fie1d-identifier.1ist>)]*
 
 <T4-clause.1ist> ::=
-<T4-c1ause><maybe_comma_clause_list>
-
-<maybe_comma_clause_list> ::=
-,<T4—c1ause.1ist> | <E>
+<T4-c1ause>{,<T4—c1ause.1ist>}
 
 <pntr-name> ::= <pntr-structure.creation>
 
@@ -156,23 +125,17 @@ vector<bounds>of<T4-clause>
 <T5-standard.name>
 
 <T5-proc.ca11> ::=
-<T5.procedure-identifier><maybe_curvy>
-
-<maybe_curvy> ::=
-(<args.1ist>) | <E>
+<T5.procedure-identifier>{(<args.1ist>)}
 
 <args.list> ::=
-[<T4-clause>|<T5.procedure-ident1fier>|<structure—identifier>]<maybe_args_list>
-
-<maybe_args_list> ::=
-,<args.1ist> | <E>
+[<T4-clause>|<T5.procedure-ident1fier>|<structure—identifier>]{,<args.1ist>}
 
 <structure.creation> ::=
 <structure-identifier>{(<T4-c1ause.list>)}
 
 <int—standard.name> ::=
 [1wb|upb](<*T4-clause>)|
-[readi|read.byte]{(<f1le-c1ause>)}
+[readiIread.byte]{(<f1le-c1ause>)}
 
 <bool—standard.name> ::=
 [eof|readb]{(<file-c1ause>)}
@@ -240,7 +203,7 @@ procedure<T5.procedure-identifier>{<T5—type.spec>};<T5-clause)
 
 ---
 
-<param.1ist> ::=
+<param.list> ::=
 <param.spec>{;<param.list>}
 
 <param.spec> ::=

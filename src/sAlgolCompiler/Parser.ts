@@ -60,7 +60,8 @@ export default class Parser<SalgolSymbol> {
         return false;
     }
 
-    private recognise(expected:NonTerminal, symbol: any): number {
+    private recognise(expected:NonTerminal, symbol:ParseSymbol, possibleProductions:Production[]): number {
+
         return this.parseTable[expected.prettyValue][symbol.value];
     }
 
