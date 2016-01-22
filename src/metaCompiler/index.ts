@@ -1,8 +1,8 @@
 /// <reference path="../../typings/tsd.d.ts" />
 import {VisitorPass} from "./BNFParser/AbstractManipulators/VisitorPass";
 import {buildVisitor} from './BNFParser/Passes/passIndex';
-import {compile} from './BNFParser/Compiler';
 import {grammar} from '../meta/grammar';
+import {compileDefault} from "./BNFParser/Compiler";
 
 var curInput = "";
 var argv = {};
@@ -28,11 +28,11 @@ export function logArray(arr: string[]) {
 }
 
 export function doPass(name: string) {
-    var syntaxTree = compile(grammar);
+    var syntaxTree = compileDefault();
     let visitor = buildVisitor(name);
     let visitorPass = new VisitorPass(visitor);
     visitorPass.visit(syntaxTree);
     logArray(visitor.output);
 }
 
-doPass("MakeLexerEnum");
+doPass("ReformatBNF");

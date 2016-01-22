@@ -22,7 +22,7 @@ describe('New compiler test:', () => {
 
             for (let key in grammar) {
                 console.log(key);
-                let a = Parser.production(lex(grammar['<T5-sequence>']), gram);
+                let a = Parser.production(lex(grammar[key]), gram);
                 gram.addProduction(key, a);
             }
             done();

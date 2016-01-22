@@ -185,6 +185,8 @@ function grammarFeature(input: Lexer.LexedSymbol[], grammar: Grammar): ParseSymb
                 grammarFeatures.push(terminal(input));
                 continue;
             case Lexer.SymbolType.BAR :
+            case Lexer.SymbolType.RSB :
+            case Lexer.SymbolType.RCB :
                 return grammarFeatures;
             default:
                 err(input[0]);

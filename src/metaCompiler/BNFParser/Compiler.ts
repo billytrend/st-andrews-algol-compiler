@@ -9,8 +9,15 @@ function compiler(input: string): Parser.Grammar {
 
 export function compile(input: string): Parser.Grammar {
     return compiler(input);
-};
+}
 
 export function compileDefault(): Parser.Grammar {
-    return compile(grammar);
-};
+    let gram = new Parser.Grammar();
+
+    for (let key in grammar) {
+        let a = Parser.production(Lexer.lex(grammar[key]), gram);
+        gram.addProduction(key, a);
+    }
+
+    return gram;
+}
