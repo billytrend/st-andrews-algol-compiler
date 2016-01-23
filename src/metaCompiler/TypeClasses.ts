@@ -1,13 +1,10 @@
 var obj = {};
+obj['int'] = obj['real'] = 'T0';
+obj['T0'] = obj['string'] = 'T1';
+obj['T1'] = obj['bool'] = 'T2';
+obj['T2'] = obj['pntr'] = obj['file'] = 'T3';
+obj['T3'] = obj['vecT4'] = 'T4';
+obj['T4'] = obj['void'] = 'T5';
+obj['T5'] = obj['structure'] = obj['T4.field'] = obj['T5.procedure'] = 'T6';
 
-
-export default {
-    T0: ['T0', 'int', 'real'],
-    T1: ['T1', 'string'],
-    T2: ['T2', 'bool'],
-    T3: ['T3', 'pntr', 'file'],
-    T4: ['T4', '*T4'],
-    T5: ['T5', 'void'],
-    T6: ['T6', 'structure', 'T4.field', 'T5.procedure']
-
-}
+export var typeClasses = obj;
