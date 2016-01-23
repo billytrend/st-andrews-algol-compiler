@@ -22,8 +22,8 @@ describe('New compiler test:', () => {
 
             for (let key in grammar) {
                 console.log(key);
-                let a = Parser.production(lex(grammar[key]), gram);
-                gram.addProduction(key, a);
+                let a = Parser.productions(lex(grammar[key]), gram);
+                gram.productions[key] = a;
             }
             done();
         });

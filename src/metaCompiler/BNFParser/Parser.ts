@@ -145,15 +145,31 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
             let next: Lexer.LexedSymbol = input.shift();
             if (accept(next, Lexer.SymbolType.BAR)) {
                 continue;
-            }
-            else if (!expect(next, Lexer.SymbolType.SC)) {
+            } else if (!expect(next, Lexer.SymbolType.SC)) {
                 return null;
+            } else {
+                break;
             }
-            else break;
         }
+
     }
 
     return grammar;
+}
+
+export function productions(input: Lexer.LexedSymbol[], grammar: Grammar): Production[] {
+    let productions: Production[] = [];
+    while (true) {
+        let curProd = production(input, grammar);
+        productions.push(curProd);
+        if (input.length == 0) {
+            break;
+        } else {
+            let next: Lexer.LexedSymbol = input.shift();
+            expect(next, Lexer.SymbolType.BAR)
+        }
+    }
+    return productions;
 }
 
 export function production(input: Lexer.LexedSymbol[], grammar: Grammar): Production {
@@ -230,7 +246,11 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
         productions.push(production(input, grammar));
     }
 
-    if (accept(input[0], Lexer.SymbolType.STAR)) {
+    if (!expect(input.shift(), isSquareBrackets ? Lexer.SymbolType.RSB : Lexer.SymbolType.RCB)) {
+        return null;
+    }
+
+    if (input.length > 0 && accept(input[0], Lexer.SymbolType.STAR)) {
         input.shift();
         let maybeAgain: NonTerminal = new NonTerminal("maybe_again" + localIndex);
         let prod1: Production = new Production();
@@ -251,9 +271,6 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
         productions.push(emptyProduction);
     }
 
-    if (!expect(input.shift(), isSquareBrackets ? Lexer.SymbolType.RSB : Lexer.SymbolType.RCB)) {
-        return null;
-    }
 
     for (let production of productions) {
         grammar.addProduction(maybeReference.prettyValue, production);

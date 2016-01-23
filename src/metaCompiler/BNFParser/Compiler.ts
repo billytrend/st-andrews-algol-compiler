@@ -15,8 +15,8 @@ export function compileDefault(): Parser.Grammar {
     let gram = new Parser.Grammar();
 
     for (let key in grammar) {
-        let a = Parser.production(Lexer.lex(grammar[key]), gram);
-        gram.addProduction(key, a);
+        let a = Parser.productions(Lexer.lex(grammar[key]), gram);
+        gram.productions[key] = a;
     }
 
     return gram;
