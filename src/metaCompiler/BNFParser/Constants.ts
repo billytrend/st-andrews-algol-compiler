@@ -12,11 +12,11 @@ export class Constants {
     static lexerEnumName: string = "SalgolTerminal";
 
     static className(name: string, index: number) {
-        return name + index;
+        return this.strip(name) + index;
     }
 
     static  superClassName(name: string) {
-        return name;
+        return this.strip(name);
     }
 
     static  terminalName(name: string, index: number) {
@@ -24,7 +24,7 @@ export class Constants {
     }
 
     static nonTerminalFieldName(name: string, index: number) {
-        return name + index;
+        return this.strip(name) + index;
     }
 
     static getEnumFromTerminal(symbol: string) {
@@ -35,6 +35,10 @@ export class Constants {
         symbol = symbol.replace(/(_(?=_)|^_|_$)/g, "");
 
         return symbol.toLowerCase();
+    }
 
+    static strip(input: string): string {
+        input = input.replace(/<|>/g, "")
+        return input.replace(/-/g, "_")
     }
 }

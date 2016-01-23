@@ -13,7 +13,7 @@ export var grammar = {
     "<bool-exp2>": "{~}<bool-exp3>",
     "<T5-exp2>": "<T5-exp3>",
     "<T5-exp3>": "<T5-exp4>",
-    "<TO-exp3>": "<T0-exp4>[[+|-]<T0-exp4>]*",
+    "<T0-exp3>": "<T0-exp4>[[+|-]<T0-exp4>]*",
     "<T5-exp4>": "<T5-exp5>",
     "<real-exp4>": "<real-exp5>[[<star>|/]<real-exp5>]*",
     "<int-exp4>": "<int-exp5>[[<star>|div|rem]<int-exp5>]*",

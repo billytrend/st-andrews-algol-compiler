@@ -14,7 +14,7 @@ describe('Salgol Parser', () => {
     describe('parse', () => {
         it('should build sequence', (done) => {
             let gram = compileDefault();
-            let grammar = LeftFactoring.leftFactorGrammar(gram);
+            //let grammar = LeftFactoring.leftFactorGrammar(gram);
             let input = [
                 new SalgolSymbol(SalgolTerminal.let, "let"),
                 new SalgolSymbol(SalgolTerminal.a, "a"),
@@ -22,7 +22,7 @@ describe('Salgol Parser', () => {
                 new SalgolSymbol(SalgolTerminal.one, "1"),
                 new SalgolSymbol(SalgolTerminal.question_mark, "?")
             ];
-            var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, grammar);
+            var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
             expect(parser.parse()).to.be.not.null;
             done();
         });

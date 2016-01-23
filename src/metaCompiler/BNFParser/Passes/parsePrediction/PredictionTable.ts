@@ -12,11 +12,14 @@ import {ParseSymbol} from "../../Parser";
 import {NonTerminal} from "../../Parser";
 import {Empty} from "../../Parser";
 import {Production} from "../../Parser";
-import {proc_decl} from "../../../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
 import _ = require('lodash');
 import {resolve} from "../../../ResolveNonTerminal";
 import {getPossibleProductions} from "../../../ResolveNonTerminal";
-import {getPossibleProductions} from "../../../ResolveNonTerminal";
+import {getAllNonTerms} from "../../../ResolveNonTerminal";
+import {getType} from "../../../ResolveNonTerminal";
+import {isWithinClass} from "../../../TypeClasses";
+
+
 
 export default class PredictionTable {
 
@@ -55,7 +58,7 @@ export default class PredictionTable {
         return 1;
     }
 
-    static stack: ParseSymbol[] = [];
+    static stack: (string|ParseSymbol)[] = [];
     static alreadyExploredInThisRecursion = {};
 
     static doGetFirstSet(productions: {}, entry: NonTerminal): {} {
@@ -68,11 +71,28 @@ export default class PredictionTable {
             let production: Production = productions[entry.prettyValue][productionIndex];
             PredictionTable.getProductionFirstSet(productions, production);
 
+            let curWidestType: string[] = [];
             for (let item of PredictionTable.stack) {
-                if (result[item.prettyValue] ) {
-                    console.log("collision: ", item.prettyValue, productionIndex, result[item.prettyValue])
+                let curNarrowest = curWidestType[curWidestType.length - 1];
+                result[curNarrowest] = result[curNarrowest] ? result[curNarrowest] : {};
+
+                if (item instanceof ParseSymbol) {
+                    let parseSymbol: ParseSymbol = <ParseSymbol>item;
+                    //if (result[parseSymbol.prettyValue] ) {
+                    //    console.log("collision: ", parseSymbol.prettyValue, productionIndex, result[parseSymbol.prettyValue])
+                    //}
+                    result[curNarrowest][parseSymbol.prettyValue] = productions[entry.prettyValue][productionIndex];
+                } else {
+                    if (item === "END") {
+                        curWidestType.pop();
+                    } else {
+                        if (isWithinClass(<string>item, curNarrowest)) {
+                            curWidestType.push(<string>item);
+                        } else {
+                            curWidestType.push(curNarrowest);
+                        }
+                    }
                 }
-                result[item.prettyValue] = productions[entry.prettyValue][productionIndex];
             }
         }
 
@@ -104,10 +124,17 @@ export default class PredictionTable {
     }
 
     static getFirstSetNonTerminal(productions: {}, entry: ParseSymbol): void {
-        let correspondingProductions:Production[] = getPossibleProductions(productions, entry);
+        let allPossibleNonTerms = getAllNonTerms(entry);
 
-        for (let production of correspondingProductions) {
-            this.getProductionFirstSet(productions, production);
+        for (let nonTerm of allPossibleNonTerms) {
+            if (productions[nonTerm.prettyValue]) {
+                let type = getType(nonTerm);
+                this.stack.push(type ? type : "E");
+                for (let production of productions[nonTerm.prettyValue]) {
+                    this.getProductionFirstSet(productions, production);
+                }
+                this.stack.push("END");
+            }
         }
     }
 

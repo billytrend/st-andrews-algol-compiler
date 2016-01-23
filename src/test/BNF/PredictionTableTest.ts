@@ -23,6 +23,5 @@ describe('Prediction table tests:', () => {
             done();
         });
 
-
     });
 });

@@ -27,7 +27,7 @@ export class MakeClassDefinitions extends AbstractVisitor {
     }
 
     beforeVisitProduction(node:Production) {
-        this.output.push("export class " + Constants.className(this.curProductionName, this.productionIndex) + " extends " + Constants.superClassName(this.curProductionName) + "{");
+        this.output.push("export class " + Constants.className(this.curProductionName, this.productionIndex) + " extends " + Constants.superClassName(this.curProductionName + "{"));
     }
 
 
@@ -44,7 +44,7 @@ export class MakeClassDefinitions extends AbstractVisitor {
     }
 
     beforeVisitNonTerminal(node:NonTerminal) {
-        this.output.push("  public " + Constants.nonTerminalFieldName(node.value, this.nonTerminalIndex) + ":" + node.prettyValue + ";");
+        this.output.push("  public " + Constants.nonTerminalFieldName(node.value, this.nonTerminalIndex) + ":" + Constants.superClassName(this.curProductionName) + ";");
     }
 
     afterVisitNonTerminal(node:NonTerminal) {

@@ -1,8 +1,9 @@
 import {NonTerminal} from "./BNFParser/Parser";
 import {Grammar} from "./BNFParser/Parser";
-import {typeClasses} from "./TypeClasses";
+import {parentClass} from "./TypeClasses";
 import {Terminal} from "./BNFParser/Parser";
 import {Production} from "./BNFParser/Parser";
+import {allTypes} from "./TypeClasses";
 const prefixMatch = /([a-zA-Z]*T[0-6])/;
 
 export function getPossibleProductions(productions: {}, entry: Terminal): Production[] {
@@ -16,19 +17,35 @@ export function getPossibleProductions(productions: {}, entry: Terminal): Produc
     return correspondingProductions;
 }
 
+export function getAllNonTerms(origin: NonTerminal): NonTerminal[] {
+    let thisType = getType(origin);
+    if (thisType == null) return [origin];
+    let all: NonTerminal[] = [];
+    for (let type of allTypes)  {
+        all.push(NonTerminal.build(origin.prettyValue.replace(/(?!<)[^-<]*/, type)));
+    }
+    return all.reverse();
+}
 
 export function resolve(origin: NonTerminal): NonTerminal[] {
-    let prefix = origin.prettyValue.match(prefixMatch);
+    let prefix = getType(origin);
     let resolutions: NonTerminal[] = [origin];
 
-    if (prefix == null) {
-        return [origin];
+    if (prefix != null) {
+        for (var parent = parentClass(prefix); parent; parent = parentClass(parent)) {
+            let newResolutionName = origin.prettyValue.replace(prefixMatch, parent);
+            resolutions.push(NonTerminal.build(newResolutionName));
+        }
     }
 
-    for (var parent = typeClasses[prefix[0]]; parent; parent = typeClasses[parent]) {
-        let newResolutionName = origin.prettyValue.replace(prefixMatch, parent);
-        resolutions.push(NonTerminal.build(newResolutionName));
-    }
 
     return resolutions;
+}
+
+export function getType(nonTerm: NonTerminal) {
+    let prefix = nonTerm.prettyValue.match(/(?!<)([^-<]*)/);
+    if (prefix == null) {
+        return null;
+    }
+    return prefix[0];
 }
