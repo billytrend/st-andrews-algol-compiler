@@ -15,6 +15,8 @@ import {Production} from "../../Parser";
 import {proc_decl} from "../../../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
 import _ = require('lodash');
 import {resolve} from "../../../ResolveNonTerminal";
+import {getPossibleProductions} from "../../../ResolveNonTerminal";
+import {getPossibleProductions} from "../../../ResolveNonTerminal";
 
 export default class PredictionTable {
 
@@ -31,7 +33,7 @@ export default class PredictionTable {
     }
 
     static allowEmpty(productions: {}, nonTerm: NonTerminal):boolean {
-        let productions: Production[] = this.getPossibleProductions(productions, nonTerm);
+        let productions: Production[] = getPossibleProductions(productions, nonTerm);
         for (let production of productions) {
             if (production.sequence.length === 1 && production.sequence[0] instanceof Empty) {
                 return true;
@@ -70,7 +72,7 @@ export default class PredictionTable {
                 if (result[item.prettyValue] ) {
                     console.log("collision: ", item.prettyValue, productionIndex, result[item.prettyValue])
                 }
-                result[item.prettyValue] = parseInt(productionIndex);
+                result[item.prettyValue] = productions[entry.prettyValue][productionIndex];
             }
         }
 
@@ -102,23 +104,11 @@ export default class PredictionTable {
     }
 
     static getFirstSetNonTerminal(productions: {}, entry: ParseSymbol): void {
-        let correspondingProductions:Production[] = this.getPossibleProductions(productions, entry);
+        let correspondingProductions:Production[] = getPossibleProductions(productions, entry);
 
         for (let production of correspondingProductions) {
             this.getProductionFirstSet(productions, production);
         }
-    }
-
-    static getPossibleProductions(productions: {}, entry: Terminal): Production[] {
-        let correspondingProductions:Production[] = [];
-        let possibleNonTerms = resolve(entry);
-        for (let possible of possibleNonTerms) {
-            if (productions[possible.prettyValue]) {
-                correspondingProductions = correspondingProductions.concat(productions[possible.prettyValue]);
-            }
-        }
-        return correspondingProductions;
-
     }
 
     static getProductionFirstSet(productions:{}, production:Production) {

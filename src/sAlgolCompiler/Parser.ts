@@ -9,6 +9,8 @@ import {Production} from "../metaCompiler/BNFParser/Parser";
 import {SalgolTerminal} from "./GeneratedFiles/SalgolTerminal";
 import {Empty} from "../metaCompiler/BNFParser/Parser";
 import {Constants} from "../metaCompiler/BNFParser/Constants";
+import {resolve} from "../metaCompiler/ResolveNonTerminal";
+import {getPossibleProductions} from "../metaCompiler/ResolveNonTerminal";
 
 export default class Parser<SalgolSymbol> {
     private _input: SalgolSymbol[];
@@ -60,21 +62,26 @@ export default class Parser<SalgolSymbol> {
         return false;
     }
 
-    private recognise(expected:NonTerminal, symbol:ParseSymbol, possibleProductions:Production[]): number {
+    private whichProduction(expected:NonTerminal, symbol:ParseSymbol):Production {
+        let possibleEntrys: NonTerminal[] = resolve(expected);
+        for (let entry of possibleEntrys) {
+            if (this.parseTable[entry.prettyValue] && this.parseTable[entry.prettyValue][symbol.value]) {
+                return this.parseTable[entry.prettyValue][symbol.value];
+            }
 
-        return this.parseTable[expected.prettyValue][symbol.value];
+        }
+        return undefined;
     }
 
     parse(): {} {
 
-        return this.recogniseAndParseNonTerminal(ParseSymbol.build("<program>"));
+        return this.recogniseAndParseNonTerminal(ParseSymbol.build("<void-program>"));
     }
 
-    parseObj(entry: NonTerminal, index: number): {} {
+    parseObj(entry: NonTerminal, production: Production): {} {
         let encountered = 0;
-        let className = Constants.className(entry.value, index);
-        let obj: {} = new ConcreteSyntax[className]();
-        let production: Production = this.grammar.productions[entry.prettyValue][index];
+        let className = Constants.className(entry.value, production.index);
+        let obj: {} = {};
         for (let expected of production.sequence) {
             if (expected instanceof Terminal) {
                 if (!this.acceptTerminal(expected)) {
@@ -98,7 +105,7 @@ export default class Parser<SalgolSymbol> {
     }
 
     allowEmpty(nonTerm: NonTerminal):boolean {
-        let productions: Production[] = this.grammar.productions[nonTerm.prettyValue];
+        let productions: Production[] = getPossibleProductions(this.grammar.productions, nonTerm);
         for (let production of productions) {
             if (production.sequence.length === 1 && production.sequence[0] instanceof Empty) {
                 return true;
@@ -115,10 +122,10 @@ export default class Parser<SalgolSymbol> {
      */
     recogniseAndParseNonTerminal(expected: NonTerminal) {
         let next: SalgolSymbol = this.input[0];
-        let productionIndex: number = this.recognise(expected, next);
-        if (productionIndex === undefined && this.allowEmpty(expected)) {
+        let production: Production = this.whichProduction(expected, next);
+        if (production === undefined && this.allowEmpty(expected)) {
             return {};
         }
-        return this.parseObj(expected, productionIndex);
+        return this.parseObj(expected, production);
     }
 }

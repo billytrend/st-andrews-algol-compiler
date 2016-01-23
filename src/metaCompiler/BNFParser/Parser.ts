@@ -44,12 +44,21 @@ export class Grammar extends GrammarFeature {
 
 export class Production extends GrammarFeature {
     private _sequence: ParseSymbol[] = [];
+    private _index: number;
 
     constructor(value?: ParseSymbol[]) {
         super();
         if (value !== undefined) {
             this.sequence = value;
         }
+    }
+
+    get index():number {
+        return this._index;
+    }
+
+    set index(value:number) {
+        this._index = value;
     }
 
     set sequence(value: ParseSymbol[]) {
@@ -159,8 +168,10 @@ export function grammar(input: Lexer.LexedSymbol[]): Grammar {
 
 export function productions(input: Lexer.LexedSymbol[], grammar: Grammar): Production[] {
     let productions: Production[] = [];
+    let index = 0;
     while (true) {
         let curProd = production(input, grammar);
+        curProd.index = index;
         productions.push(curProd);
         if (input.length == 0) {
             break;
@@ -168,6 +179,7 @@ export function productions(input: Lexer.LexedSymbol[], grammar: Grammar): Produ
             let next: Lexer.LexedSymbol = input.shift();
             expect(next, Lexer.SymbolType.BAR)
         }
+        index++;
     }
     return productions;
 }

@@ -11,6 +11,7 @@ export function buildVisitor(visitorName: string): AbstractVisitor {
     switch (visitorName) {
         case "MakeDoupleDispatch": return new MakeDoupleDispatch();
         case "MakeLexer" : return new MakeLexer();
+        case "MakeClassDefinitions" : return new MakeClassDefinitions();
         case "MakeVisitorTraversal" : return new MakeVisitorTraversal();
         case "ReformatBNF" : return new ReformatBNF();
         case "ValidateBNF" : return new ValidateBNF();
