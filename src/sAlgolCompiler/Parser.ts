@@ -60,26 +60,20 @@ export default class Parser<SalgolSymbol> {
         return false;
     }
 
-    private whichProduction(expected:NonTerminal, symbol:ParseSymbol):Production {
-        let possibleEntrys: NonTerminal[] = getAllNonTerms(expected);
-        for (let entry of possibleEntrys) {
-            if (this.parseTable[entry.prettyValue] && this.parseTable[entry.prettyValue][symbol.value]) {
-                return this.parseTable[entry.prettyValue][symbol.value];
-            }
-
-        }
-        return undefined;
+    private recognise(expected:NonTerminal, symbol:ParseSymbol): number {
+        return this.parseTable[expected.prettyValue][symbol.value];
     }
 
     parse(): {} {
 
-        return this.recogniseAndParseNonTerminal(ParseSymbol.build("<void-program>"));
+        return this.recogniseAndParseNonTerminal(ParseSymbol.build("<program>"));
     }
 
-    parseObj(entry: NonTerminal, production: Production): {} {
+    parseObj(entry: NonTerminal, index: number): {} {
         let encountered = 0;
-        //let className = Constants.className(entry.value, production.index);
-        let obj: {} = {};
+        let className = Constants.className(entry.value, index);
+        let obj: {} = new ConcreteSyntax[className]();
+        let production: Production = this.grammar.productions[entry.prettyValue][index];
         for (let expected of production.sequence) {
             if (expected instanceof Terminal) {
                 if (!this.acceptTerminal(expected)) {
@@ -103,7 +97,7 @@ export default class Parser<SalgolSymbol> {
     }
 
     allowEmpty(nonTerm: NonTerminal):boolean {
-        let productions: Production[] = getPossibleProductions(this.grammar.productions, nonTerm);
+        let productions: Production[] = this.grammar.productions[nonTerm.prettyValue];
         for (let production of productions) {
             if (production.sequence.length === 1 && production.sequence[0] instanceof Empty) {
                 return true;
@@ -120,10 +114,10 @@ export default class Parser<SalgolSymbol> {
      */
     recogniseAndParseNonTerminal(expected: NonTerminal) {
         let next: SalgolSymbol = this.input[0];
-        let production: Production = this.whichProduction(expected, next);
-        if (production === undefined && this.allowEmpty(expected)) {
+        let productionIndex: number = this.recognise(expected, next);
+        if (productionIndex === undefined && this.allowEmpty(expected)) {
             return {};
         }
-        return this.parseObj(expected, production);
+        return this.parseObj(expected, productionIndex);
     }
 }
