@@ -5,8 +5,8 @@
 //  <lsb> ::= [
 //  <rsb> ::= ]
 
-export var symmap: string[] = ['BAR', 'LAB', 'RAB', 'STAR', 'LSB', 'RSB', 'SC', 'ID', 'EQ', 'ESC', 'RCB', 'LCB'];
-export enum SymbolType  {BAR, LAB, RAB, STAR, LSB, RSB, SC, ID, EQ, ESC, RCB, LCB }
+export var symmap: string[] = ['BAR', 'LAB', 'RAB', 'STAR', 'LSB', 'RSB', 'SC', 'ID', 'EQ', 'ESC'];
+export enum SymbolType  { BAR, LAB, RAB, STAR, LSB, RSB, SC, ID, EQ, ESC }
 
 export class LexedSymbol {
     private _type: SymbolType;
@@ -41,8 +41,6 @@ obj[">"] = SymbolType.RAB;
 obj["*"] = SymbolType.STAR;
 obj["["] = SymbolType.LSB;
 obj["]"] = SymbolType.RSB;
-obj["{"] = SymbolType.LCB;
-obj["}"] = SymbolType.RCB;
 obj[";"] = SymbolType.SC;
 obj["'"] = SymbolType.ESC;
 
@@ -68,10 +66,5 @@ export function lex(input: string): LexedSymbol[] {
             currentString = "";
         }
     });
-
-    if (currentString.length > 0) {
-        inputSyntax.push(new LexedSymbol(SymbolType.ID, currentString))
-    }
-
     return inputSyntax;
 }
