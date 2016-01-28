@@ -9,8 +9,6 @@ import {Production} from "../metaCompiler/BNFParser/Parser";
 import {SalgolTerminal} from "./GeneratedFiles/SalgolTerminal";
 import {Empty} from "../metaCompiler/BNFParser/Parser";
 import {Constants} from "../metaCompiler/BNFParser/Constants";
-import {resolve} from "../metaCompiler/ResolveNonTerminal";
-import {getPossibleProductions} from "../metaCompiler/ResolveNonTerminal";
 
 export default class Parser<SalgolSymbol> {
     private _input: SalgolSymbol[];
@@ -63,7 +61,7 @@ export default class Parser<SalgolSymbol> {
     }
 
     private whichProduction(expected:NonTerminal, symbol:ParseSymbol):Production {
-        let possibleEntrys: NonTerminal[] = resolve(expected);
+        let possibleEntrys: NonTerminal[] = getAllNonTerms(expected);
         for (let entry of possibleEntrys) {
             if (this.parseTable[entry.prettyValue] && this.parseTable[entry.prettyValue][symbol.value]) {
                 return this.parseTable[entry.prettyValue][symbol.value];
@@ -80,7 +78,7 @@ export default class Parser<SalgolSymbol> {
 
     parseObj(entry: NonTerminal, production: Production): {} {
         let encountered = 0;
-        let className = Constants.className(entry.value, production.index);
+        //let className = Constants.className(entry.value, production.index);
         let obj: {} = {};
         for (let expected of production.sequence) {
             if (expected instanceof Terminal) {

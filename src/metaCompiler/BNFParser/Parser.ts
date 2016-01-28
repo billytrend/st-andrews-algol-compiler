@@ -88,6 +88,10 @@ export class ParseSymbol extends GrammarFeature {
         }
     }
 
+    toString(): string {
+        return this.prettyValue;
+    }
+
     get value():string {
         return this._value;
     }

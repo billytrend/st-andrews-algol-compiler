@@ -16,10 +16,16 @@ describe('Prediction table tests:', () => {
 
     describe('table', () => {
         var g: Grammar = compileDefault();
-        let lFac = LeftFactoring.leftFactorGrammar(g);
+        //let lFac = LeftFactoring.leftFactorGrammar(g);
 
         it('should generate prediction table', (done) => {
-            let table = PredictionTable.generatePredictionTable(lFac);
+            let table = PredictionTable.getFirstSets(g.productions);
+            let lol = PredictionTable.recogniseTypeClassed(
+                Terminal.build("1"),
+                NonTerminal.build("<T5-exp7>"),
+                table
+            );
+            console.log(lol);
             done();
         });
 

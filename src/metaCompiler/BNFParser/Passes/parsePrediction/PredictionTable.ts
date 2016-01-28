@@ -13,36 +13,99 @@ import {NonTerminal} from "../../Parser";
 import {Empty} from "../../Parser";
 import {Production} from "../../Parser";
 import _ = require('lodash');
-import {resolve} from "../../../ResolveNonTerminal";
-import {getPossibleProductions} from "../../../ResolveNonTerminal";
-import {getAllNonTerms} from "../../../ResolveNonTerminal";
-import {getType} from "../../../ResolveNonTerminal";
-import {isWithinClass} from "../../../TypeClasses";
-
-
+import {getPossibleNonTerminals} from "../../../ResolveNonTerminal";
+import {extractType} from "../../../ResolveNonTerminal";
+import {shouldConstrainTypes} from "../../../ResolveNonTerminal";
+import {isConcrete} from "../../../TypeClasses";
+import {ltEqClass} from "../../../TypeClasses";
 
 export default class PredictionTable {
 
-    static generatePredictionTable(grammar: Grammar) {
-        var table: {} = {};
-        for (let nonTerminalName in grammar.productions) {
-            table[nonTerminalName] = {};
+    static tried = {};
+    static currentType;
 
-            let latestMapping = this.doGetFirstSet(grammar.productions, ParseSymbol.build(nonTerminalName));
-            _.extend(table, latestMapping);
+
+    static memoize(possible: string): boolean {
+        if (this.tried[possible]) {
+            return true;
+        } else {
+            this.tried[possible] = true;
+            return false;
         }
-
-        return table;
     }
 
-    static allowEmpty(productions: {}, nonTerm: NonTerminal):boolean {
-        let productions: Production[] = getPossibleProductions(productions, nonTerm);
-        for (let production of productions) {
-            if (production.sequence.length === 1 && production.sequence[0] instanceof Empty) {
-                return true;
+    static recogniseTypeClassed(symbol: Terminal, expected: NonTerminal, table: {}, type?: string) {
+        type = type ? type : extractType(expected);
+        let possibles = table[expected.prettyValue];
+        for (let possible in possibles) {
+            let sym = ParseSymbol.build(possible);
+
+            if (sym instanceof Terminal) {
+                if (possible === symbol.value) {
+                    return true;
+                }
+            } else if (sym instanceof NonTerminal && extractType(sym)) {
+                let maybeConstrainType = ltEqClass(extractType(sym), type) ? extractType(sym) : type;
+                if (this.recogniseTypeClassed(symbol, sym, table, maybeConstrainType)) {
+                    return true;
+                }
+            } else if (sym instanceof NonTerminal && !extractType(sym)) {
+                if (this.recogniseTypeClassed(symbol, sym, table)) {
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    static getFirstSets(productions: {}): {} {
+        let out = {};
+        for (let key of productions) {
+            this.getFirstSet(productions, NonTerminal.build(key), out);
+        }
+        for (let entry in productions) {
+            for (let production of productions[entry]) {
+                for (let sym of production.sequence) {
+                    if (sym instanceof NonTerminal && !out[sym.prettyValue]) {
+                        this.getFirstSet(productions, sym, out);
+                    }
+
+                }
+            }
+        }
+        return out;
+    }
+
+    static getFirstSet(productions: {}, entry: NonTerminal, collection: {}): void {
+        let possibleNonTerminals = getPossibleNonTerminals(entry, extractType(entry));
+        collection[entry.prettyValue] = this.getFirstSetIfExists(productions, possibleNonTerminals);
+    }
+
+    static getFirstSetIfExists(productions: {}, entries: NonTerminal[]): {} {
+        let all: ParseSymbol[] = [];
+        for (let entry of entries) {
+            let theseProductions = productions[entry.prettyValue];
+            if (!theseProductions) {
+                continue;
+            }
+            all = all.concat(this.getAllMaybeFirstParseSymbols(productions, theseProductions));
+        }
+
+        let obj = {};
+        for (let i of all) {
+            obj[i] = true;
+        }
+        return obj;
+    }
+
+    static getAllMaybeFirstParseSymbols(productions: {}, productions: Production[]): ParseSymbol[] {
+        let all: ParseSymbol[] = [];
+        for (let prod of productions) {
+            let shouldExploreUpTo = PredictionTable.firstNonMaybeEmptyIndex(productions, prod);
+            let prodSeq: ParseSymbol[] = prod.sequence;
+            all = all.concat(prodSeq.slice(0, shouldExploreUpTo));
+        }
+        return all;
     }
 
     static firstNonMaybeEmptyIndex(productions: {}, production: Production):number {
@@ -58,92 +121,112 @@ export default class PredictionTable {
         return 1;
     }
 
-    static stack: (string|ParseSymbol)[] = [];
-    static alreadyExploredInThisRecursion = {};
+    static allowEmpty(productions: {}, nonTerm: NonTerminal):boolean {
+        let nonTerminals: NonTerminal[] = getPossibleNonTerminals(nonTerm, extractType(nonTerm));
+        for (let nonTerm of nonTerminals) {
+            if (!productions[nonTerm]) {
+                break;
+            }
 
-    static doGetFirstSet(productions: {}, entry: NonTerminal): {} {
-        let result = {};
-
-        for (let productionIndex in productions[entry.prettyValue]) {
-            PredictionTable.stack = [];
-            PredictionTable.alreadyExploredInThisRecursion = {};
-
-            let production: Production = productions[entry.prettyValue][productionIndex];
-            PredictionTable.getProductionFirstSet(productions, production);
-
-            let curWidestType: string[] = [];
-            for (let item of PredictionTable.stack) {
-                let curNarrowest = curWidestType[curWidestType.length - 1];
-                result[curNarrowest] = result[curNarrowest] ? result[curNarrowest] : {};
-
-                if (item instanceof ParseSymbol) {
-                    let parseSymbol: ParseSymbol = <ParseSymbol>item;
-                    //if (result[parseSymbol.prettyValue] ) {
-                    //    console.log("collision: ", parseSymbol.prettyValue, productionIndex, result[parseSymbol.prettyValue])
-                    //}
-                    result[curNarrowest][parseSymbol.prettyValue] = productions[entry.prettyValue][productionIndex];
-                } else {
-                    if (item === "END") {
-                        curWidestType.pop();
-                    } else {
-                        if (isWithinClass(<string>item, curNarrowest)) {
-                            curWidestType.push(<string>item);
-                        } else {
-                            curWidestType.push(curNarrowest);
-                        }
-                    }
+            for (let production of productions[nonTerm]) {
+                if (production.sequence.length === 1 && production.sequence[0] instanceof Empty) {
+                    return true;
                 }
             }
         }
-
-        return {
-            [entry.prettyValue]: result
-        };
-
+        return false;
     }
 
-    static getFirstSet(productions: {}, entry: ParseSymbol): void {
-        if (this.alreadyExploredInThisRecursion.hasOwnProperty(entry.prettyValue)) {
-            return;
-        } else {
-            this.alreadyExploredInThisRecursion[entry.prettyValue] = true;
-        }
 
-        if (entry instanceof Terminal) {
-            return this.getFirstSetTerminal(entry);
-        }
-
-        else if (entry instanceof NonTerminal) {
-            return this.getFirstSetNonTerminal(productions, entry);
-        }
-    }
-
-    static getFirstSetTerminal(entry: Terminal): void {
-        this.stack.push(entry);
-        return;
-    }
-
-    static getFirstSetNonTerminal(productions: {}, entry: ParseSymbol): void {
-        let allPossibleNonTerms = getAllNonTerms(entry);
-
-        for (let nonTerm of allPossibleNonTerms) {
-            if (productions[nonTerm.prettyValue]) {
-                let type = getType(nonTerm);
-                this.stack.push(type ? type : "E");
-                for (let production of productions[nonTerm.prettyValue]) {
-                    this.getProductionFirstSet(productions, production);
-                }
-                this.stack.push("END");
-            }
-        }
-    }
-
-    static getProductionFirstSet(productions:{}, production:Production) {
-        let shouldExploreUpTo = PredictionTable.firstNonMaybeEmptyIndex(productions, production);
-        for (let cur = 0; cur < shouldExploreUpTo; cur++) {
-            this.getFirstSet(productions, production.sequence[cur]);
-        }
-    }
+    //static generatePredictionTable(grammar: Grammar) {
+    //    var table: {} = {};
+    //    for (let nonTerminalName in grammar.productions) {
+    //        table[nonTerminalName] = {};
+    //
+    //        let latestMapping = this.doGetFirstSet(grammar.productions, ParseSymbol.build(nonTerminalName));
+    //        _.extend(table, latestMapping);
+    //    }
+    //
+    //    return table;
+    //}
+    //
+    //
+    //static stack: ParseSymbol[] = [];
+    //static typeConstraintsStack: string[] = [];
+    //static alreadyExploredInThisRecursion = {};
+    //
+    //static doGetFirstSet(productions: {}, entry: NonTerminal): {} {
+    //    let result = {};
+    //
+    //    for (let productionIndex in productions[entry.prettyValue]) {
+    //        PredictionTable.stack = [];
+    //        PredictionTable.alreadyExploredInThisRecursion = {};
+    //        this.typeConstraintsStack = [];
+    //
+    //        let production: Production = productions[entry.prettyValue][productionIndex];
+    //        PredictionTable.getProductionFirstSet(productions, production);
+    //
+    //        for (let item of PredictionTable.stack) {
+    //            if (result[item.prettyValue] ) {
+    //                console.log("collision: ", item.prettyValue, productionIndex, result[item.prettyValue])
+    //            }
+    //            result[item.prettyValue] = productions[entry.prettyValue][productionIndex];
+    //        }
+    //    }
+    //
+    //    return {
+    //        [entry.prettyValue]: result
+    //    };
+    //
+    //}
+    //
+    //static getFirstSet(productions: {}, entry: NonTerminal): {} {
+    //    let firstSet = {};
+    //
+    //    if (this.alreadyExploredInThisRecursion.hasOwnProperty(entry.prettyValue)) {
+    //        return this.alreadyExploredInThisRecursion[entry.prettyValue];
+    //    } else {
+    //        this.alreadyExploredInThisRecursion[entry.prettyValue] = firstSet;
+    //    }
+    //
+    //    firstSet = this.getFirstSetNonTerminal(productions, entry);
+    //}
+    //
+    //static getFirstSetTerminal(entry: Terminal): void {
+    //    this.stack.push(entry);
+    //    return;
+    //}
+    //
+    //static getFirstSetNonTerminal(productions: {}, entry: NonTerminal): {} {
+    //    let shouldConstrain = shouldConstrainTypes(typeConstraint, extractType(entry));
+    //
+    //    if (shouldConstrain) {
+    //        this.typeConstraintsStack.push(extractType(entry));
+    //    }
+    //
+    //    let maybeTypeConstraint = this.typeConstraintsStack[this.typeConstraintsStack.length - 1];
+    //    let typeConstraint = maybeTypeConstraint ? maybeTypeConstraint : extractType(entry);
+    //
+    //    let allNonTerms: NonTerminal[] = getPossibleNonTerminals(entry, typeConstraint);
+    //
+    //    for (let nonTerm of allNonTerms) {
+    //        let prods = productions[nonTerm.prettyValue];
+    //        if (prods) {
+    //
+    //            for (let prod of prods){
+    //                this.getProductionFirstSet(productions, prod);
+    //            }
+    //
+    //        }
+    //    }
+    //
+    //    if (shouldConstrain) {
+    //        this.typeConstraintsStack.pop();
+    //    }
+    //}
+    //
+    //static getProductionFirstSet(productions:{}, production:Production) {
+    //}
 }
 
 
