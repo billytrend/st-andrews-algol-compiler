@@ -72,7 +72,7 @@ export default class Parser<SalgolSymbol> {
     parseObj(entry: NonTerminal, index: number): {} {
         let encountered = 0;
         let className = Constants.className(entry.value, index);
-        let obj: {} = new ConcreteSyntax[className]();
+        let obj: {} = {};
         let production: Production = this.grammar.productions[entry.prettyValue][index];
         for (let expected of production.sequence) {
             if (expected instanceof Terminal) {

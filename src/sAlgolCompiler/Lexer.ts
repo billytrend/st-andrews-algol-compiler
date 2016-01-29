@@ -8,11 +8,12 @@
 import {SalgolTerminal} from './GeneratedFiles/SalgolTerminal';
 import {SalgolKeywords} from './GeneratedFiles/SalgolKeywords';
 import {ASCII} from '../assorted/ASCII';
+
 export class SalgolSymbol {
-    private _type: SalgolSymbolType;
+    private _type: SalgolTerminal;
     private _value: string;
 
-    constructor(symbol:SalgolSymbolType, value:string) {
+    constructor(symbol:SalgolTerminal, value:string) {
         this._type = symbol;
         this._value = value;
     }
@@ -25,11 +26,11 @@ export class SalgolSymbol {
         this._value = value;
     }
 
-    get type():SalgolSymbolType {
+    get type():SalgolTerminal {
         return this._type;
     }
 
-    set type(value:SalgolSymbolType) {
+    set type(value:SalgolTerminal) {
         this._type = value;
     }
 }
@@ -81,20 +82,20 @@ export function lexDelimeters(input: string): (string|SalgolSymbol)[] {
 export function lexKeyWordsOrIds(input: (string|SalgolSymbol)[]): SalgolSymbol[] {
     let output:SalgolSymbol[] = [];
 
-    for (var stringOrToken of input) {
-        if (typeof stringOrToken === 'string') {
-            if (SalgolKeywords.hasOwnProperty(<string>stringOrToken)) {
-                output.push(new SalgolSymbol(SalgolKeywords[<string>stringOrToken], stringOrToken));
-            } else {
-                for (var char of stringOrToken.split('')) {
-                    output.push(new SalgolSymbol(SalgolKeywords[<string>stringOrToken], stringOrToken));
-                }
-            }
-        } else {
-            output.push(stringOrToken);
-        }
-
-    }
+    //for (var stringOrToken of input) {
+    //    if (typeof stringOrToken === 'string') {
+    //        if (SalgolKeywords.hasOwnProperty(<string>stringOrToken)) {
+    //            output.push(new SalgolSymbol(SalgolKeywords[<string>stringOrToken], stringOrToken));
+    //        } else {
+    //            for (var char of stringOrToken.split('')) {
+    //                output.push(new SalgolSymbol(SalgolKeywords[<string>stringOrToken], stringOrToken));
+    //            }
+    //        }
+    //    } else {
+    //        output.push(stringOrToken);
+    //    }
+    //
+    //}
 
     return output;
 }
