@@ -12,22 +12,21 @@ import {Constants} from "../Constants";
 export class MakeClassDefinitions extends AbstractVisitor {
 
     beforeVisitGrammar(node:Grammar) {
-        this.output.push("module " + Constants.compilerClassesModuleName + "{");
+        this.output.push("import {SalgolParseSymbol, SalgolTerminalClass} from '../GeneratedFileHelpers/SalgolParseSymbol'");
     }
 
     afterVisitGrammar(node:Grammar) {
-        this.output.push("}");
     }
 
     beforeVisitProductionName(node:string) {
-        this.output.push("export class " + Constants.superClassName(this.curProductionName) + "{};");
+        this.output.push("export class " + Constants.superClassName(this.curProductionName) + " extends SalgolParseSymbol {};");
     }
 
     afterVisitProductionName(node:string) {
     }
 
     beforeVisitProduction(node:Production) {
-        this.output.push("export class " + Constants.className(this.curProductionName, this.productionIndex) + " extends " + Constants.superClassName(this.curProductionName + "{"));
+        this.output.push("export class " + Constants.className(this.curProductionName, this.productionIndex, node) + " extends " + Constants.superClassName(this.curProductionName) + "{");
     }
 
 
@@ -35,16 +34,16 @@ export class MakeClassDefinitions extends AbstractVisitor {
         this.output.push("}");
     }
 
-    beforeVisitTerminal(node:Terminal) {
-
-    }
-
     afterVisitTerminal(node:Terminal) {
 
     }
 
+    beforeVisitTerminal(node:Terminal) {
+        this.output.push("  public " + Constants.nonTerminalFieldName(Constants.getEnumFromTerminal(node.value), this.symbolIndex) + ": SalgolTerminalClass;");
+    }
+
     beforeVisitNonTerminal(node:NonTerminal) {
-        this.output.push("  public " + Constants.nonTerminalFieldName(node.value, this.nonTerminalIndex) + ":" + Constants.superClassName(this.curProductionName) + ";");
+        this.output.push("  public " + Constants.nonTerminalFieldName(node.value, this.symbolIndex) + ":" + Constants.superClassName(node.prettyValue) + ";");
     }
 
     afterVisitNonTerminal(node:NonTerminal) {

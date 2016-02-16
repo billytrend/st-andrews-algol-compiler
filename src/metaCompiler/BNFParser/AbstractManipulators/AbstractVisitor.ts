@@ -6,59 +6,19 @@ import {NonTerminal} from "./../Parser";
 import {Empty} from "../Parser";
 
 export abstract class AbstractVisitor {
-    private _curProductionName: string;
-    private _productionIndex: number = 0;
-    private _nonTerminalIndex: number = 0;
-    private _output: string[] = [];
-    private _grammar: Grammar;
-
-    get grammar():Grammar {
-        return this._grammar;
-    }
-
-    set grammar(value:Grammar) {
-        this._grammar = value;
-    }
-
-    get output():string[] {
-        return this._output;
-    }
-
-    set output(value:string[]) {
-        this._output = value;
-    }
-
-
-    get nonTerminalIndex():number {
-        return this._nonTerminalIndex;
-    }
-
-    set nonTerminalIndex(value:number) {
-        this._nonTerminalIndex = value;
-    }
-
-    get productionIndex():number {
-        return this._productionIndex;
-    }
-
-    set productionIndex(value:number) {
-        this._productionIndex = value;
-    }
+    public curProductionName: string;
+    public productionIndex: number = 0;
+    public nonTerminalIndex: number = 0;
+    public symbolIndex: number = 0;
+    public output: string[] = [];
+    public grammar: Grammar;
 
     get firstProductionVisit():boolean {
         return this.productionIndex == 0;
     }
 
     get lastProductionVisit():boolean {
-        return this.productionIndex == this._grammar.productions[this.curProductionName].length - 1;
-    }
-
-    get curProductionName():string {
-        return this._curProductionName;
-    }
-
-    set curProductionName(value:string) {
-        this._curProductionName = value;
+        return this.productionIndex == this.grammar.productions[this.curProductionName].length - 1;
     }
 
     beforeVisit(node: GrammarFeature) {

@@ -2,6 +2,7 @@
 
 import * as Lexer from './Lexer';
 import * as Parser from './Parser';
+import {Constants} from "./Constants";
 
 export class GrammarFeature {}
 
@@ -208,13 +209,14 @@ function nonTerminal(input: Lexer.LexedSymbol[]): NonTerminal {
 }
 
 function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal {
-    let maybeReference: NonTerminal = new NonTerminal("maybe" + grammar.maybeIndex);
+    let tempName = "TEMP" + grammar.maybeIndex;
+    let maybeReference: NonTerminal = new NonTerminal(tempName);
     grammar.maybeIndex++;
 
     let emptyProduction: Production = new Production();
     emptyProduction.sequence.push(new Empty());
-    grammar.productions[maybeReference.prettyValue] = [];
-    grammar.productions[maybeReference.prettyValue].push(emptyProduction);
+    grammar.productions[tempName] = [];
+    grammar.productions[tempName].push(emptyProduction);
 
     let regularProduction: Production = new Production();
     if (!expect(input.shift(), Lexer.SymbolType.LSB)) return null;
@@ -223,6 +225,10 @@ function maybeObject(input: Lexer.LexedSymbol[], grammar: Grammar): NonTerminal 
     if (!expect(input.shift(), Lexer.SymbolType.RSB)) {
         return null;
     }
+
+    maybeReference = new NonTerminal(Constants.getMaybeName(grammar.productions[tempName].concat(regularProduction)));
+    grammar.productions[maybeReference.prettyValue] = grammar.productions[tempName];
+    delete grammar.productions[tempName];
 
     if (accept(input[0], Lexer.SymbolType.STAR)) {
         input.shift();

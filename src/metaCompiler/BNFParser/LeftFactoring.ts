@@ -5,7 +5,6 @@ import {NonTerminal} from "./Parser";
 import * as _ from 'lodash';
 import {Grammar} from "./Parser";
 import {Production} from "./Parser";
-import {sequence} from "../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
 
 export default class LeftFactoring {
     static insertSequence(head: {}, sequence: ParseSymbol[]) {

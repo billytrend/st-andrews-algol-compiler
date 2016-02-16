@@ -1,4 +1,4 @@
-import * as ConcreteSyntax from "./GeneratedFiles/ConcreteSyntax";
+import * as ConcreteSyntax from "./GeneratedFileHelpers/CompilationOverrides";
 import {Grammar} from "../metaCompiler/BNFParser/Parser";
 import {Terminal} from "../metaCompiler/BNFParser/Parser";
 import {NonTerminal} from "../metaCompiler/BNFParser/Parser";
@@ -9,6 +9,8 @@ import {Production} from "../metaCompiler/BNFParser/Parser";
 import {SalgolTerminal} from "./GeneratedFiles/SalgolTerminal";
 import {Empty} from "../metaCompiler/BNFParser/Parser";
 import {Constants} from "../metaCompiler/BNFParser/Constants";
+import {program} from "./GeneratedFiles/ConcreteSyntax";
+import {SalgolParseSymbol, SalgolTerminalClass} from "./GeneratedFileHelpers/SalgolParseSymbol"
 
 export default class Parser<SalgolSymbol> {
     private _input: SalgolSymbol[];
@@ -45,9 +47,12 @@ export default class Parser<SalgolSymbol> {
         this.parseTable = PredictionTable.generatePredictionTable(grammar);
     }
 
-    expect(symbol: Terminal, toBe: SalgolSymbol): boolean {
-        if (!this.accept(symbol, toBe)) {
-            console.log("Expected", symbol, "to be of type", toBe, ".");
+    expect(expected: Terminal, next: SalgolSymbol): boolean {
+        if (!next) {
+            console.log("[ERROR] Reached end of input.");
+            return;
+        } else if (!this.accept(expected, next)) {
+            console.log("Could not understand", next.value, "maybe you  meant ", expected.value, ".");
             return false;
         }
         return true;
@@ -64,26 +69,30 @@ export default class Parser<SalgolSymbol> {
         return this.parseTable[expected.prettyValue][symbol.value];
     }
 
-    parse(): {} {
+    parse(): program {
 
-        return this.recogniseAndParseNonTerminal(ParseSymbol.build("<program>"));
+        return <program>this.recogniseAndParseNonTerminal(ParseSymbol.build("<program>"));
     }
 
     parseObj(entry: NonTerminal, index: number): {} {
         let encountered = 0;
-        let className = Constants.className(entry.value, index);
-        let obj: {} = {};
         let production: Production = this.grammar.productions[entry.prettyValue][index];
+        let className = Constants.className(entry.value, index, production);
+        let obj: SalgolParseSymbol = new ConcreteSyntax[className]();
         for (let expected of production.sequence) {
             if (expected instanceof Terminal) {
+                let next = this.input[0];
                 if (!this.acceptTerminal(expected)) {
                     return null;
                 }
+                let variableToBeFilled = Constants.nonTerminalFieldName(Constants.getEnumFromTerminal(expected.value), encountered);
+                obj[variableToBeFilled] = new SalgolTerminalClass(next);
+
             } else if (expected instanceof NonTerminal) {
                 let variableToBeFilled = Constants.nonTerminalFieldName(expected.value, encountered);
                 obj[variableToBeFilled] = this.recogniseAndParseNonTerminal(expected);
-                encountered++;
             }
+            encountered++;
         }
         return obj;
     }
@@ -114,9 +123,16 @@ export default class Parser<SalgolSymbol> {
      */
     recogniseAndParseNonTerminal(expected: NonTerminal) {
         let next: SalgolSymbol = this.input[0];
+        if (!next) {
+            console.log("[ERROR] Reached end of input.");
+            return null;
+        }
         let productionIndex: number = this.recognise(expected, next);
         if (productionIndex === undefined && this.allowEmpty(expected)) {
-            return {};
+            return undefined;
+        } else if (productionIndex === undefined) {
+            console.log("error on " + expected.prettyValue);
+            return null;
         }
         return this.parseObj(expected, productionIndex);
     }

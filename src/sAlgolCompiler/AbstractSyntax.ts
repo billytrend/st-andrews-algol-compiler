@@ -1,58 +1,153 @@
-class AbstractSyntaxType {}
+import E = ESTree;
+import {getConsoleLog} from "./CodeGenHelpers";
 
-class Literal extends AbstractSyntaxType {}
+export class AbstractSyntaxType {
+    compile(): E.Node {
+        return getConsoleLog();
+    }
+}
 
-class Integer extends Literal {}
-class Real extends Literal {}
-class Bool extends Literal {}
-class Str extends Literal {}
-class Pixel extends Literal {}
-class NullFile extends Literal {}
-class Pointer extends Literal {}
+export class Program extends AbstractSyntaxType {
+    sequence: Sequence = new Sequence();
+    type: salgol_types;
+}
 
-class Operation {}
+export class Literal extends AbstractSyntaxType {
+    value: any;
+    constructor(value: any) {
+        this.value = value;
+    }
+}
 
-enum boolean_operator {NOT, AND, OR}
-class BooleanOperation extends Operation {}
+export class Number extends Literal {
+    value: number;
 
-enum comparison_operator {LT, LEQ, GT, GEQ, EQ, NEQ, IS, ISNT}
-class ComparisonOperation extends Operation {}
+    get isReal(): boolean {
+        return false;
+    }
+}
 
-enum arithmetic_operator {ADD, SUB, MUL, DIV, INTDIV, MOD}
-class ArithmeticOperation extends Operation {}
+export class Bool extends Literal {
+    value: boolean;
+}
 
-enum string_operator {JOIN}
-class StringOperation extends Operation {}
+export class Str extends Literal {
+    value: string;
+}
 
-enum picture_operator {SHIFT, SCALE, ROTATE, COLOUR, TEXT}
-class PictureOperation extends Operation {}
+export class Pixel extends Literal {
+    value: number;
+}
 
-class PixelExpression extends Operation {}
+export class NullFile extends Literal {
+    value = null;
+}
 
-enum raster_operator {ROR, RAND, XOR, COPY, NAND, NOR, NOT, XNOR, LIMIT, DEPTH}
-class RasterOperation extends Operation {}
+export class Pointer extends Literal {
+    value: number;
+}
 
-class Declaration extends AbstractSyntaxType {}
+export enum salgol_types {
+    ARITH, ORDEREDIS, WRITEABLE, LITERAL, IMAGE, NONVOID, VECTOR, INT, ARITH, STRING, ORDERED, BOOL, WRITEABLE, PIXEL, PNTR, FILE, PIXEL, CPIXEL, LITERAL, PIC, IMAGE, VECTOR, PTR_NONVOID, PTR_CNONVOID, NONVOID, VOID
+}
 
-class Identifier extends Declaration {}
-class Sequence extends Declaration {}
-class BracketedSequence extends Declaration {}
+export class argType {
+    identifier: string;
+    type: salgol_types;
 
-class Clause extends AbstractSyntaxType {}
+    constructor(identifier: string, type: salgol_types) {
+        this.identifier = identifier;
+        this.type = type;
+    }
+}
 
-class Assignment extends Clause {}
-class Conditional extends Clause {}
-class Case extends Clause {}
-class Loop extends Clause {}
-class Abort extends Clause {}
+export class Clause extends AbstractSyntaxType {}
 
-class Assignable extends Clause {}
+export enum declaration_type {
+    VAR, PROC, STRUCT
+};
 
-class Procedure extends Assignable {}
-class Forward extends Assignable {}
-class Vector extends Assignable {}
-class Structure extends Assignable {}
-class Img extends Assignable {}
+export class Declaration extends Clause {
+    identifier: string;
+    body: Clause;
+    args: argType[] = [];
+    type: declaration_type;
 
-enum input_type {READ, READI, READR, READB, READS, PEEK, READ_A_LINE, READ_BYTE, READ_16, READ_32, EOF}
-class Input extends Assignable {}
+    constructor(identifier: string, type: declaration_type) {
+        this.identifier = identifier;
+        this.type = type;
+    }
+}
+
+export class Conditional extends Clause {
+    test: Clause;
+    thenCl: Clause;
+    elseCl: Clause;
+}
+
+export class Switch extends Clause {
+    arg: Clause;
+    cases: [[Clause], Clause];
+    defcase: Clause;
+}
+
+export class Loop extends Clause {
+    first: Clause;
+    test: Clause;
+    last: Clause;
+}
+
+export class ForLoop extends Clause {
+    incrVar: string;
+    initial: Clause;
+    final: Clause;
+    increment: Clause;
+    body: Clause;
+}
+
+export class Expression extends Clause {
+
+}
+
+export class Sequence extends Expression {
+    clauses:(Clause|Declaration)[] = [];
+}
+
+export enum operation_type {
+    NOT, AND, OR,
+    LT, LEQ, GT, GEQ, EQ, NEQ, IS, ISNT,
+    ADD, SUB, MUL, DIV, INTDIV, MOD,
+    JOIN,
+    SHIFT, SCALE, ROTATE, COLOUR, TEXT,
+    ROR, RAND, XOR, COPY, NAND, NOR, NOT, XNOR
+}
+
+export class Operation extends Expression {
+    operator: any;
+    expressions: Expression[];
+
+    constructor(expressions?: Expression[], operator?: any) {
+        this.operator = operator;
+        this.expressions = expressions;
+    }
+}
+
+export class Application extends Expression {
+    args: Clause[];
+    identifier: string;
+
+    constructor(identifier: string) {
+        this.identifier = identifier;
+    }
+}
+
+export class Assignable extends Clause {}
+
+export class Procedure extends Assignable {}
+export class Forward extends Assignable {}
+export class Vector extends Assignable {}
+export class Structure extends Assignable {}
+export class Img extends Assignable {}
+
+export enum input_type {READ, READI, READR, READB, READS, PEEK, READ_A_LINE, READ_BYTE, READ_16, READ_32, EOF}
+export class Input extends Assignable {}

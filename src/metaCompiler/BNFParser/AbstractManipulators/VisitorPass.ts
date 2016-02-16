@@ -31,9 +31,11 @@ export class VisitorPass extends AbstractPass<void> {
         for (var productionName in node.productions) {
             this.visitor.curProductionName = productionName;
             this.visitor.productionIndex = 0;
+            this.visitor.productionIndex = 0;
             this.visitor.beforeVisit(productionName);
             for (var prod of node.productions[productionName]) {
                 this.visitor.nonTerminalIndex = 0;
+                this.visitor.symbolIndex = 0;
                 this.visit(prod);
                 this.visitor.productionIndex += 1;
             }
@@ -48,13 +50,15 @@ export class VisitorPass extends AbstractPass<void> {
     }
 
     passTerminal(node: Terminal) {
+        this.visitor.symbolIndex += 1;
     }
 
     passEmpty(node: Empty) {
-            }
+    }
 
     passNonTerminal(node: NonTerminal) {
         this.visitor.nonTerminalIndex += 1;
+        this.visitor.symbolIndex += 1;
     }
 }
 
