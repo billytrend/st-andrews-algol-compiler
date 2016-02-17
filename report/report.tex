@@ -1,0 +1,274 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+Title page
+% Containing the title of the project, the names of the student(s), "University of St Andrews" and the date of submission. You may add the name of your supervisor if you wish.
+
+\title{sh-final}
+\author{William Trend}
+\date{February 2016}
+
+\begin{document}
+
+\maketitle
+
+\section{Meta-compiler implementation}
+- simple recursive descent
+- good practice/insight for the full compiler
+
+\subsection{Normalising the grammar}
+- became clear that the grammar was not pre
+
+\begin{abstract}
+    % Outline of the project using at most 250 words.
+
+\end{abstract}
+
+\section{Declaration}
+% "I/we* declare that the material submitted for assessment is my/our* own work except where credit is explicitly given to others by citation or acknowledgement. This work was performed during the current academic year except where otherwise stated.
+% "The main text of this project report is NN,NNN* words long, including project specification and plan.
+% "In submitting this project report to the University of St Andrews, I/we* give permission for it to be made available for use in accordance with the regulations of the University Library. I/we* also give permission for the title and abstract to be published and for copies of the report to be made and supplied at cost to any bona fide library or research worker, and to be made available on the World Wide Web. I/we* retain the copyright in this work."
+% (* to be filled in as appropriate)
+% If there is a strong case for the protection of confidential data, the parts of the declaration giving permission for its use and publication may be omitted by prior permission of the Honours Coordinator.
+
+\section{Context survey}
+% Surveying the context, the background literature and any recent work with similar aims. The context survey describes the work already done in this area, either as described in textbooks, research papers, or in publicly available software. You may also describe potentially useful tools and technologies here but do not go into project-specific decisions.
+
+\subsection{Historical significance of S-algol}
+
+The St Andrews Algol language (S-algol) was designed as part of Ron Morrison's PHD thesis in 1979. It was subsequently use to teach programming to undergraduates in the university computer science department until 1999. It was also used at the local Madras college.
+
+S-algol is a member of a family of languages known as the 'ALGOLs'. The name of the family references their ability to easily abstract algorithms. In the seminal paper of S-algol, Morrison highlight 5 features of programming languages that 'roughly' classify the ALGOLs:
+
+\begin{enumerate}
+    \item "Scope rules and block structure"
+    \item "Abstraction facility"
+    \item "Compile time type checking"
+    \item "Infinite store".
+\end{enumerate}
+
+Given this description, it is clear that many modern languages could arguably be described as being part of the ALGOL family. Indeed it seems that this is so much the case that it is no longer particularly useful to classify languages as ALGOLs (TODO: maybe talk abot algol lisp dichotemy). Certainly there are no modern languages that are not influenced heavily by ALGOL programs. Reynolds defines the ALGOL family in 1981 to be "a conceptual universe for language design that one hopes will encompass languages far more general than its progenitor" \cite{reynolds}. This codifies the intention for the class of languages to be as inclusive as possible. 
+
+In the introduction to his PHD thesis, Morrison offers a thoughtful commentary on the problems of programming language design and the ways in which S-Algol intends to solve them. In this spirit, this report shall provide a similar analysis with direct reference to S-Algol and modern languages. This historical continuity provides some of the motivation for this project. It is possible to gain insight into language development by observing the difference between S-algol and languages of today. The differences were made very clear during the development of this project since it is written in Typescript - a language released in 2012 \cite{jsconf}. Typescript has a very modern syntax and semantics and represents exactly how S-algol compares to the cutting edge of programming language design. Further motivation for this language choice will be explored in the 'Design' chapter.
+
+\subsection{Javascript as a Tool for Preservation}
+
+The bulk of this project involves implementing a compiler that will take some S-algol program as input and output a valid Javascript program which can be run in a browser or on a server. The following aspects of Javascript were considered.
+
+\paragraph{Performance} Since the main aim of this project is simply to be able to execute code written in S-algol, performance is not particularly important. However, Javascript performance is known to be constantly improving: using certain techniques, Mozilla has managed to execute subsets of the languages at near native performance \cite{moz}. The performance of Javascript is at least good enough for this project. 
+
+\paragraph{Portability} The principal aspect of Javascript that caused it to stand out as the most viable option for this project was portability. It is absolutely possible that using a compiled programming language such as C might be more performant than using Javascript, however, these languages are often very architecture dependent. C may need to be compiled especially for each architecture that it is to be run on. Javascript can be dsitributed as source and executed on any platform. Furthermore, executing C often requires elevated privileges since it can perform operations that might be undesirable. Javascript runs in a browser sandbox which means that it is encapsulated from the host operating system, preventing it from executing maliciously.
+
+\paragraph{Ubiquity} Access to the websites is the most basic function of any consumer electronic device sold today. Since Javascript is the programming language of the web, this means that almost every every computing device sold today can run the platform at least through a web-browser. Some devices offer Javascript absolute first-class citizenship as a language. Native iOS apps for example may be written for the most part in javascript using the native 'bridge' that makes it possible to "JavaScript scripts from Objective-C or Swift code, to access values defined in or calculated in JavaScript, and to make native objects, methods, or functions accessible to JavaScript" \cite{apple}. The extent to which Javascript is embedded within today's technology means there is always likely to be some device that can run Javscript to hand.
+
+\paragraph{Longevity} The ubiquity of Javascript presupposes that the language will be still be usable many years in the future. Its longevity is being aided by the availability of 'compile-to-javascript'. These languages use Javascript as "JavaScript is an assembly language" \cite{hanselman}. Meijer goes further to say that "the browser can execute [Javascript], but no human should really care what’s there." As such, it is unlikely that the role of Javascript will be diminished any time soon.
+
+\paragraph{Precedence} Javascript is used as a target language for other technological preservation projects. The 'Javascript MESS' project is a movement to produce an emulator for 'hundreds' of machine types in the browser. The overall aim 
+
+% IRRELEVANT: This is a different paradigm or compilation to the original design of the S-algol compiler. Originally, the S-algol compiler converted S-algol input to 'S-code'. This S-code could then be executed on an S-code machine. This is very similar to Java's model: Java code is compiled to bytecode and run on a JVM. The advantage of this is that such machines maybe be implemented for arbitrary hardware and operating system targets such that code in Java or S-algol could be run on any platform. 
+
+- historical context
+- talk about how Salgol was used
+- current status
+- history of javascript
+- why t makes sense
+- problems with javascript
+- performance of javascript
+
+
+\section{Requirements specification}
+% Capturing the properties the software solution must have in the form of requirements specification. You may wish to specify different types of requirements and given them priorities if applicable.
+
+-  write whole project in javasciprt
+
+\section{Software engineering process}
+% The development approach taken and justification for its adoption.
+
+\subsection{Tool Usage}
+
+Before starting programming it was necessary to choose the tools that should be used. Some were straightforward, others required some experimentation.
+
+\paragraph{GIT} is used for version control. This is the currency of modern open source projects. Since one the targets of the proejct is to release the code for access by others, it makes sense to use GIT to manage the software versions.
+
+\paragraph{NPM} is used for package management. This is the most popular Javascript dependency manager and has the best support from node.
+
+\paragraph{TypeScript} is used as the principal development language. The TypeScript project homepage states that "TypeScript is a typed super-set of Javascript that compiles to plain Javascript." \cite{typescript}. This means that any valid Javascript is valid TypeScript but not vice versa.
+
+The extensions within typescript allow a programmer to give variables and functions explicit types. It also allows classical styles of inheritance as a substitute for Javascript's prototype-based inheritance. These permit better static checking of the code since TypeScript has enough information to check whether functions and objects are being used properly within their scope.
+
+This compiler-assistance is particularly useful when implementing a compiler. This is because a common pattern is to tie features of a language's grammar to objects within a language. Abstract and concrete syntax trees may be built up of the these objects. By explicitly defining the objects in a statically typed manner, it is never possible to access the wrong field of an object. In this project, there are over nine hundred classes to define the concrete syntax of S-algol. It would be impossible a human to remember all these classes and their field names. Fortunately, the WebStorm IDE has excellent TypeScript support and will automatically suggest the fields names.
+
+There is no performance penalty of TypeScript since all type information is discarded at compile time, leaving plain Javascript.
+
+A further advantage of using TypeScript is that it is a very modern languages and provides and excellent point of comparison with S-algol and the progress that programming languages have made over the last 35 years. 
+
+\subsection{Compiler Design Options}
+
+The original S-algol compiler was designed as a single-pass, recursive descent compiler. This design contrasts with multi-pass compilers.
+
+A single-pass compiler performs all the necessary steps including lexing, parsing, type checking and code generation in one pass of the code. Procedures are designed to handle each production of the concrete syntax. Within these functions, a series of statements consume the input programme in an appropriate manner. Errors will be reported wherever an input symbol is not as expected. When a terminal symbol is expected a set of statements will read the next characters, check that they represent the correct symbol and perform appropriate extra steps such as type checking and code generation. When a non-terminal is expected, a call is made to the function that is designed to handle the expected non-terminal.
+
+A multi-pass compiler may work in a similar way in parts but it does not perform all compiler stages in one pass. Instead, it abstracts compiler stages into separate passes and passes some representation of a program between these stages. This is called an intermediate representation, they are often trees of objects. Each pass traverses the intermediate representation as appropriate and passes on the results to the next stage.
+
+Time complexities of single and multi-pass compilers are exactly the same since both a single-pass compiler must traverse a program input once and a multi-pass compiler must pass it a n number of times where n is the number of passes. A single pass compiler however will often benefit from better performance this constant factor is minimised.
+
+(TODO: maybe not that different given input/output) Space complexities of single and multi-pass compilers will be different. Both methods operate on syntax trees which must necessarily have a size that is proportional to the input code. Single pass compilers however, use their call-stack to represent a depth-first traversal of the tree and as such only will use an amount of memory proportional to the greatest depth of the tree. This might be a significant saving, especially given the original platform of the S-algol compiler which was many thousands of times less powerful than today's machines.
+
+Single-pass compilers have limited capabilities in comparison to multi-pass compilers. Single pass compilers lack the ability to check code in relation to code it has not seen yet. For example, they cannot check that a function call is correct if the function is called before it is declared. This is why ALGOL languages often include 'forward' declarations that inform the compiler in advance the name of a function and its type signature. Morrison points out that this is "awkward when recursive procedure definitions are involved" since a function must be available in scope so it can reference itself. The solution to this in S-algol is that "the identifier comes into scope after the parameter list has been specified allowing procedures to call themselves" \cite{morrison1979development}. However, it is trivial to infer forward declarations in a multi-pass compiler since it does type checking after all the code has been seen.
+
+A subjective advantage of multi-pass compiler is that it offers a considerably better structure for drawing abstraction between parts of a compiler. A type-checker might, for example, be an optional component that can be switched in and out for performance reasons. Similarly, if a different target language is chosen, it would be simple to swap the pass that deals with code generation for a different one.
+
+Design patterns can also make the multi-pass compiler highly abstract. Norman Neff describes how the visitor pattern can be used to abstract the traversal mechanism of a collection of referenced objects (such as a syntax tree) from the operations on those objects. With reference to compiler design, Neff claims that "the visitor pattern gives the abstract syntax tree responsibility for defining a traversal sequence to be followed by all visitors." \cite{neff1999oo}. Neff points out however that the visitor pattern is limited to fixed orders of traversal, it is only useful if a programmer is doing many traversals using a fixed ordering such as depth-first or breadth-first traversal. 
+
+The visitor pattern gives the abstract syntax tree responsibility for defining a traversal sequence to be followed by all visitors.
+
+\subsection{Final Compiler Design}
+
+The final architecture for the project is a multi-pass implementation. The performance implications of this architecture seemed to be negligible in comparison to the benefits of more abstraction. The advantages of being able to add or remove parts of the compiler arbitrarily would also be useful in case the complete solution was not completed by the end of the project. Furthermore, since the target language is Javascript, not a bytecode, it might be necessary to output symbols not strictly in the order of parsing which would be easier to do given a full intermediate representation.
+
+The initial implementation involved hand-writing the recursive descent parser stage. This stage was designed to accept a string of symbols from a separate lexer and produce and abstract syntax tree to represent the input code. It would also detect context-free errors in the grammar. After a partial implementation of this, it was clear that the approach was problematic.
+
+First of all, the process of writing functions to represent syntax is very formulaic. The structure of the recursive descent was more or less a direct mapping from the syntax notation to functions. The corrolary of this was that it was easy to be inconsistent and cause confusion, especially with naming conventions and with the design of the objects into which the language was being parsed. It is not clear, nor semantically obvious whether the recursive grammar fragment,
+
+<foo> ::= bar<foo> | bar;
+
+should be represented as
+
+public class xs {
+	bars: string[];
+}
+
+or as 
+
+public class xs {
+	bar: string;
+	xs: xs;
+}
+
+Furthermore, should the classes have constructors to initialise the fields? "Modern Compiler Implementation in Java Second Edition" provides a good set of conventions (\ref{fig:classMapping}) for doing this mapping which settles the consistency issue. 
+
+
+\begin{figure}
+\begin{enumerate}
+\item Trees are described by a grammar.
+\item A tree is described by one or more abstract classes, each corresponding to a
+symbol in the grammar.
+\item Each abstract class is extended by one or more subclasses, one for each gram-
+mar rule.
+\item For each nontrivial symbol in the right-hand side of a rule, there will be one field in the corresponding class. (A trivial symbol is a punctuation symbol such as the semicolon in CompoundStm.)
+\item Every class will have a constructor function that initializes all the fields.
+\item Data structures are initialized when they are created (by the constructor func-
+tions), and are never modified after that (until they are eventually discarded).
+\end{enumerate}
+\caption{Conventions for representing tree data structures in Java. \cite{11270520020101}}
+\label{classMapping}
+\end{figure}
+
+Another point of difficulty was the process of recognising which production could be applied in a given situation. Take for example the simple S-algol program that assigns a to the expression "1".
+
+let a = 1;?
+
+The entry production for S-algol is <program>. The following productions are the subset required to parse the given section of S-algol:
+
+<program> &::= <sequence>?
+<sequence> &::= <declaration>[;<sequence>] | <clause>[;<sequence>]
+<declaration> &::= <let_decl> | <structure_decl> | <proc_decl> | <forward>
+<let_decl> &::= let <identifier><init_op><clause>
+
+The difficulty parsing this program however, is recognising which productions apply in these cases. The following code represents a fragment of a recursive descent compiler that might being to handle the parsing of a let declaration.
+
+var input = ['let', 'a', '=', '1'];
+
+function program(): Program {
+	return new Program(sequence());
+}
+
+function sequence(): Sequence {
+	if (isDeclaration(input[0])) {
+		return new Sequence(declaration(), sequence());
+
+	} else if (isClause(input[0])) {
+		return new Sequence(clause(), sequence());
+
+	}
+}
+
+The implementation difficulty with this code is the implementation of the functions, 'isDeclaration' and 'isClause'. While it is easy to see for isolated incidences which productions should be used to parse a snippet of code, in the general case, it is more complex.
+
+It might be possible to implement 'isDeclaration' as follows:
+
+function isDeclaration(): boolean {
+	return input[0] === "let";
+}
+
+This seems obviously correct, because we know that if the leading symbol is currently equal to "let", we obviously are dealing with a declaration. But the real definition of 'isDeclaration' should be as follows.
+
+function isDeclaration(): boolean {
+	return input[0] === "let" || input[0] === "forward" || input[0] === "procedure" || input[0] === "let";
+}
+
+It seems like it is necessary to write a recognition function for every production which could end up being very time consuming especially for some 'deep' productions.
+
+All these issues appear to be intellectually trivial; they are easy to understand and solve algorithmically but hard to do by hand. The issues are also very restrictive, such that if the implementation uses one particular approach, it would be very time consuming to change it later on.
+
+It seemed obvious that at least the parser stage should be generated programmatically from the syntax notation. This would have the following advantages:
+
+\begin{enumerate}
+\item Implementation of parser generator would take equal or less time to hand writing parser.
+\item The generated representation of the concrete syntax would be consistent.
+\item Changes to the conventions explored above would be trivial.
+\end{enumerate}
+
+Furthermore, an object-based representation of the grammar syntax would allow production recognisers such as 'isDeclaration' to be generated programatically.
+
+\subsection{Meta-Compiler Design}
+
+The decision to programmatically generate the S-Algol compiler meant that the parser implementation focus had to be changed. The first aspect of the meta-compiler was to implement a small compiler chain for the grammar. This was a very simple implementation since the grammar has a very simple syntax itself.
+
+
+
+- initial approach, investigation of techniques
+- justify choice of typescipt
+
+\subsection{Tool Usage}
+
+\section{Ethics}
+% Any ethical considerations for the project.
+
+\section{Design}
+% Indicating the structure of the system, with particular focus on main ideas of the design, unusual design features, etc.
+ 
+- examination of recursive descent 
+- justification for not choosing recursive descent directly
+    - attempted to write recursive descent by hand
+- reference limitations of not choosing recursive descent
+- talk about nanopass
+ http://www.cs.indiana.edu/~dyb/pubs/nano-jfp.pdf
+- argue that it offers better abstraction but perhaps less good performance
+
+\section{Implementation}
+% How the implementation was done and tested, with particular focus on important / novel algorithms and/or data structures, unusual implementation decisions, novel user interface features, etc.
+ 
+\section{Evaluation and critical appraisal}
+% You should evaluate your own work with respect to your original objectives. You should also critically evaluate your work with respect to related work done by others. You should compare and contrast the project to similar work in the public domain, for example as written about in published papers, or as distributed in software available to you.
+
+
+- compare compiler performance with other transpilers on comparible compilers
+- compare performance of produced code with other transpiled languages
+
+\section{Conclusions}
+% You should summarise your project, emphasising your key achievements and significant drawbacks to your work, and discuss future directions your work could be taken in.
+
+\section{Appendices}
+
+Testing summary
+% This should describe the steps taken to debug, test, verify or otherwise confirm the correctness of the various modules and their combination.
+
+User manual
+ 
+% Instructions on installing, executing and using the system where appropriate.
+
+Other appendices
+% If appropriate, you may include other material in appendices which are not suitable for inclusion in the main body of your report.
+
+\end{document}
