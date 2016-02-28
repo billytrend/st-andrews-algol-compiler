@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/billytrend/st-andrews-algol-compiler.git"
   },
+  "bin": {
+    "s": "./bin/s"
+  },
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -19,15 +22,19 @@
   },
   "homepage": "https://github.com/billytrend/st-andrews-algol-compiler#readme",
   "dependencies": {
+    "acorn": "^3.0.2",
+    "argparse": "^1.0.6",
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
     "escape-html": "^1.0.3",
+    "escape-string-regexp": "^1.0.4",
     "escodegen": "^1.8.0",
     "json-loader": "^0.5.4",
     "lex": "^1.7.9",
     "lodash": "^3.10.1",
     "mocha": "~2.3.4",
     "mocha-loader": "^0.7.1",
+    "node-emoji": "^1.0.4",
     "promise": "^7.0.4",
     "promises": "^0.2.5",
     "raw-loader": "^0.5.1",

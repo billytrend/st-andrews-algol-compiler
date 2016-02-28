@@ -1,81 +1,124 @@
 import E = ESTree;
-import {getConsoleLog} from "./CodeGenHelpers";
+import * as CodeGen from "./CodeGenHelpers";
+import {assignVariable} from "./CodeGenHelpers";
+import {binaryOperation} from "./CodeGenHelpers";
+import {operation} from "./CodeGenHelpers";
+import {objectDefinition} from "./CodeGenHelpers";
+import {getIdentifier} from "./CodeGenHelpers";
+import {callFunc} from "./CodeGenHelpers";
+import {functionDefinition} from "./CodeGenHelpers";
+import {raiseToBlockStatement} from "./CodeGenHelpers";
+import {getReturnStatement} from "./CodeGenHelpers";
+import {ContextSensitiveError} from "./ContextSensitiveError";
+import {getEmptyStatement} from "./CodeGenHelpers";
+import {getClosure} from "./CodeGenHelpers";
+import {ifElse} from "./CodeGenHelpers";
+import {loop} from "./CodeGenHelpers";
+import {makeBlockReturn} from "./CodeGenHelpers";
 
 export class AbstractSyntaxType {
-    compile(): E.Node {
-        return getConsoleLog();
+    type: concrete_type;
+    errors: ContextSensitiveError[] = [];x
+
+    compile(): any {
+        return CodeGen.getConsoleLog();
+    }
+
+    addError(error: ContextSensitiveError) {
+        if (!this.errors) {
+            this.errors = [];
+        }
+        this.errors.push(error);
     }
 }
 
 export class Program extends AbstractSyntaxType {
     sequence: Sequence = new Sequence();
-    type: salgol_types;
-}
 
-export class Literal extends AbstractSyntaxType {
-    value: any;
-    constructor(value: any) {
-        this.value = value;
+    compile(): E.Program {
+        let program = CodeGen.getProgram([getClosure(this.sequence.compile())])
+        return program;
     }
 }
 
-export class Number extends Literal {
-    value: number;
+export enum concrete_type {
+    int, real,
+    arith, string,
+    ordered, bool,
+    writeable, pixel, pntr, file,
+    hash_pixel, hash_cpixel,
+    literal, pic, image, vector,
+    star_nonvoid, star_cnonvoid,
+    nonvoid, void
+}
 
-    get isReal(): boolean {
-        return false;
+//export enum type_class {
+//    arith,
+//    orderedis,
+//    writeable,
+//    literal,
+//    image,
+//    nonvoid,
+//    vector,
+//    type,
+//}
+
+export function isWithinTypeClass(cla: concrete_type, type: concrete_type): boolean {
+    switch (cla) {
+        case concrete_type.arith:
+        case concrete_type.ordered:
+        case concrete_type.writeable:
+        case concrete_type.literal:
+        case concrete_type.image:
+        case concrete_type.nonvoid:
+        case concrete_type.vector:
+            return type < cla;
+        default:
+            return false;
     }
 }
 
-export class Bool extends Literal {
-    value: boolean;
+
+export type Type = (ConcreteType|Declaration);
+
+export class ConcreteType extends AbstractSyntaxType {
+    type: concrete_type;
+    pointerOrdinal: number = 0;
+    constantStack: boolean[] = [];
 }
 
-export class Str extends Literal {
-    value: string;
-}
-
-export class Pixel extends Literal {
-    value: number;
-}
-
-export class NullFile extends Literal {
-    value = null;
-}
-
-export class Pointer extends Literal {
-    value: number;
-}
-
-export enum salgol_types {
-    ARITH, ORDEREDIS, WRITEABLE, LITERAL, IMAGE, NONVOID, VECTOR, INT, ARITH, STRING, ORDERED, BOOL, WRITEABLE, PIXEL, PNTR, FILE, PIXEL, CPIXEL, LITERAL, PIC, IMAGE, VECTOR, PTR_NONVOID, PTR_CNONVOID, NONVOID, VOID
-}
-
-export class argType {
-    identifier: string;
-    type: salgol_types;
-
-    constructor(identifier: string, type: salgol_types) {
-        this.identifier = identifier;
-        this.type = type;
-    }
-}
 
 export class Clause extends AbstractSyntaxType {}
 
 export enum declaration_type {
-    VAR, PROC, STRUCT
-};
+    VAR, PROC, STRUCT, FORWARD
+}
 
 export class Declaration extends Clause {
     identifier: string;
     body: Clause;
-    args: argType[] = [];
-    type: declaration_type;
+    args: Declaration[] = [];
+    returnType: Type;
+    declType: declaration_type;
 
     constructor(identifier: string, type: declaration_type) {
         this.identifier = identifier;
-        this.type = type;
+        this.declType = type;
+    }
+
+    compile(): E.Statement {
+        switch (this.declType) {
+            case declaration_type.VAR:
+                return assignVariable(getIdentifier(this.identifier), this.body.compile());
+            case declaration_type.STRUCT:
+                return objectDefinition(this.identifier, this.args.map(arg => arg.identifier));
+            case declaration_type.FORWARD:
+                return getEmptyStatement();
+            case declaration_type.PROC:
+                let body = this.body.compile();
+                let la = functionDefinition(this.identifier, this.args.map(arg => arg.identifier), body);
+                return la;
+        }
     }
 }
 
@@ -83,23 +126,39 @@ export class Conditional extends Clause {
     test: Clause;
     thenCl: Clause;
     elseCl: Clause;
+
+    compile(): E.CallExpression {
+        return  ifElse(
+            this.test.compile(),
+            this.thenCl.compile(),
+            this.elseCl ? this.elseCl.compile() : undefined
+        );
+    }
 }
 
 export class Switch extends Clause {
     arg: Clause;
     cases: [[Clause], Clause];
     defcase: Clause;
+
 }
 
 export class Loop extends Clause {
     first: Clause;
     test: Clause;
     last: Clause;
+
+    compile(): E.CallExpression {
+        return loop(
+            this.test.compile(),
+            this.first ? this.first.compile() : null,
+            this.last ? this.last.compile() : null
+        );
+    }
 }
 
 export class ForLoop extends Clause {
-    incrVar: string;
-    initial: Clause;
+    initial: Declaration;
     final: Clause;
     increment: Clause;
     body: Clause;
@@ -110,11 +169,16 @@ export class Expression extends Clause {
 }
 
 export class Sequence extends Expression {
-    clauses:(Clause|Declaration)[] = [];
+    clauses:Clause[] = [];
+
+    compile(): E.BlockStatement {
+        let body = this.clauses.map(cl => cl.compile());
+        return raiseToBlockStatement(body);
+    }
 }
 
 export enum operation_type {
-    NOT, AND, OR,
+    NOT, AND, OR, XOR,
     LT, LEQ, GT, GEQ, EQ, NEQ, IS, ISNT,
     ADD, SUB, MUL, DIV, INTDIV, MOD,
     JOIN,
@@ -122,32 +186,156 @@ export enum operation_type {
     ROR, RAND, XOR, COPY, NAND, NOR, NOT, XNOR
 }
 
-export class Operation extends Expression {
-    operator: any;
-    expressions: Expression[];
+function getOpResultType(left: Clause, op: operation_type, right?: Clause): concrete_type {
+    switch (op) {
+        case operation_type.AND:
+        case operation_type.OR:
+        case operation_type.XOR:
+            if (left.type === right.type === concrete_type.bool) {
+                return concrete_type.bool;
+            }
+            return null;
+        case operation_type.NOT:
+            if (left.type === concrete_type.bool) {
+                return concrete_type.bool;
+            }
+            return null;
+        case operation_type.LT:
+        case operation_type.LEQ:
+        case operation_type.GT:
+        case operation_type.GEQ:
+            if (!isWithinTypeClass(concrete_type.nonvoid, left.type)) {
+                return null;
+            }
+        case operation_type.EQ:
+        case operation_type.NEQ:
+            if (!isWithinTypeClass(concrete_type.ordered, left.type)) {
+                return null;
+            }
 
-    constructor(expressions?: Expression[], operator?: any) {
+            if (left.type === right.type) {
+                return concrete_type.bool;
+            }
+
+            return null;
+        case operation_type.IS:
+        case operation_type.ISNT:
+            if (left.type === concrete_type.pntr &&
+                right instanceof Application){ //TODO
+            }
+        case operation_type.ADD:
+        case operation_type.SUB:
+        case operation_type.MUL:
+        case operation_type.DIV:
+        case operation_type.INTDIV:
+        case operation_type.MOD:
+        case operation_type.JOIN:
+        case operation_type.SHIFT:
+        case operation_type.SCALE:
+        case operation_type.ROTATE:
+        case operation_type.COLOUR:
+        case operation_type.TEXT:
+        case operation_type.ROR:
+        case operation_type.RAND:
+        case operation_type.XOR:
+        case operation_type.COPY:
+        case operation_type.NAND:
+        case operation_type.NOR:
+        case operation_type.NOT:
+        case operation_type.XNOR:
+    }
+}
+
+export class Operation extends Expression {
+    operator: operation_type;
+    expressions: Expression[] = [];
+
+    constructor(expressions?: Expression[], operator?: operation_type) {
         this.operator = operator;
-        this.expressions = expressions;
+        this.expressions = expressions ? expressions : [];
+    }
+
+    compile() {
+        return operation(this.expressions.map(e => e.compile()), this.operator)
     }
 }
 
 export class Application extends Expression {
-    args: Clause[];
+    args: Clause[] = [];
     identifier: string;
+    applType: declaration_type;
 
     constructor(identifier: string) {
         this.identifier = identifier;
     }
+
+    compile(): E.Expression {
+        switch (this.applType) {
+            case declaration_type.PROC:
+            case declaration_type.STRUCT:
+                return callFunc(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
+            case declaration_type.VAR:
+                return getIdentifier(this.identifier);
+        }
+    }
 }
 
-export class Assignable extends Clause {}
+export class Literal extends Expression {
+    value: any;
+    constructor(value: any) {
+        this.value = value;
+    }
 
-export class Procedure extends Assignable {}
-export class Forward extends Assignable {}
-export class Vector extends Assignable {}
-export class Structure extends Assignable {}
-export class Img extends Assignable {}
+    compile(): E.Literal {
+        return CodeGen.getLiteral(this.value);
+    }
+}
 
-export enum input_type {READ, READI, READR, READB, READS, PEEK, READ_A_LINE, READ_BYTE, READ_16, READ_32, EOF}
-export class Input extends Assignable {}
+export class Number extends Literal {
+    value:number;
+
+    get isReal():boolean {
+        return this.value % 1 === 0;
+    }
+
+    get type(): concrete_type {
+        return this.isReal ? concrete_type.real : concrete_type.int;
+    }
+}
+
+export class Bool extends Literal {
+    value: boolean;
+    type = concrete_type.bool;
+}
+
+export class Str extends Literal {
+    value: string;
+    type = concrete_type.string;
+}
+
+export class Pixel extends Literal {
+    value: number;
+    type = concrete_type.pixel;
+}
+
+export class NullFile extends Literal {
+    value = null;
+    type = concrete_type.file;
+}
+
+export class Vector extends Literal {
+    value: Literal[] = [];
+    upb: Clause;
+    lb: Clause;
+    type = concrete_type.vector;
+}
+
+//export class Assignable extends Clause {}
+//
+//export class Procedure extends Assignable {}
+//export class Forward extends Assignable {}
+//export class Vector extends Assignable {}
+//export class Img extends Assignable {}
+//
+//export enum input_type {READ, READI, READR, READB, READS, PEEK, READ_A_LINE, READ_BYTE, READ_16, READ_32, EOF}
+//export class Input extends Assignable {}

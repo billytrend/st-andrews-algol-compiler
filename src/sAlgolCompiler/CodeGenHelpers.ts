@@ -1,7 +1,10 @@
 import E = ESTree;
 import {clause} from "./GeneratedFiles/ConcreteSyntax";
+import {Literal, operation_type} from "./AbstractSyntax";
+import Expression = ts.Expression;
+import BlockStatement = ESTree.BlockStatement;
 
-var expResult = getVar("_expResult");
+var expResult = getIdentifier("_expResult");
 
 export function accessObject(object: E.Expression, property: (E.Identifier|E.Expression), computed?: boolean): E.MemberExpression {
     let memExp = <E.MemberExpression>getASTNode("MemberExpression");
@@ -11,6 +14,17 @@ export function accessObject(object: E.Expression, property: (E.Identifier|E.Exp
     return memExp;
 }
 
+export function getReturnStatement(exp: E.Expression): E.ReturnStatement {
+    let returnStmt = <E.ReturnStatement>getASTNode('ReturnStatement');
+    returnStmt.argument = exp;
+    return returnStmt;
+}
+
+export function makeBlockReturn(exp: E.BlockStatement): E.ReturnStatement {
+    exp.body[exp.body.length - 1] = getReturnStatement(exp.body[exp.body.length - 1]);
+    return exp;
+}
+
 export function callFunc(expressionYieldingFunction: E.Expression, args: E.Expression[]): E.CallExpression {
     let funcCall = <E.CallExpression>getASTNode("CallExpression");
     funcCall.callee = expressionYieldingFunction;
@@ -18,8 +32,102 @@ export function callFunc(expressionYieldingFunction: E.Expression, args: E.Expre
     return funcCall;
 }
 
+export function getEmptyStatement(): E.EmptyStatement {
+    return getASTNode("EmptyStatement");
+}
+
+export function getThis(): E.ThisExpression {
+    return getASTNode("ThisExpression");
+}
+
+export function objectDefinition(id: string, properties: string[]): E.FunctionDeclaration {
+    return functionDefinition(
+        id,
+        properties,
+        raiseToBlockStatement(properties.map(function (prop) {
+            return assignVariable(
+                accessObject(getThis(), getIdentifier(prop), false), getIdentifier(prop)
+            );
+        }))
+    );
+}
+
+export function functionDefinition(id: string, properties: string[], body: E.BlockStatement): E.FunctionDeclaration {
+    let decl = <E.FunctionDeclaration>getASTNode("FunctionDeclaration");
+    decl.id = id ? getIdentifier(id) : null;
+    decl.body = body;
+    decl.params = properties.map(prop => getIdentifier(prop));
+    return decl;
+}
+
+export function getExpressionStatement(expr: E.Expression): E.ExpressionStatement {
+    let stmt = <E.ExpressionStatement>getASTNode('ExpressionStatement');
+    stmt.expression = expr;
+    return stmt;
+}
+
+export function assignVariable(id: E.Pattern, literal: E.Literal): E.Statement {
+    let decl = <E.VariableDeclaration>getASTNode("VariableDeclaration");
+    let declarator = <E.VariableDeclarator>getASTNode("VariableDeclarator");
+    declarator.id = id;
+    declarator.init = literal;
+    decl.declarations = [declarator];
+    decl.kind = "var";
+    return decl;
+}
+
+export function operation(exps: E.Expression[], operation: operation_type): E.Expression {
+    if (compileBinOp(operation)) {
+        return binaryOperation(exps[0], exps[1], compileBinOp(operation));
+    }
+}
+
+export function binaryOperation(left: E.Expression, right: E.Expression, operation: E.BinaryOperator): E.BinaryExpression {
+    let op = <E.BinaryExpression>getASTNode("BinaryExpression");
+    op.left = left;
+    op.right = right;
+    op.operator = operation;
+    return op;
+}
+
+export function compileBinOp(sym: operation_type): E.BinaryOperator {
+    switch (sym) {
+        case operation_type.EQ: return "===";
+        case operation_type.NEQ: return "!==";
+        case operation_type.LEQ: return "<=";
+        case operation_type.GEQ: return ">=";
+        case operation_type.LT: return "<";
+        case operation_type.GT: return ">";
+        case operation_type.ADD: return "+";
+        case operation_type.SUB: return "-";
+        case operation_type.MUL: return "*";
+        case operation_type.DIV: return "/";
+        case operation_type.AND: return "&";
+        case operation_type.XOR: return "^";
+        case operation_type.MOD: return "%";
+    }
+//     enum BinaryOperator {
+//     // "<<"
+//     // ">>"
+//     // ">>>"
+//     // "in"
+//     // | "instanceof" | ".."
+// }
+    return null;
+}
+
+export function getClosure(body: E.BlockStatement): E.CallExpression {
+    return callFunc(functionDefinition(null, [], body), []);
+}
+
+export function getProgram(stmts: (E.Statement|E.ModuleDeclaration)[]): E.Program {
+    let prog = <E.Program>getASTNode("Program");
+    prog.body = stmts;
+    return prog;
+}
+
 export function getConsoleLog() {
-    let func = accessObject(getVar("console"), getVar("log"));
+    let func = accessObject(getIdentifier("console"), getIdentifier("log"));
 
     return callFunc(
         func,
@@ -28,8 +136,9 @@ export function getConsoleLog() {
 }
 
 export function getASTNode(type: string): E.Node {
-    return {
-        type: type
+    return <E.Node>{
+        type: type,
+        loc: {start: {line: 0, column: 0}, end: {line: 0, column: 4}}
     }
 }
 
@@ -47,24 +156,22 @@ export function getBreak(value?:E.Identifier): E.BreakStatement {
     }
 }
 
-export function getVar(name: string): E.Identifier {
+export function getIdentifier(name: string): E.Identifier {
     return {
         type: 'Identifier',
         name: name
     }
 }
 
-export function varDecl(id: E.Identifier, right: E.Expression[]): E.Expression[] {
+export function varAss(id: E.Identifier, right: E.Expression): E.AssignmentExpression {
     let ass = <E.AssignmentExpression>getASTNode('AssignmentExpression');
-    id.name = name;
+    ass.operator = '=';
     ass.left = id;
-    ass.right = expResult;
-    return <E.Expression[]>[
-        right,
-        ass
-    ]
+    ass.right = right;
+    return ass;
 
 }
+
 
 export function raiseExpressionStatements(expressions: E.Expression[]): E.ExpressionStatement[] {
     let result: E.ExpressionStatement[] = [];
@@ -76,66 +183,85 @@ export function raiseExpressionStatements(expressions: E.Expression[]): E.Expres
     return result;
 }
 
-export function ifElse(ifCl: clause, thenCl: E.BlockStatement, elseCl?: E.BlockStatement): E.Statement[] {
+export function ifElse(ifCl: E.Expression, thenCl: E.BlockStatement, elseCl?: E.BlockStatement): E.CallExpression {
+    return  getClosure(raiseToBlockStatement(<E.Statement[]>[
+        unclosedIfElse(ifCl, thenCl, elseCl)
+    ]));
+}
+
+export function unclosedIfElse(ifCl: E.Expression, thenCl: E.BlockStatement, elseCl?: E.BlockStatement): E.Statement {
     let ifSt = <E.IfStatement>getASTNode('IfStatement');
+    ifSt.test = ifCl;
     ifSt.consequent = thenCl;
     ifSt.alternate = elseCl ? elseCl : null;
-    return <E.Statement[]>[
-        CodeGen.clause(ifCl),
-        ifSt
-    ]
-
+    return ifSt;
 }
+
+
 
 export function raiseToBlockStatement(expressions: E.Expression[]): E.BlockStatement {
     let block = <E.BlockStatement>getASTNode('BlockStatement');
-    block.body = expressions;
+    block.body = <E.Expression[]>expressions;
     return block;
 }
 
-export function loop(test: E.Expression[], start: E.Expression[], end: E.Expression[]): E.Statement[] {
+export function negateExpression(exp: E.Expression) {
+    let negative = <E.UnaryExpression>getASTNode("UnaryExpression");
+    negative.operator = "!";
+    negative.argument = exp;
+    return negative;
+}
+
+
+export function raiseToExpressionStatement(expr: E.Expression): E.ExpressionStatement {
+    let out = <ESTree.ExpressionStatement>getASTNode("ExpressionStatement");
+    out.expression = expr;
+    return out;
+}
+
+export function loop(test: E.Expression, start: E.BlockStatement, end: E.BlockStatement): E.CallExpression {
+    let id = getIdentifier("$ret");
+    test = negateExpression(test);
+    let startClos: E.Expression[] = start ? [raiseToExpressionStatement(varAss(id, getClosure(start)))] : [];
+    let endClos: E.Expression[] = end ? [raiseToExpressionStatement(varAss(id, getClosure(end)))] : [];
+
     let whileLoop = <E.WhileStatement>getASTNode('WhileStatement');
+    let breakBlock = raiseToBlockStatement([getReturnStatement(getIdentifier("$ret"))]);
+    let returnValue = assignVariable(getIdentifier("$ret"), null);
     whileLoop.test = getLiteral(true);
-    let body = <E.BlockStatement>getASTNode('BlockStatement');
-    let breakBlock = raiseToBlockStatement([getBreak()]);
-    body.body = start
-        .concat(ifElse(test, breakBlock))
-        .concat(end);
-    return [whileLoop]
+    whileLoop.body = raiseToBlockStatement(
+        [returnValue]
+        .concat(startClos)
+        .concat(unclosedIfElse(test, breakBlock))
+        .concat(endClos));
+    return getClosure(raiseToBlockStatement([whileLoop]));
 }
 
-export function forLoop(varId: E.Identifier, assignment: E.Expression[], limit: E.Expression[], increment: E.Expression[], body: E.Expression[]): E.Statement[] {
-    let ass = varDecl(varId, assignment);
-    let test = binOp(assignExpressionResult([varId]), limit, "==");
-    increment = increment ? increment : [];
-    return ass.concat(loop(test, [], body.concat(increment)));
-}
+// export function forLoop(varId: E.Identifier, assignment: E.Expression[], limit: E.Expression[], increment: E.Expression[], body: E.Expression[]): E.Statement[] {
+//     let ass = varDecl(varId, assignment);
+//     let test = binOp(assignExpressionResult([varId]), limit, "==");
+//     increment = increment ? increment : [];
+//     return ass.concat(loop(test, [], body.concat(increment)));
+// }
 
-export function caseClause(subject: E.Expression[], ): E.Expression[] {
+// export function caseClause(subject: E.Expression[], ): E.Expression[] {
+//
+// }
 
-}
 
-export function assignExpressionResult(expr: E.Statement[]): E.Statement[] {
-    let ass = <E.AssignmentExpression>getASTNode('AssignmentExpression');
-    ass.left = expResult;
-    ass.right = expr[expr.length - 1];
-    expr[expr.length - 1] = ass;
-    return expr;
-}
-
-export function binOp(left: E.Expression[], right: E.Expression[], operator: E.BinaryOperator): E.Statement[]  {
-    let leftId = getVar('_rightResult');
-    let rightId = getVar('_leftResult');
-    let assignLeft = varDecl(leftId, left);
-    let assignRight = varDecl(rightId, right);
-    let op = <E.BinaryExpression>getASTNode('BinaryExpression');
-    op.left = leftId;
-    op.right = rightId;
-    op.operator = operator;
-    return assignExpressionResult(
-        left.concat(assignLeft)
-        .concat(right)
-        .concat(assignRight)
-        .concat(op)
-    );
-}
+// export function binOp(left: E.Expression[], right: E.Expression[], operator: E.BinaryOperator): E.Statement[]  {
+//     let leftId = getIdentifier('_rightResult');
+//     let rightId = getIdentifier('_leftResult');
+//     let assignLeft = varAss(leftId, left);
+//     let assignRight = varAss(rightId, right);
+//     let op = <E.BinaryExpression>getASTNode('BinaryExpression');
+//     op.left = leftId;
+//     op.right = rightId;
+//     op.operator = operator;
+//     return assignExpressionResult(
+//         left.concat(assignLeft)
+//         .concat(right)
+//         .concat(assignRight)
+//         .concat(op)
+//     );
+// }

@@ -13,6 +13,7 @@ import {NonTerminal} from "../../Parser";
 import {Empty} from "../../Parser";
 import {Production} from "../../Parser";
 import _ = require('lodash');
+import {Constants} from "../../Constants";
 
 export default class PredictionTable {
 
@@ -66,7 +67,7 @@ export default class PredictionTable {
             PredictionTable.getProductionFirstSet(productions, production);
 
             for (let item of PredictionTable.stack) {
-                result[item.prettyValue] = parseInt(productionIndex);
+                result[Constants.getEnumFromTerminal(item.prettyValue)] = parseInt(productionIndex);
             }
         }
 

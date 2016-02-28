@@ -17,6 +17,7 @@ export class GetTerminals extends AbstractVisitor {
     }
 
     afterVisitGrammar(node:Grammar) {
+        console.log(this.terminals);
     }
 
     beforeVisitProductionName(node:string) {

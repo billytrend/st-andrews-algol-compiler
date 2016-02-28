@@ -12,7 +12,7 @@ import {Constants} from "../metaCompiler/BNFParser/Constants";
 import {program} from "./GeneratedFiles/ConcreteSyntax";
 import {SalgolParseSymbol, SalgolTerminalClass} from "./GeneratedFileHelpers/SalgolParseSymbol"
 
-export default class Parser<SalgolSymbol> {
+export default class Parser {
     private _input: SalgolSymbol[];
     private _grammar: Grammar;
     private _parseTable: {};
@@ -52,7 +52,7 @@ export default class Parser<SalgolSymbol> {
             console.log("[ERROR] Reached end of input.");
             return;
         } else if (!this.accept(expected, next)) {
-            console.log("Could not understand", next.value, "maybe you  meant ", expected.value, ".");
+            console.log(`Could not understand ${SalgolTerminal[next.type]} on line ${JSON.stringify(next.loc.start.line)} maybe you  meant ${expected.value}.`);
             return false;
         }
         return true;
@@ -65,12 +65,11 @@ export default class Parser<SalgolSymbol> {
         return false;
     }
 
-    private recognise(expected:NonTerminal, symbol:ParseSymbol): number {
-        return this.parseTable[expected.prettyValue][symbol.value];
+    private recognise(expected:NonTerminal, symbol: SalgolSymbol): number {
+        return this.parseTable[expected.prettyValue][SalgolTerminal[symbol.type]];
     }
 
     parse(): program {
-
         return <program>this.recogniseAndParseNonTerminal(ParseSymbol.build("<program>"));
     }
 

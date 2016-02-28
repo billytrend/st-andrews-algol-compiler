@@ -1,4 +1,4 @@
-function sort(a, b) {
+export function sort(a, b) {
     return b.length - a.length;
 };
 
@@ -201,6 +201,7 @@ export var punctuation = {
     '<': true,
     '>': true,
     '[': true,
+    '[': true,
     '\\': true,
     ']': true,
     '^': true,
@@ -212,7 +213,7 @@ export var punctuation = {
     '<=': true,
     '>=': true,
     '"': true,
-    '\'': true,
+    "'": true,
     '.': true
 };
 

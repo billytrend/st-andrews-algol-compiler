@@ -2,68 +2,81 @@
 ///<reference path="../../metaCompiler/BNFParser/AbstractManipulators/VisitorPass.ts"/>
 
 import chai = require('chai');
-import {SalgolSymbol} from "../../sAlgolCompiler/Lexer";
+import {SalgolSymbol, lex} from "../../sAlgolCompiler/Lexer";
 import Parser from "../../sAlgolCompiler/Parser";
 import {compileDefault} from "../../metaCompiler/BNFParser/Compiler";
-import {SalgolTerminal} from "../../sAlgolCompiler/GeneratedFiles/SalgolTerminal";
-import LeftFactoring from "../../metaCompiler/BNFParser/LeftFactoring";
-import {program} from "../../sAlgolCompiler/MakeAbstract";
-import {program} from "../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
+import {flatten} from "../../sAlgolCompiler/MakeAbstract";
 import {program_sequence_question_mark} from "../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
-import {program} from "../../sAlgolCompiler/MakeAbstract";
 var expect = chai.expect;
 import escodegen = require('escodegen');
+import acorn = require('acorn');
+import {SalgolTerminal} from "../../sAlgolCompiler/GeneratedFiles/SalgolTerminal";
+import {visit} from "../../sAlgolCompiler/Visitors/VisitorTraversal";
+import {ScopeChecking} from "../../sAlgolCompiler/Visitors/ScopeChecking";
+import {ErrorOutputting} from "../../sAlgolCompiler/Visitors/ErrorOutputting";
+import {quickie} from "../../sAlgolCompiler/SaloglSources/quick";
 
 describe('Salgol Parser', () => {
-
     describe('parse', () => {
+
         it('should build sequence', (done) => {
-           let gram = compileDefault();
-           //let grammar = LeftFactoring.leftFactorGrammar(gram);
-           let input = [
+            let gram = compileDefault();
+            //let grammar = LeftFactoring.leftFactorGrammar(gram);
+            let input = lex(["a := 1?"]);
+            //     [
+            //     //"forward console.log(int);",
+            //     //"console.log(1)?",
+            //     // "procedure lol(int x); {let b = x+1; b}; lol(1)?"
+            //     // "forward console.log(int); console.log(1); procedure lol(int a); a?"
+            //     // "forward console.log(int); console.log(if ~true then {let a = 1; a} else 2)?"
+            //     // "true?"
+            //     // "let a = if true then {let a = 34; a} else 2?"
+            //     // "procedure sin(int x ); {x}; sin(1)?",
+            // ]
 
-               new SalgolSymbol(SalgolTerminal.let, "let"),
-               new SalgolSymbol(SalgolTerminal.a, "a"),
-               new SalgolSymbol(SalgolTerminal.equals, "="),
-               new SalgolSymbol(SalgolTerminal.one, "1"),
-               new SalgolSymbol(SalgolTerminal.and, "and"),
-               new SalgolSymbol(SalgolTerminal.one, "1"),
-               new SalgolSymbol(SalgolTerminal.semi_colon, ";"),
-
-               new SalgolSymbol(SalgolTerminal.question_mark, "?")];
-
-           var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
-           let obj = parser.parse();
-           let flat = program(<program_sequence_question_mark>obj);
+            for (let i of input) {
+               console.log(SalgolTerminal[i.type]);
+            }
+            var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
+            let obj = parser.parse();
+            let flat = flatten(<program_sequence_question_mark>obj);
+            visit(flat, new ScopeChecking());
+            visit(flat, new ErrorOutputting());
             //noinspection TypeScriptUnresolvedFunction
-            console.log(escodegen.generate(flat.compile()));
-           done();
+            console.log("\n\n\n",escodegen.generate(flat.compile()));
+            done();
         });
 
+
         // it('should build sequence', (done) => {
-        //     let gram = compileDefault();
-        //     //let grammar = LeftFactoring.leftFactorGrammar(gram);
-        //     let input = [
+        //    let gram = compileDefault();
+        //    //let grammar = LeftFactoring.leftFactorGrammar(gram);
+        //    let input = [
         //
-        //         new SalgolSymbol(SalgolTerminal.structure, "structure"),
-        //         new SalgolSymbol(SalgolTerminal.s, "s"),
-        //         new SalgolSymbol(SalgolTerminal.open_parenthesis, "("),
-        //         new SalgolSymbol(SalgolTerminal.int, "int"),
-        //         new SalgolSymbol(SalgolTerminal.t, "t"),
-        //         new SalgolSymbol(SalgolTerminal.comma, ","),
-        //         new SalgolSymbol(SalgolTerminal.u, "u"),
-        //         new SalgolSymbol(SalgolTerminal.semi_colon, ";"),
-        //         new SalgolSymbol(SalgolTerminal.int, "int"),
-        //         new SalgolSymbol(SalgolTerminal.v, "v"),
-        //         new SalgolSymbol(SalgolTerminal.close_parenthesis, ")"),
-        //         new SalgolSymbol(SalgolTerminal.semi_colon, ";"),
+        //        new SalgolSymbol(SalgolTerminal.let),
+        //        new SalgolSymbol(SalgolTerminal.a),
+        //        new SalgolSymbol(SalgolTerminal.equals),
+        //        new SalgolSymbol(SalgolTerminal.one),
+        //        new SalgolSymbol(SalgolTerminal.plus),
+        //        new SalgolSymbol(SalgolTerminal.one),
+        //        new SalgolSymbol(SalgolTerminal.hyphen),
+        //        new SalgolSymbol(SalgolTerminal.one),
+        //        new SalgolSymbol(SalgolTerminal.hyphen),
+        //        new SalgolSymbol(SalgolTerminal.one),
+        //        new SalgolSymbol(SalgolTerminal.asterisk),
+        //        new SalgolSymbol(SalgolTerminal.one),
+        //        new SalgolSymbol(SalgolTerminal.forward_slash),
+        //        new SalgolSymbol(SalgolTerminal.one),
+        //        new SalgolSymbol(SalgolTerminal.semi_colon),
         //
-        //         new SalgolSymbol(SalgolTerminal.question_mark, "?")];
+        //        new SalgolSymbol(SalgolTerminal.question_mark)
         //
-        //     var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
-        //     let obj = parser.parse();
-        //     let flat = program(<program_sequence_question_mark>obj);
-        //     done();
+        //    var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
+        //    let obj = parser.parse();
+        //    let flat = program(<program_sequence_question_mark>obj);
+        //     //noinspection TypeScriptUnresolvedFunction
+        //     console.log(escodegen.generate(flat.compile()));
+        //    done();
         // });
         //
         // it('should build sequence', (done) => {
@@ -71,26 +84,58 @@ describe('Salgol Parser', () => {
         //     //let grammar = LeftFactoring.leftFactorGrammar(gram);
         //     let input = [
         //
+        //         new SalgolSymbol(SalgolTerminal.structure),
+        //         new SalgolSymbol(SalgolTerminal.s),
+        //         new SalgolSymbol(SalgolTerminal.open_parenthesis),
+        //         new SalgolSymbol(SalgolTerminal.int),
+        //         new SalgolSymbol(SalgolTerminal.t),
+        //         new SalgolSymbol(SalgolTerminal.comma),
+        //         new SalgolSymbol(SalgolTerminal.u),
+        //         new SalgolSymbol(SalgolTerminal.comma),
+        //         new SalgolSymbol(SalgolTerminal.z),
+        //         new SalgolSymbol(SalgolTerminal.semi_colon),
+        //         new SalgolSymbol(SalgolTerminal.int),
+        //         new SalgolSymbol(SalgolTerminal.v),
+        //         new SalgolSymbol(SalgolTerminal.close_parenthesis),
+        //         new SalgolSymbol(SalgolTerminal.semi_colon),
         //
-        //         new SalgolSymbol(SalgolTerminal.procedure, "procedure"),
-        //         new SalgolSymbol(SalgolTerminal.p, "p"),
-        //         new SalgolSymbol(SalgolTerminal.open_parenthesis, "("),
-        //         new SalgolSymbol(SalgolTerminal.int, "int"),
-        //         new SalgolSymbol(SalgolTerminal.n, "n"),
-        //         new SalgolSymbol(SalgolTerminal.comma, ","),
-        //         new SalgolSymbol(SalgolTerminal.o, "o"),
-        //         new SalgolSymbol(SalgolTerminal.hyphen, "-"),
-        //         new SalgolSymbol(SalgolTerminal.greater_than, ">"),
-        //         new SalgolSymbol(SalgolTerminal.int, "int"),
-        //         new SalgolSymbol(SalgolTerminal.close_parenthesis, ")"),
-        //         new SalgolSymbol(SalgolTerminal.semi_colon, ";"),
-        //         new SalgolSymbol(SalgolTerminal.n, "n"),
-        //
-        //         new SalgolSymbol(SalgolTerminal.question_mark, "?")];
+        //         new SalgolSymbol(SalgolTerminal.question_mark)
         //
         //     var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
         //     let obj = parser.parse();
         //     let flat = program(<program_sequence_question_mark>obj);
+        //     //noinspection TypeScriptUnresolvedFunction
+        //     console.log(escodegen.generate(flat.compile()));
+        //     done();
+        // });
+
+        // it('should build sequence', (done) => {
+        //     let gram = compileDefault();
+        //     //let grammar = LeftFactoring.leftFactorGrammar(gram);
+        //     let input = [
+        //
+        //
+        //         new SalgolSymbol(SalgolTerminal.procedure),
+        //         new SalgolSymbol(SalgolTerminal.p),
+        //         new SalgolSymbol(SalgolTerminal.open_parenthesis),
+        //         new SalgolSymbol(SalgolTerminal.int),
+        //         new SalgolSymbol(SalgolTerminal.n),
+        //         new SalgolSymbol(SalgolTerminal.comma),
+        //         new SalgolSymbol(SalgolTerminal.o),
+        //         new SalgolSymbol(SalgolTerminal.hyphen),
+        //         new SalgolSymbol(SalgolTerminal.greater_than),
+        //         new SalgolSymbol(SalgolTerminal.int),
+        //         new SalgolSymbol(SalgolTerminal.close_parenthesis),
+        //         new SalgolSymbol(SalgolTerminal.semi_colon),
+        //         new SalgolSymbol(SalgolTerminal.n),
+        //
+        //         new SalgolSymbol(SalgolTerminal.question_mark)
+        //
+        //     var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
+        //     let obj = parser.parse();
+        //     let flat = program(<program_sequence_question_mark>obj);
+        //     //noinspection TypeScriptUnresolvedFunction
+        //     console.log(escodegen.generate(flat.compile()));
         //     done();
         // });
     });

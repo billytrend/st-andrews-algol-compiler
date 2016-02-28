@@ -1,9 +1,11 @@
 import * as LookUp from '../CompileLookUp'
 import {SalgolTerminal} from "../GeneratedFiles/SalgolTerminal";
 import {SalgolSymbol} from "../Lexer";
+import E = ESTree;
 
 export class SalgolParseSymbol {
     public shouldOutputRawTerminals = false;
+    public loc: E.SourceLocation = <E.SourceLocation>{};
 
     constructor(shouldOutputRawTerminals?: boolean) {
         this.shouldOutputRawTerminals = shouldOutputRawTerminals;
@@ -14,7 +16,7 @@ export class SalgolParseSymbol {
         let compiled = "";
         if (children.length === 0) return "";
         for (let child of children) {
-            if (child && typeof child === 'object') {
+            if (child && typeof child === 'object' && child.flatten) {
                 compiled += child.flatten();
             }
         }
@@ -177,13 +179,12 @@ export class SalgolTerminalClass extends SalgolParseSymbol {
             case SalgolTerminal['div']: return " / ";
             case SalgolTerminal['rem']: return " % ";
 
-            case SalgolTerminal['true']: return "true";
-            case SalgolTerminal['false']: return "false";
+            case SalgolTerminal['true_val']: return "true";
+            case SalgolTerminal['false_val']: return "false";
 
             case SalgolTerminal['nil']: return "null";
 
             case SalgolTerminal['pi']: return "Math.PI";
-            case SalgolTerminal['e']: return "Math.E";
 
             case SalgolTerminal['double_quotes']: return "\"";
             case SalgolTerminal['single_quote']: return "'";
@@ -211,6 +212,7 @@ export class SalgolTerminalClass extends SalgolParseSymbol {
             case SalgolTerminal['b']:
             case SalgolTerminal['c']:
             case SalgolTerminal['d']:
+            case SalgolTerminal['e']:
             case SalgolTerminal['f']:
             case SalgolTerminal['g']:
             case SalgolTerminal['h']:
@@ -236,9 +238,4 @@ export class SalgolTerminalClass extends SalgolParseSymbol {
         }
         return "";
     }
-
-    public defaultCompile(): string {
-        return this.concrete.value;
-    }
-
 }

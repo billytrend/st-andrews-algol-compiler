@@ -3,7 +3,7 @@
 import {SalgolTerminal} from './GeneratedFiles/SalgolTerminal';
 import {
     concreteTerminals, keywords, idTerminals, LexType,
-    terminalType
+    terminalType, punctuation, sort
 } from "./GeneratedFiles/SalgolConcreteTerminals";
 import {Constants} from "../metaCompiler/BNFParser/Constants";
 import escape = require('escape-string-regexp');
@@ -25,7 +25,20 @@ var lexed: SalgolSymbol[];
 var curLine: number;
 var curColumn: number;
 var lastSeen: LexType = LexType.space;
-let identifierRegex = /[a-zA-Z][a-zA-Z0-9\.]*/;
+
+let identifierRegex = /^[a-zA-Z][a-zA-Z0-9\.]*/;
+let number = /^(\+|-)?[0-9]+(\.[0-9]+)?(e[0-9]+)?/;
+let punc = new RegExp(
+    `^(${Object.keys(punctuation).sort(sort).map(escape).join('|')})`
+);
+let keyword = new RegExp(
+    `^(${Object.keys(keywords).sort(sort).map(escape).join('|')})(?![a-zA-Z0-9\.])`
+);
+let types = "(int|real|bool|string|pixel|pic|pntr|file|#pixel|#cpixel)(?![a-zA-Z0-9\.])";
+let concType = new RegExp(types);
+let augTypeReg = new RegExp(`^[\\*c]*${types}`);
+
+let whiteSpace = /\s*/
 
 function getLoc(begin: number): E.SourceLocation {
     return <E.SourceLocation>{
@@ -34,49 +47,46 @@ function getLoc(begin: number): E.SourceLocation {
         end:  { line: curLine, column: curColumn }
     }
 }
-export function consumeStringFromHead(expression: string):boolean {
-    if (expression === "i") {
-        ;
+export function consumeStringFromHead(expression: RegExp): string {
+    let match = input[curLine].match(expression);
+    if (match === null) {
+        return null;
     }
-    let reg = new RegExp("^" + expression);
-    let originalLength = input[curLine].length;
-    input[curLine] = input[curLine].replace(reg, "");
-    curColumn += originalLength - input[curLine].length;
-    return input[curLine].length < originalLength;
+    curColumn += match[0].length;
+    input[curLine] = input[curLine].slice(match[0].length);
+    return match[0];
 }
 
-var anyIdTerminal = Object.keys(idTerminals).concat(escape('.')).join("|");
-var consumeWhiteSpace = consumeStringFromHead.bind(null, "\\s");
-let terminalRegexes = concreteTerminals.map(function(terminal): [(string) => boolean, SalgolTerminal] {
-    let regex = escape(terminal);
-    if (keywords[terminal]) {
-        regex = `${regex}(?!${anyIdTerminal})`;
-    }
-
-    return [consumeStringFromHead.bind(null, regex), SalgolTerminal[Constants.getEnumFromTerminal(terminal)]];
-});
-
 export function lexTerminal(): boolean {
-    for (let terminal of terminalRegexes) {
-        let begin = curColumn;
-
-        if (terminal[0]()) {
-
-            lexed.push(new SalgolSymbol(terminal[1], getLoc(begin)));
-            lastSeen = terminalType(SalgolTerminal[terminal[1]]);
-            return true;
-        }
+    let str;
+    let begin = curColumn;
+    if (str = (consumeStringFromHead(keyword)||consumeStringFromHead(punc))) {
+        lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(str)], getLoc(begin)));
+    } else if (str = consumeStringFromHead(augTypeReg)) {
+        let concrete = str.match(concType);
+        let prefix = str.slice(0, concrete.index);
+        lexed = lexed.concat(prefix.split('').map(item => {
+            return new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(item[0])], getLoc(begin));
+        }));
+        lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(concrete[0])], getLoc(begin)));
+    } else if (str = (consumeStringFromHead(number) || consumeStringFromHead(identifierRegex))) {
+        lexed = lexed.concat(str.split('').map(item => {
+            return new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(item)], getLoc(begin));
+        }));
+    } else {
+        return false;
     }
-    return false;
+
+    return true;
 }
 
 export function lexLine(): boolean {
     while (input[curLine].length > 0) {
-        while (input[curLine].length > 0 && consumeWhiteSpace());
+        consumeStringFromHead(whiteSpace);
         if (!lexTerminal()) {
             console.log("Couldn't lex the head of " + input[curLine]);
             return false;
-        };
+        }
     }
     return true;
 };
