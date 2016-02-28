@@ -611,23 +611,14 @@ export class vector_constr_vector_range_of_clause extends vector_constr{
     public of_2: SalgolTerminalClass;
     public clause_3:clause;
 }
-export class vector_constr_at_symbol_clause_of_type1_lsb_clause_maybe_underscore_pw0ykd_rsb extends vector_constr{
+export class vector_constr_at_symbol_clause_of_type1_lsb_clause_underscore_list_rsb extends vector_constr{
     public at_symbol_0: SalgolTerminalClass;
     public clause_1:clause;
     public of_2: SalgolTerminalClass;
     public type1_3:type1;
     public lsb_4:lsb;
-    public clause_5:clause;
-    public maybe_pw0ykd_6:maybe_pw0ykd;
-    public rsb_7:rsb;
-}
-export class maybe_pw0ykd extends SalgolParseSymbol {};
-export class maybe_pw0ykd_empty extends maybe_pw0ykd{
-}
-export class maybe_pw0ykd_comma_clause_maybe_underscore_pw0ykd extends maybe_pw0ykd{
-    public comma_0: SalgolTerminalClass;
-    public clause_1:clause;
-    public maybe_pw0ykd_2:maybe_pw0ykd;
+    public clause_list_5:clause_list;
+    public rsb_6:rsb;
 }
 export class maybe_th40dr extends SalgolParseSymbol {};
 export class maybe_th40dr_empty extends maybe_th40dr{

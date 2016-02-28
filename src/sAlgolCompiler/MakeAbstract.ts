@@ -116,7 +116,7 @@ function reassignment(reass:C.clause_name_colon_equals_clause): A.Declaration {
 }
 
 function write_clause(clause:C.clause_write_underscore_clause) {
-    // TODO
+
 }
 
 function recogniseRaster(raster_op_0:C.raster_op): A.operation_type {
@@ -402,8 +402,36 @@ function literal(literal: C.literal): A.Literal {
     return null;
 }
 
-function val_cons(value_constructor:C.value_constructor):A.Expression {
 
+function vector(vector: C.vector_constr): A.Vector {
+    let out = new A.Vector();
+    if(vector instanceof C.vector_constr_vector_range_of_clause) {
+        let tight = <C.vector_constr_vector_range_of_clause>vector;
+        // TODO
+    } else if(vector instanceof C.vector_constr_at_symbol_clause_of_type1_lsb_clause_underscore_list_rsb) {
+        let tight = <C.vector_constr_at_symbol_clause_of_type1_lsb_clause_underscore_list_rsb>vector;
+        out.innerType = type1(tight.type1_3);
+        out.values = clause_list(tight.clause_list_5);
+        out.lb = clause(tight.clause_1);
+    }
+
+    return out;
+}
+
+function val_cons(value_constructor:C.value_constructor):A.Expression {
+    if (value_constructor instanceof C.value_constructor_vector_underscore_constr) {
+        let tight = <C.value_constructor_vector_underscore_constr>value_constructor;
+        return vector(tight.vector_constr_0);
+    } else if (value_constructor instanceof C.value_constructor_image_underscore_constr) {
+        let tight = <C.value_constructor_image_underscore_constr>value_constructor;
+
+    } else if (value_constructor instanceof C.value_constructor_subimage_underscore_constr) {
+        let tight = <C.value_constructor_subimage_underscore_constr>value_constructor;
+
+    } else if (value_constructor instanceof C.value_constructor_picture_underscore_constr) {
+        let tight = <C.value_constructor_picture_underscore_constr>value_constructor;
+
+    }
     return null;
 }
 
@@ -672,36 +700,23 @@ function whichMulOp(add: C.add_op) {
 }
 
 function whichRelOp(rel: C.rel_op): A.operation_type{
-    if (rel instanceof C.rel_op_eq_underscore_op) {
-        let theOp = (<C.rel_op_eq_underscore_op>C.rel_op).eq_op_0;
-        if (theOp instanceof C.eq_op_equals) {
-            return A.operation_type.EQ;
-        } else if (theOp instanceof C.eq_op_exclamation_mark_equals) {
-            return A.operation_type.NEQ;
-        }
+    let str = rel.flatten();
+    if (/\!=/.test(str)) {
+        return A.operation_type.NEQ;
+    } else if (/<=/.test(str)) {
+        return A.operation_type.LEQ;
+    } else if (/</.test(str)) {
+        return A.operation_type.LT;
+    } else if (/>=/.test(str)) {
+        return A.operation_type.GEQ;
+    } else if (/>/.test(str)) {
+        return A.operation_type.GT;
+    } else if (/=/.test(str)) {
+        return A.operation_type.EQ;
+    } else if (/is/.test(str)) {
+        return A.operation_type.IS;
+    } else if (/isnt/.test(str)) {
+        return A.operation_type.ISNT;
     }
-
-    if (rel instanceof C.rel_op_compar_underscore_op) {
-        let theOp = (<C.rel_op_compar_underscore_op>C.rel_op).compar_op_0;
-        if (theOp instanceof C.compar_op_less_than) {
-            return A.operation_type.LT;
-        } else if (theOp instanceof C.compar_op_less_than_equals) {
-            return A.operation_type.LEQ;
-        } else if (theOp instanceof C.compar_op_greater_than) {
-            return A.operation_type.GT;
-        } else if (theOp instanceof C.compar_op_greater_than_equals) {
-            return A.operation_type.GEQ;
-        }
-    }
-
-    if (rel instanceof C.rel_op_type_underscore_op) {
-        let theOp = (<C.rel_op_type_underscore_op>C.rel_op).type_op_0;
-        if (theOp instanceof C.type_op_is) {
-            return A.operation_type.IS;
-        } else if (theOp instanceof C.type_op_isnt) {
-            return A.operation_type.ISNT;
-        }
-    }
-
     return null;
 };

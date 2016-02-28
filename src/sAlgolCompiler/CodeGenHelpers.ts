@@ -253,6 +253,11 @@ export function maybeRaiseToExpressionStatement(maybeExpression: E.Expression): 
     return maybeExpression;
 }
 
+export function getArray(elements:E.Expression[]): E.ArrayExpression {
+    let arr = <E.ArrayExpression>getASTNode('ArrayExpression');
+    arr.elements = elements;
+    return arr;
+}
 // export function forLoop(varId: E.Identifier, assignment: E.Expression[], limit: E.Expression[], increment: E.Expression[], body: E.Expression[]): E.Statement[] {
 //     let ass = varDecl(varId, assignment);
 //     let test = binOp(assignExpressionResult([varId]), limit, "==");

@@ -16,6 +16,7 @@ import {ifElse} from "./CodeGenHelpers";
 import {loop} from "./CodeGenHelpers";
 import {makeBlockReturn} from "./CodeGenHelpers";
 import {maybeRaiseToExpressionStatement} from "./CodeGenHelpers";
+import {getArray} from "./CodeGenHelpers";
 
 export class AbstractSyntaxType {
     type: concrete_type;
@@ -66,32 +67,29 @@ export enum concrete_type {
 //    type,
 //}
 
-export function isWithinTypeClass(cla: concrete_type, type: concrete_type): boolean {
-    switch (cla) {
-        case concrete_type.arith:
-        case concrete_type.ordered:
-        case concrete_type.writeable:
-        case concrete_type.literal:
-        case concrete_type.image:
-        case concrete_type.nonvoid:
-        case concrete_type.vector:
-            return type < cla;
-        default:
-            return false;
-    }
-}
 
-
-export type Type = (ConcreteType|Declaration);
+export type Type = (ConcreteType|Declaration|concrete_type);
 
 export class ConcreteType extends AbstractSyntaxType {
     type: concrete_type;
     pointerOrdinal: number = 0;
     constantStack: boolean[] = [];
+
+    constructor(type?: concrete_type) {
+        this.type = type;
+    }
+
+    equals(other: Type): boolean {
+        if (other instanceof ConcreteType && this.type === other.type) {
+            return true;
+        }
+    }
 }
 
 
 export class Clause extends AbstractSyntaxType {
+    returnType: Type;
+
     compile(): E.Expression {
         return null;
     }
@@ -105,7 +103,6 @@ export class Declaration extends Clause {
     identifier: string;
     body: Clause;
     args: Declaration[] = [];
-    returnType: Type;
     declType: declaration_type;
 
     constructor(identifier: string, type: declaration_type) {
@@ -222,66 +219,6 @@ export enum operation_type {
     ROR, RAND, XOR, COPY, NAND, NOR, NOT, XNOR
 }
 
-function getOpResultType(left: Clause, op: operation_type, right?: Clause): concrete_type {
-    switch (op) {
-        case operation_type.AND:
-        case operation_type.OR:
-        case operation_type.XOR:
-            if (left.type === right.type === concrete_type.bool) {
-                return concrete_type.bool;
-            }
-            return null;
-        case operation_type.NOT:
-            if (left.type === concrete_type.bool) {
-                return concrete_type.bool;
-            }
-            return null;
-        case operation_type.LT:
-        case operation_type.LEQ:
-        case operation_type.GT:
-        case operation_type.GEQ:
-            if (!isWithinTypeClass(concrete_type.nonvoid, left.type)) {
-                return null;
-            }
-        case operation_type.EQ:
-        case operation_type.NEQ:
-            if (!isWithinTypeClass(concrete_type.ordered, left.type)) {
-                return null;
-            }
-
-            if (left.type === right.type) {
-                return concrete_type.bool;
-            }
-
-            return null;
-        case operation_type.IS:
-        case operation_type.ISNT:
-            if (left.type === concrete_type.pntr &&
-                right instanceof Application){ //TODO
-            }
-        case operation_type.ADD:
-        case operation_type.SUB:
-        case operation_type.MUL:
-        case operation_type.DIV:
-        case operation_type.INTDIV:
-        case operation_type.MOD:
-        case operation_type.JOIN:
-        case operation_type.SHIFT:
-        case operation_type.SCALE:
-        case operation_type.ROTATE:
-        case operation_type.COLOUR:
-        case operation_type.TEXT:
-        case operation_type.ROR:
-        case operation_type.RAND:
-        case operation_type.XOR:
-        case operation_type.COPY:
-        case operation_type.NAND:
-        case operation_type.NOR:
-        case operation_type.NOT:
-        case operation_type.XNOR:
-    }
-}
-
 export class Operation extends Expression {
     operator: operation_type;
     expressions: Expression[] = [];
@@ -341,29 +278,42 @@ export class Number extends Literal {
 
 export class Bool extends Literal {
     value: boolean;
-    type = concrete_type.bool;
+    returnType = new ConcreteType(concrete_type.bool);
 }
 
 export class Str extends Literal {
     value: string;
-    type = concrete_type.string;
+    returnType = new ConcreteType(concrete_type.string);
 }
 
 export class Pixel extends Literal {
     value: number;
-    type = concrete_type.pixel;
+    returnType = new ConcreteType(concrete_type.pixel);
 }
 
 export class NullFile extends Literal {
     value = null;
-    type = concrete_type.file;
+    returnType = new ConcreteType(concrete_type.file);
 }
 
-export class Vector extends Literal {
-    value: Literal[] = [];
+export class Vector extends Expression {
+    values: Clause[] = [];
     upb: Clause;
     lb: Clause;
-    type = concrete_type.vector;
+    returnType = new ConcreteType(concrete_type.vector);
+    innerType: ConcreteType;
+
+    compile(): E.ArrayExpression {
+        return getArray(this.values.map(x => x.compile()));
+    }
+}
+
+export enum write_type {
+
+}
+
+export class Write extends Clause {
+
 }
 
 //export class Assignable extends Clause {}

@@ -22,7 +22,7 @@ describe('Salgol Parser', () => {
         it('should build sequence', (done) => {
             let gram = compileDefault();
             //let grammar = LeftFactoring.leftFactorGrammar(gram);
-            let input = lex(["a := 1?"]);
+            let input = lex(["let a = @ 1 of int[1]?"]);
             //     [
             //     //"forward console.log(int);",
             //     //"console.log(1)?",
