@@ -38,7 +38,7 @@ export class Program extends AbstractSyntaxType {
 
     compile(): E.Program {
         let program = CodeGen.getProgram([
-            this.sequence.compile()
+            this.sequence.compileVoid()
         ]);
         return program;
     }
@@ -158,8 +158,8 @@ export class Loop extends Clause {
     compile(): E.CallExpression {
         return loop(
             this.test.compile(),
-            this.first ? raiseToBlockStatement([this.first.compile()]) : null,
-            this.last ? raiseToBlockStatement([this.last.compile()])  : null
+            this.first ? this.first.compile() : null,
+            this.last ? this.last.compile() : null
         );
     }
 }
@@ -196,6 +196,18 @@ export class Sequence extends Expression {
         });
 
         let bodyBlock = makeBlockReturn(raiseToBlockStatement(body));
+
+        return getClosure(bodyBlock);
+    }
+
+    compileVoid(): E.CallExpression {
+        this.filterEmptyClauses();
+
+        let body = this.clauses.map(cl => {
+            return maybeRaiseToExpressionStatement(cl.compile())
+        });
+
+        let bodyBlock = raiseToBlockStatement(body);
 
         return getClosure(bodyBlock);
     }

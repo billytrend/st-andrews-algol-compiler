@@ -226,11 +226,11 @@ export function raiseToExpressionStatement(expr: E.Expression): E.ExpressionStat
     return out;
 }
 
-export function loop(test: E.Expression, start: E.BlockStatement, end: E.BlockStatement): E.CallExpression {
+export function loop(test: E.Expression, start: E.Expression, end: E.Expression): E.CallExpression {
     let id = getIdentifier("$ret");
     test = negateExpression(test);
-    let startClos: E.Expression[] = start ? [raiseToExpressionStatement(varAss(id, getClosure(start)))] : [];
-    let endClos: E.Expression[] = end ? [raiseToExpressionStatement(varAss(id, getClosure(end)))] : [];
+    let startClos: E.Expression[] = start ? [raiseToExpressionStatement(varAss(id, start))] : [];
+    let endClos: E.Expression[] = end ? [raiseToExpressionStatement(varAss(id, end))] : [];
 
     let whileLoop = <E.WhileStatement>getASTNode('WhileStatement');
     let breakBlock = raiseToBlockStatement([getReturnStatement(getIdentifier("$ret"))]);
