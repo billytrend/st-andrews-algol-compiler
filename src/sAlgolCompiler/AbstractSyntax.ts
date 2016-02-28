@@ -69,25 +69,33 @@ export enum concrete_type {
 //    type,
 //}
 
+export enum type_prefix { star, constant }
 
-export type Type = (ConcreteType|Declaration|concrete_type);
-
-export class ConcreteType extends AbstractSyntaxType {
+export class Type extends AbstractSyntaxType {
     type: concrete_type;
     pointerOrdinal: number = 0;
-    constantStack: boolean[] = [];
+    constantStack: type_prefix[] = [];
 
     constructor(type?: concrete_type) {
         this.type = type;
     }
 
     equals(other: Type): boolean {
-        if (other instanceof ConcreteType && this.type === other.type) {
-            return true;
+        return this.type === other.type;
+    }
+
+    toString(): string {
+        let out = "";
+        for (let cons of this.constantStack) {
+            if (cons === type_prefix.constant) {
+                out += "c";
+            } else if (cons === type_prefix.star) {
+                out += "*";
+            }
         }
+        return out + concrete_type[this.type];
     }
 }
-
 
 export class Clause extends AbstractSyntaxType {
     returnType: Type;
@@ -232,6 +240,14 @@ export class Operation extends Expression {
         this.expressions = expressions ? expressions : [];
     }
 
+    get left(): Expression {
+        return this.expressions[0];
+    }
+
+    get right(): Expression {
+        return this.expressions[1];
+    }
+
     compile() {
         return operation(this.expressions.map(e => e.compile()), this.operator)
     }
@@ -276,37 +292,37 @@ export class Number extends Literal {
         return this.value % 1 === 0;
     }
 
-    get type(): concrete_type {
-        return this.isReal ? concrete_type.real : concrete_type.int;
+    get returnType(): Type {
+        return this.isReal ? new Type(concrete_type.real) : new Type(concrete_type.int);
     }
 }
 
 export class Bool extends Literal {
     value: boolean;
-    returnType = new ConcreteType(concrete_type.bool);
+    returnType = new Type(concrete_type.bool);
 }
 
 export class Str extends Literal {
     value: string;
-    returnType = new ConcreteType(concrete_type.string);
+    returnType = new Type(concrete_type.string);
 }
 
 export class Pixel extends Literal {
     value: number;
-    returnType = new ConcreteType(concrete_type.pixel);
+    returnType = new Type(concrete_type.pixel);
 }
 
 export class NullFile extends Literal {
     value = null;
-    returnType = new ConcreteType(concrete_type.file);
+    returnType = new Type(concrete_type.file);
 }
 
 export class Vector extends Expression {
     values: Clause[] = [];
     upb: Clause;
     lb: Clause;
-    returnType = new ConcreteType(concrete_type.vector);
-    innerType: ConcreteType;
+    returnType = new Type(concrete_type.vector);
+    innerType: Type;
 
     compile(): E.ArrayExpression {
         return getArray(this.values.map(x => x.compile()));

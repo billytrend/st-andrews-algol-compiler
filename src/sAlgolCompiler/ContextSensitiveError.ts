@@ -10,19 +10,23 @@ export enum error_type {
 }
 
 export class ContextSensitiveError {
-    protected error: string = "Unknown error";
+    node: A.AbstractSyntaxType;
+
+    constructor(node: A.AbstractSyntaxType) {
+        this.node = node;
+    }
 
     toString(): string {
         return `[Error] ${this.error}.`;
+    }
+
+    get error(): string {
+        return "Unknown error";
     }
 }
 
 export class ScopeError extends ContextSensitiveError {
     node: A.Application;
-
-    constructor(node: A.Application) {
-        this.node = node;
-    }
 
     get error(): string {
         return `No function or variable named ${this.node.identifier} found in scope`;
@@ -33,5 +37,21 @@ export class ScopeError extends ContextSensitiveError {
 export class AppliedArgumentToVariable extends ScopeError {
     get error(): string {
         return `You tried to apply arguments to '${this.node.identifier}' when it is actually a variable ${emoji.get('information_desk_person')} `;
+    }
+}
+
+export class TypeError extends ContextSensitiveError {
+}
+
+export class OperationTypeError extends ContextSensitiveError {
+    node: A.Operation;
+
+    constructor(node: A.Operation) {
+        super(node);
+    }
+
+    get error(): string {
+        return `Could not execute ${A.operation_type[this.node.operator]} on ${this.node.left.returnType.toString()}`
+            + (this.node.right ? ` and ${this.node.right.returnType.toString()}` : '');
     }
 }

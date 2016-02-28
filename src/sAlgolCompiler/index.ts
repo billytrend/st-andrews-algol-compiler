@@ -8,6 +8,7 @@ import {ScopeChecking} from "./Visitors/ScopeChecking";
 import {visit} from "./Visitors/VisitorTraversal";
 import {ErrorOutputting} from "./Visitors/ErrorOutputting";
 import ArgumentParser = require('argparse');
+import {compile} from './Compiler';
 
 //noinspection TypeScriptUnresolvedFunction
 var parser = new ArgumentParser.ArgumentParser({
@@ -49,7 +50,7 @@ let lines = [];
 
 if (args.compile_string) {
     lines = args.compile_string;
-    compile();
+    output();
 } else if (args.compile) {
 
 } else  {
@@ -61,30 +62,16 @@ if (args.compile_string) {
     rl.on('line', function (line) {
         lines.push(line);
         if (line.match(/[\?$]/)) {
-            compile();
+            output();
         }
     });
 }
 
-
-function compile() {
-    let lexed = lex(lines);
-    let grammar = compileDefault();
-    let parsed = new Parser(lexed, grammar);
-    let programme  = parsed.parse();
-    let flat = flatten(programme);
-    visit(flat, new ScopeChecking());
-    let errorReport = new ErrorOutputting();
-    visit(flat, errorReport);
-    if (errorReport.foundErrors) {
-        process.exit(1);
-    }
-    //noinspection TypeScriptUnresolvedFunction
-    let outProgram = escodegen.generate(flat.compile());
+function output() {
     if (args.exec) {
-        eval(outProgram);
+        eval(compile(lines));
     } else {
-        console.log(outProgram);
+        console.log(compile(lines));
     }
-}
 
+}

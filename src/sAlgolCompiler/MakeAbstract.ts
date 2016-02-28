@@ -182,8 +182,8 @@ function identifier_list(list: C.identifier_list): string[] {
 }
 
 
-function type_id(id: C.type_id): A.ConcreteType {
-    let out = new A.ConcreteType();
+function type_id(id: C.type_id): A.Type {
+    let out = new A.Type();
 
     while (true) {
         if (id instanceof C.type_id_star_type1) {
@@ -207,7 +207,7 @@ function type_id(id: C.type_id): A.ConcreteType {
     return out;
 }
 
-function type1(t: C.type1): A.ConcreteType {
+function type1(t: C.type1): A.Type {
     let tight = <C.type1_maybe_underscore_pba0tv_type_underscore_id>t;
     let isConstant = tight.maybe_pba0tv_0 instanceof C.maybe_pba0tv_c;
     let out = type_id(tight.type_id_1);
@@ -483,8 +483,6 @@ function bounds(bounds:C.exp6_bounds_underscore_op_open_parenthesis_clause_close
     return null;
 }
 
-
-
 function  expr(expObject: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.exp5|C.exp6)): A.Expression {
 
     if (expObject['maybe_1muzyql_1'] ||
@@ -519,10 +517,6 @@ function  expr(expObject: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.exp5|C.exp
 
     if (expObject instanceof C.exp5_maybe_underscore_ihpz75_exp6) {
         return expr(expObject.exp6_1);
-    }
-
-    if (expObject instanceof C.exp6_standard_underscore_exp) {
-
     }
 
     if (expObject instanceof C.exp6_standard_underscore_exp) {

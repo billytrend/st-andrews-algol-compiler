@@ -5,7 +5,7 @@ export class SuperVisitor {
     beforeVisit(obj: A.AbstractSyntaxType):void {
         if (obj instanceof A.Program) {
             this.beforeVisitProgram(obj);
-        } else if (obj instanceof A.ConcreteType) {
+        } else if (obj instanceof A.Type) {
             this.beforeVisitConcreteType(obj);
         } else if (obj instanceof A.Declaration) {
             this.beforeVisitDeclaration(obj);
@@ -39,7 +39,7 @@ export class SuperVisitor {
     afterVisit(obj: A.AbstractSyntaxType):void {
         if (obj instanceof A.Program) {
             this.afterVisitProgram(obj);
-        } else if (obj instanceof A.ConcreteType) {
+        } else if (obj instanceof A.Type) {
             this.afterVisitConcreteType(obj);
         } else if (obj instanceof A.Declaration) {
             this.afterVisitDeclaration(obj);
@@ -83,7 +83,7 @@ export class SuperVisitor {
 
     }
 
-    beforeVisitConcreteType(obj: A.ConcreteType): void {
+    beforeVisitConcreteType(obj: A.Type): void {
 
     }
 
@@ -143,7 +143,7 @@ export class SuperVisitor {
 
     }
 
-    afterVisitConcreteType(obj: A.ConcreteType): void {
+    afterVisitConcreteType(obj: A.Type): void {
 
     }
 
