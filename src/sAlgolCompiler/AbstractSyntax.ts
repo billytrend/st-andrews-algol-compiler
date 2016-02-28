@@ -15,6 +15,7 @@ import {getClosure} from "./CodeGenHelpers";
 import {ifElse} from "./CodeGenHelpers";
 import {loop} from "./CodeGenHelpers";
 import {makeBlockReturn} from "./CodeGenHelpers";
+import {maybeRaiseToExpressionStatement} from "./CodeGenHelpers";
 
 export class AbstractSyntaxType {
     type: concrete_type;
@@ -36,7 +37,9 @@ export class Program extends AbstractSyntaxType {
     sequence: Sequence = new Sequence();
 
     compile(): E.Program {
-        let program = CodeGen.getProgram([getClosure(this.sequence.compile())])
+        let program = CodeGen.getProgram([
+            this.sequence.compile()
+        ]);
         return program;
     }
 }
@@ -88,7 +91,11 @@ export class ConcreteType extends AbstractSyntaxType {
 }
 
 
-export class Clause extends AbstractSyntaxType {}
+export class Clause extends AbstractSyntaxType {
+    compile(): E.Expression {
+        return null;
+    }
+}
 
 export enum declaration_type {
     VAR, PROC, STRUCT, FORWARD
@@ -113,10 +120,10 @@ export class Declaration extends Clause {
             case declaration_type.STRUCT:
                 return objectDefinition(this.identifier, this.args.map(arg => arg.identifier));
             case declaration_type.FORWARD:
-                return getEmptyStatement();
+                return null;
             case declaration_type.PROC:
                 let body = this.body.compile();
-                let la = functionDefinition(this.identifier, this.args.map(arg => arg.identifier), body);
+                let la = functionDefinition(this.identifier, this.args.map(arg => arg.identifier), raiseToBlockStatement([body]));
                 return la;
         }
     }
@@ -127,7 +134,7 @@ export class Conditional extends Clause {
     thenCl: Clause;
     elseCl: Clause;
 
-    compile(): E.CallExpression {
+    compile(): E.ConditionalExpression {
         return  ifElse(
             this.test.compile(),
             this.thenCl.compile(),
@@ -151,8 +158,8 @@ export class Loop extends Clause {
     compile(): E.CallExpression {
         return loop(
             this.test.compile(),
-            this.first ? this.first.compile() : null,
-            this.last ? this.last.compile() : null
+            this.first ? raiseToBlockStatement([this.first.compile()]) : null,
+            this.last ? raiseToBlockStatement([this.last.compile()])  : null
         );
     }
 }
@@ -171,9 +178,26 @@ export class Expression extends Clause {
 export class Sequence extends Expression {
     clauses:Clause[] = [];
 
-    compile(): E.BlockStatement {
-        let body = this.clauses.map(cl => cl.compile());
-        return raiseToBlockStatement(body);
+    filterEmptyClauses(): void {
+        this.clauses = this.clauses.filter(x => {
+            if (x instanceof Declaration && x.declType === declaration_type.FORWARD) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    compile(): E.CallExpression {
+        this.filterEmptyClauses();
+
+        let body = this.clauses.map(cl => {
+            return maybeRaiseToExpressionStatement(cl.compile())
+        });
+
+        let bodyBlock = makeBlockReturn(raiseToBlockStatement(body));
+
+        return getClosure(bodyBlock);
     }
 }
 

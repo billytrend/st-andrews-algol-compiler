@@ -1,8 +1,8 @@
 import E = ESTree;
 import {clause} from "./GeneratedFiles/ConcreteSyntax";
 import {Literal, operation_type} from "./AbstractSyntax";
-import Expression = ts.Expression;
 import BlockStatement = ESTree.BlockStatement;
+import Expression = E.Expression;
 
 var expResult = getIdentifier("_expResult");
 
@@ -20,8 +20,13 @@ export function getReturnStatement(exp: E.Expression): E.ReturnStatement {
     return returnStmt;
 }
 
-export function makeBlockReturn(exp: E.BlockStatement): E.ReturnStatement {
-    exp.body[exp.body.length - 1] = getReturnStatement(exp.body[exp.body.length - 1]);
+export function makeBlockReturn(exp: E.BlockStatement): E.BlockStatement {
+    let lastStmt = exp.body[exp.body.length - 1];
+    if (lastStmt.type.indexOf("ExpressionStatement") !== -1) {
+        let tight = <E.ExpressionStatement>lastStmt;
+        lastStmt = tight.expression;
+    }
+    exp.body[exp.body.length - 1] = getReturnStatement(lastStmt);
     return exp;
 }
 
@@ -183,10 +188,12 @@ export function raiseExpressionStatements(expressions: E.Expression[]): E.Expres
     return result;
 }
 
-export function ifElse(ifCl: E.Expression, thenCl: E.BlockStatement, elseCl?: E.BlockStatement): E.CallExpression {
-    return  getClosure(raiseToBlockStatement(<E.Statement[]>[
-        unclosedIfElse(ifCl, thenCl, elseCl)
-    ]));
+export function ifElse(ifCl: E.Expression, thenCl: E.Expression, elseCl?: E.Expression): E.ConditionalExpression {
+    let ifSt = <E.IfStatement>getASTNode('ConditionalExpression');
+    ifSt.test = ifCl;
+    ifSt.consequent = thenCl;
+    ifSt.alternate = elseCl ? elseCl : null;
+    return ifSt;
 }
 
 export function unclosedIfElse(ifCl: E.Expression, thenCl: E.BlockStatement, elseCl?: E.BlockStatement): E.Statement {
@@ -235,6 +242,15 @@ export function loop(test: E.Expression, start: E.BlockStatement, end: E.BlockSt
         .concat(unclosedIfElse(test, breakBlock))
         .concat(endClos));
     return getClosure(raiseToBlockStatement([whileLoop]));
+}
+
+export function maybeRaiseToExpressionStatement(maybeExpression: E.Expression): E.Statement {
+    if (maybeExpression.type.indexOf("Expression") !== -1) {
+        let expSt = <E.ExpressionStatement>getASTNode("ExpressionStatement");
+        expSt.expression = maybeExpression;
+        return expSt;
+    }
+    return maybeExpression;
 }
 
 // export function forLoop(varId: E.Identifier, assignment: E.Expression[], limit: E.Expression[], increment: E.Expression[], body: E.Expression[]): E.Statement[] {
