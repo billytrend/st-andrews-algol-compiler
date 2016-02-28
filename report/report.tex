@@ -223,9 +223,213 @@ Furthermore, an object-based representation of the grammar syntax would allow pr
 
 \subsection{Meta-Compiler Design}
 
-The decision to programmatically generate the S-Algol compiler meant that the parser implementation focus had to be changed. The first aspect of the meta-compiler was to implement a small compiler chain for the grammar. This was a very simple implementation since the grammar has a very simple syntax itself.
+The decision to programmatically generate the S-Algol compiler meant that the parser implementation focus had to be changed. The first aspect of the meta-compiler was to implement a small compiler chain for the grammar. This is a simple implementation since the grammar has a simple syntax.  
+
+The meta-compiler represents the syntax using objects. A production such as 
+
+<let_decl> ::= let <identifier><init_op><clause>
+
+is represented using the following object structure
+
+% var grammar = {
+% 	...
+% 	"<let_decl>" : { 
+% 		productions: [
+% 			[{value: "let"}, {value: "<identifier>"}, {value: "<init_op>"}, {value: "<clause>"}]
+% 		]
+% 	}
+% 	...
+% }
+
+Given this object, it is possible to algorithmically solve the problems encountered whilst hand-writing the parser.
+
+Initially the production recogniser had to be implemented. This is a function that takes the current production and the current first value in the input array then outputs which production will parse the current input; just as 'isDeclaration' did.
+
+The basic algorithm is as follows:
+
+function recogniserTable(grammar) {
+	for (entryPoint of grammar) {
+		for (production of entryPoint) {
+			for () {
+			
+			}
+		}
+	}
+}
+
+\subsection{Implementing S-Algol Features}
+
+Despite many similarities, some parts of S-Algol do not have clear equivalent implementations in javascript. One of these differences is that conditional statements and loops may act as expressions. The may yield a result which can be applied to a variable or argument. Listing \ref{lst:condass} is an example of a trivial S-Algol program that assigns 1 to variable a.
+
+\begin{lstlisting}[caption={S-Algol conditional assignment},label={lst:condass}]
+let a = if true then 1 else 2?
+\end{lstlisting}
+
+An equivalent Javascript program might use the javascript ternary operator as shown in listing \ref{lst:jscondass}
+
+\begin{lstlisting}[caption={Javascript conditional assignment},label={lst:jscondass}, language=javascript]
+var a = true ? 1 : 2;
+\end{lstlisting}
+
+This might be a fairly good mapping however the javascript ternary operator does not handle more complicated expressions. The code in listing \ref{lst:complexcondass} represents a marginally more complicated statement. Here, the result of the if expression is simply 34, however, two statements have yielded this number rather than just 1 in the previous expression.
+
+\begin{lstlisting}[caption={More complicated S-Algol conditional assignment},label={lst:complexcondass}]
+let a = if true then {let a = 34; a} else 2?
+\end{lstlisting}
+
+There is no perfect equivalent in Javascript: it is not possible to add a block statement to a ternary operation. However, it is possible to use a function instead. This makes sense since a function may be defined as an abstraction over a set of statements; a block statement is the same except it is not re-useable, nor can it accept arguments, it rather inherits the scope of its parent block. As such, the javascript program in listing \ref{lst:jsfncondass} might be an appropriate equivalent to the S-algol in \ref{lst:complexcondass}.
+
+\begin{lstlisting}[caption={Javascript conditional assignment using a function},label={lst:jsfncondass}, language=javascript]
+function temp() {
+    var a = 34;
+    return a;
+}
+
+var a = true ? temp() : 2;
+\end{lstlisting}
+
+Since this 'temp' function will necessarily only be used once, it might be better design to actually remove it from the namespace altogether since a procedure with the same name may be accidentally be overwritten. This is possible with a some syntactic sugar available in Javascript shown in \ref{lst:jsfncondass}. An anonymous function is declared and called in a single expression. Note the application of the anonymous function is triggered by the parentheses on line \ref{line:application}.
+
+\begin{lstlisting}[caption={Javascript conditional assignment using a function},label={lst:jsfncondass}, language=javascript, escapechar="|"]
+var a = true ? function() {
+    var a = 34;
+    return a;
+}() : 2; |\label{line:application}|
+\end{lstlisting}
+
+There is an advantagous side effect to using javascript functions to express S-Algol blocks. This lies in javascript's scoping paradigm. In the S-algol spec, Morisson describes the languages very simple scoping system: "the scope of an identifier starts immediately after the declaration and continues up to the next unmatched } or 'end'." \ref{TODO} As such, S-algol may have indefinitely-many scopes in a single program. ES5 Javascript's two scopes are decribed in a Microsoft reference document as "global and local. A variable that is declared outside a function definition is a global variable, and its value is accessible and modifiable throughout your program. A variable that is declared inside a function definition is local. It is created and destroyed every time the function is executed, and it cannot be accessed by any code outside the function." \ref{https://msdn.microsoft.com/en-us/library/bzt2dkta(v=vs.94).aspx}.
+
+In this S-Algol compiler implementation, scope checking is executed statically so it is not necessary in most cases to ensure that the scope is verified. However, there are some cases where the more-permissive javascript scope will cause interference between variables. For example the S-Algol programme in Listing \ref{lst:scoping} would be expected to print 5 then 1.
+
+\begin{lstlisting}[caption={S-Algol scoping},label={lst:scoping}, escapechar="|"]
+let a = 1;
+
+if true then {
+	let a = 5; |\label{line:decl}|
+	write a;
+}
+write a?
+\end{lstlisting}
+
+The naïvely-compiled javascript program in Listing \ref{lst:jsnaive} would print 5 then 5. This is because the if block is assigning variables in the global scope whereas in S-algol, the if block creates a new scope. (It is important to note that child blocks in S-algol do inherit scope from their parents such that if Line \ref{line:decl} were removed from Listing \ref{lst:scoping}, the program would simply print 1 then 1.)
+
+\begin{lstlisting}[caption={Javascript scoping},label={lst:jsnaive}, language=javascript, escapechar="|"]
+var a = 1;
+
+if (true) {
+	var a = 5;
+	console.log(a);
+}
+
+console.log(a);
+\end{lstlisting}
+
+To make the javscript program act more like S-Algol, it is possible to take advantage of the function-local variable features of javascript. The Javascript code in Listing \ref{lst:betterscope} prints 5 then 1, just as was expected from the S-Algol program in Listing \ref{lst:scoping}. Furthermore, the inner scope inherits scope from its parents just like S-Algol scopes. As such, you can delete \ref{line:decl} from Listing \ref{lst:scoping} and the program will print 1 then 1;
+
+\begin{lstlisting}[caption={S-Algol-like Javascript scoping},label={lst:betterscope}, language=javascript, escapechar="|"]
+var a = 1;
+
+(function() {
+	if (true) {
+		var a = 5; |\label{line:jsdecl}|
+		console.log(a);
+	}
+})();
+
+console.log(a);
+\end{lstlisting}
+
+In conclusion, single-use anonymous functions provide S-Algol-like scoping and allow abstraction over block statements such that they can be used as expressions.
 
 
+ES6 has a new block-scoping syntax but this can be simmul
+
+
+\subsection{Implementing 'Abort'}
+
+In S-Algol, the abort keyword stops exectuion permanently. There are a few candidates for replication of abort in javascript. In the node javascript, the environment object called 'process' has a member function called 'exit' which behaves like the posix exit function. It allows a node program to end abruptly with a return value. This does not unfortunately work in the browser. Javascript also has a GOTO-like syntax called a label that allows the execution flow to jump between line numbers, however, this does not allow exit from functions so cannot be used to guaruntee that a program is stopped from anywhere within the control flow.
+
+This S-Algol implementation uses the Javascript exception handling to allow halt execution. I
+
+\begin{lstlisting}[caption={S-Algol-like Javascript scoping},label={lst:betterscope}, language=javascript, escapechar="|"]
+function recurse(x) {
+	if (x == 4) return;
+	recurse(x+!)
+}
+console.log(a);
+\end{lstlisting}
+
+
+\subsection{Language specification}
+
+A major challenge of this project was something of an archealogical problem. The S-Algol language was first designed and implemented nearly 40 years before the start of this project. This fact, coupled with its modest adoption outside of St Andrews, means that there is a limited set of documentation available. The sources available for reference were:
+
+\begin{enumerate}
+\item "S-algol Reference Manual" \cite{TODO}
+\item "ON THE DEVELOPMENT OF ALGOL" \cite{TODO}
+\item "Recursive Descent" \cite{TODO}
+\item "Programming in S-Algol" \cite{TODO}
+\item A C implementation of the S-algol compiler. \appendix{TODO: maybe?}
+\item An S-Algol impementation of the S-algol compiler. \appendix{TODO: maybe?}
+\end{enumerate}
+
+Within these sources are 3 different different grammar specififications. With a reasonably thorough analysis, these grammar specifications are roughly analogous. "S-algol Reference Manual" defines a context-free grammar that is the main point-of-reference for this project. "Programming in S-Algol" defines a context-sensitive two-level grammar. This is a variation of a Van Wijngaarden grammar that precisely defines all possible strings accepted by the S-Algol language including how types may be combined through operations \cite{TODO}. Initially it seemed as though this Van Wijngaarden would be a good target for the parser generator since it might be able to find type errors as well as syntax errors. Research however revealed that in the general case, it is an undeciadable problem as to whether a string fulfills two-level grammars \cite{TODO}. It may be the case that the S-Algol specification is a case that does happen to be decideable; however, it seemed to make more sense to decouple the grammar-checking and type-checking in the interests of good software engineering practice. The final formal specification, is found in the Morrison's book, "Recursive Descent". This appears to be a subset of the context-free grammar found in "S-algol Reference Manual" that does not include the first-class pixel manipulation features found in the latter.
+
+A context-free grammar is a powerful first stage in recognising whether a string is grammatically valid. A string of symbols may be checked a against a grammar and be verified as to whether they are correct or not. A tree is then produced that has the input symbol as leaves and other nodes that represent the significance of each part of the grammar.
+
+However, the problem with these grammars is that they can be ambiguous. Ambiguity in context free grammars mean that the same input string may be able to satisy a grammar by producing two different syntax trees. This can be problematic since two different syntax trees can have different semantic implications. The consequence of this is that given the same context-free grammar and the rest of the compiler toolchain, two compiler-writers can write a parser that causes the program to be executed significantly differently. A classic example of this problem is the dangling else issue found in most ALGOL languages. This problem happens to be present in S-Algol. Listing \ref{lst:dangle} contains an example of such a case. It has been indented to make it look like nothing should be printed: clearly, '2 < 1' evaluates to false and, as such lines \ref{line:dang1} to \ref{line:dang2} will never be executed.
+
+\begin{lstlisting}[caption={S-Algol dangling else},label={lst:dangle}, escapechar="|"]
+if 2 < 1
+	then if true	|\label{line:dang1}|
+		then {write 1}
+		else {write 2}; |\label{line:dang2}|
+\end{lstlisting}
+
+However, Listing \ref{lst:danglealternative} shows that there is an alternative way of understanding the exact same input string. This example uses exactly the same input string as Listing \ref{lst:dangle} but the indentation has been changed to make it clear that the else condition in line \ref{line:dang2a} is actually intended to complete the if statement that is established in line \ref{line:dang1a}.
+
+\begin{lstlisting}[caption={S-Algol dangling else alternative parse},label={lst:danglealternative}, escapechar="|"]
+if 2 < 1 |\label{line:dang1a}|
+	then if true 
+		then {write 1}
+else {write 2}; c
+\end{lstlisting}
+
+In some languages, this ambiguity is resolved by explicit characters that show where an if statement ends. However, in languages where there are no such delimeters, further definition is required to make an effective parse.
+
+Unfortunately, S-Algol documentation has no such clarification on handling of the dangling else problem so the original parser implementation must be the first point of reference. Listing \ref{lst:ifclause} contains the definition of the recursive descent procedure that parses 'if' statments. Line \ref{line:clauseparse} makes a call to the procedure that handles parsing of clauses as such, the dangling else will be syntactically applied to the inner most if statement.
+
+\begin{lstlisting}[caption={S-Algol compiler implementation of parsing an 'if' statement},label={lst:ifclause}, escapechar="|"]
+procedure if.clause( -> pntr )
+begin
+     next.sy
+     match( BOOL,clause )
+     let l = jumpf( newlab )
+     if have( do.sy ) then
+     begin
+          match( VOID,clause )
+          setlab( l )
+          VOID
+     end else
+     begin
+          mustbe( then.sy )
+          let t = clause
+          let m = fjump( newlab )
+          dec.stack( t )
+          setlab( l )
+          mustbe( else.sy )
+          let t1 = clause |\label{line:clauseparse}|
+          if eq2( INT,t ) and eq2( REAL,t1 ) then
+          begin
+               let n = fjump( newlab )
+               setlab( m )
+               float.op( 1 ) ; dec.stack( INT )
+               setlab( n )
+               REAL
+          end else { match( t,t1 ) ; setlab( m ) ; t }
+     end
+end
+\end{lstlisting}
 
 - initial approach, investigation of techniques
 - justify choice of typescipt
