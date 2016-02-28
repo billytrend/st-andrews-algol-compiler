@@ -81,7 +81,7 @@ function while_do(loop:C.clause_while_clause_do_clause): A.Loop {
 
 function for_loop(loop:C.clause_for_identifier_equals_clause_to_clause_maybe_underscore_1sbj2iy_do_clause): A.ForLoop {
     let out = new A.ForLoop();
-    out.initial = new A.Declaration(loop.identifier_1.flatten(), A.declaration_type.VAR);
+    out.initial = new A.Declaration(loop.identifier_1.flatten(), A.declaration_type.VAR_DECL);
     out.initial.body = clause(loop.clause_3);
     out.final = clause(loop.clause_5);
     if (loop.maybe_1sbj2iy_6 instanceof C.maybe_1sbj2iy_by_clause) {
@@ -110,7 +110,7 @@ function switch_statment(stmt: C.clause_case_clause_of_case_underscore_list_defa
 }
 
 function reassignment(reass:C.clause_name_colon_equals_clause): A.Declaration {
-    let out = new A.Declaration(reass.name_0.flatten(), A.declaration_type.VAR);
+    let out = new A.Declaration(reass.name_0.flatten(), A.declaration_type.VAR_DECL);
     out.body = clause(reass.clause_2);
     return out;
 }
@@ -223,7 +223,7 @@ function field_list(list: C.field_list): A.Declaration[] {
         let list = identifier_list(tight.identifier_list_1);
 
         for (let arg of list) {
-            let decl = new A.Declaration(arg, A.declaration_type.VAR);
+            let decl = new A.Declaration(arg, A.declaration_type.VAR_DECL);
             decl.returnType = type1(tight.type1_0);
             out.push(decl);
         }
@@ -244,7 +244,7 @@ function thing_declaration(decl: C.declaration): A.Declaration {
 
     if (decl instanceof C.declaration_let_underscore_decl) {
         let let_decl = <C.let_decl_let_identifier_init_underscore_op_clause>decl.let_decl_0;
-        out = new A.Declaration(let_decl.identifier_1.flatten(), A.declaration_type.VAR);
+        out = new A.Declaration(let_decl.identifier_1.flatten(), A.declaration_type.VAR_DECL);
         out.body = clause(let_decl.clause_3);
     } else if (decl instanceof C.declaration_structure_underscore_decl) {
         let structure_decl = <C.structure_decl_structure_identifier_maybe_underscore_1digw99>decl.structure_decl_0;
@@ -344,7 +344,7 @@ function parameter(parameter: C.parameter): A.Declaration[] {
         let tight = <C.parameter_type1_identifier_underscore_list>parameter;
         let id_list = identifier_list(tight.identifier_list_1);
         return id_list.map(id => {
-            let decl = new A.Declaration(id, A.declaration_type.VAR);
+            let decl = new A.Declaration(id, A.declaration_type.VAR_DECL);
             decl.returnType = type1(tight.type1_0);
             return decl;
         });

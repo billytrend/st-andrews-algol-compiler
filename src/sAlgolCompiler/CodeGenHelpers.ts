@@ -37,6 +37,13 @@ export function callFunc(expressionYieldingFunction: E.Expression, args: E.Expre
     return funcCall;
 }
 
+export function getNewObj(expressionYieldingFunction: E.Expression, args: E.Expression[]): E.NewExpression {
+    let init = <E.NewExpression>getASTNode("NewExpression");
+    init.callee = expressionYieldingFunction;
+    init.arguments = args;
+    return init;
+}
+
 export function getEmptyStatement(): E.EmptyStatement {
     return getASTNode("EmptyStatement");
 }
@@ -50,9 +57,9 @@ export function objectDefinition(id: string, properties: string[]): E.FunctionDe
         id,
         properties,
         raiseToBlockStatement(properties.map(function (prop) {
-            return assignVariable(
+            return maybeRaiseToExpressionStatement(varAss(
                 accessObject(getThis(), getIdentifier(prop), false), getIdentifier(prop)
-            );
+            ));
         }))
     );
 }
@@ -168,7 +175,7 @@ export function getIdentifier(name: string): E.Identifier {
     }
 }
 
-export function varAss(id: E.Identifier, right: E.Expression): E.AssignmentExpression {
+export function varAss(id: E.Expression, right: E.Expression): E.AssignmentExpression {
     let ass = <E.AssignmentExpression>getASTNode('AssignmentExpression');
     ass.operator = '=';
     ass.left = id;

@@ -17,6 +17,8 @@ import {loop} from "./CodeGenHelpers";
 import {makeBlockReturn} from "./CodeGenHelpers";
 import {maybeRaiseToExpressionStatement} from "./CodeGenHelpers";
 import {getArray} from "./CodeGenHelpers";
+import {getNewObj} from "./CodeGenHelpers";
+import {varAss} from "./CodeGenHelpers";
 
 export class AbstractSyntaxType {
     type: concrete_type;
@@ -96,7 +98,7 @@ export class Clause extends AbstractSyntaxType {
 }
 
 export enum declaration_type {
-    VAR, PROC, STRUCT, FORWARD
+    VAR_ASS, VAR_DECL, PROC, STRUCT, FORWARD
 }
 
 export class Declaration extends Clause {
@@ -112,7 +114,9 @@ export class Declaration extends Clause {
 
     compile(): E.Statement {
         switch (this.declType) {
-            case declaration_type.VAR:
+            case declaration_type.VAR_ASS:
+                return varAss(getIdentifier(this.identifier), this.body.compile());
+            case declaration_type.VAR_DECL:
                 return assignVariable(getIdentifier(this.identifier), this.body.compile());
             case declaration_type.STRUCT:
                 return objectDefinition(this.identifier, this.args.map(arg => arg.identifier));
@@ -245,9 +249,10 @@ export class Application extends Expression {
     compile(): E.Expression {
         switch (this.applType) {
             case declaration_type.PROC:
-            case declaration_type.STRUCT:
                 return callFunc(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
-            case declaration_type.VAR:
+            case declaration_type.STRUCT:
+                return getNewObj(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
+            case declaration_type.VAR_DECL:
                 return getIdentifier(this.identifier);
         }
     }
