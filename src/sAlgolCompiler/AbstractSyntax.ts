@@ -19,6 +19,7 @@ import {maybeRaiseToExpressionStatement} from "./CodeGenHelpers";
 import {getArray} from "./CodeGenHelpers";
 import {getNewObj} from "./CodeGenHelpers";
 import {varAss} from "./CodeGenHelpers";
+import * as _ from 'lodash';
 
 export class AbstractSyntaxType {
     type: concrete_type;
@@ -81,7 +82,7 @@ export class Type extends AbstractSyntaxType {
     }
 
     equals(other: Type): boolean {
-        return this.type === other.type;
+        return this.type === other.type && _.isEqual(this.constantStack, other.constantStack);
     }
 
     toString(): string {
@@ -288,12 +289,9 @@ export class Literal extends Expression {
 export class Number extends Literal {
     value:number;
 
-    get isReal():boolean {
-        return this.value % 1 === 0;
-    }
-
-    get returnType(): Type {
-        return this.isReal ? new Type(concrete_type.real) : new Type(concrete_type.int);
+    constructor(value, isReal) {
+        super(value);
+        this.returnType = isReal ? new Type(concrete_type.real) : new Type(concrete_type.int);
     }
 }
 

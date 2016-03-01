@@ -189,15 +189,10 @@ function type_id(id: C.type_id): A.Type {
         if (id instanceof C.type_id_star_type1) {
             let tight = <C.type_id_star_type1>id;
             id = tight.type1_1;
-            let tight1 = <C.type1_maybe_underscore_pba0tv_type_underscore_id>tight.type1_1;
-
-            if (tight1.maybe_pba0tv_0 && tight1.maybe_pba0tv_0.flatten().length > 0) {
-                out.constantStack.push(true);
-            } else {
-                out.constantStack.push(false);
-            }
-
-            id = tight1.type_id_1;
+            out.constantStack.push(A.type_prefix.star);
+            let t1 = type1(tight.type1_1);
+            out.constantStack = out.constantStack.concat(t1.constantStack);
+            out.type = t1.type;
         } else {
             out.type = A.concrete_type[id.flatten().toLowerCase()];
             break;
@@ -211,7 +206,9 @@ function type1(t: C.type1): A.Type {
     let tight = <C.type1_maybe_underscore_pba0tv_type_underscore_id>t;
     let isConstant = tight.maybe_pba0tv_0 instanceof C.maybe_pba0tv_c;
     let out = type_id(tight.type_id_1);
-    out.constantStack.unshift(isConstant);
+    if (isConstant) {
+        out.constantStack.unshift(A.type_prefix.constant);
+    }
     return out;
 }
 
@@ -268,6 +265,15 @@ function thing_declaration(decl: C.declaration): A.Declaration {
                 let tight1 = <C.maybe_1yynizo_parameter_underscore_list>tight.maybe_1yynizo_1;
                 out.args = parameter_list(tight1.parameter_list_0);
             }
+
+            if (tight.maybe_154oq1b_2 instanceof C.maybe_154oq1b_arrow_type_underscore_id) {
+                let tight1 = <C.maybe_154oq1b_arrow_type_underscore_id>tight.maybe_154oq1b_2;
+                out.returnType = type_id(tight1.type_id_1);
+            }
+        }
+
+        if (!out.returnType) {
+            out.returnType = new A.Type(A.concrete_type.void);
         }
 
         out.body = clause(proc_decl.clause_4);
@@ -385,7 +391,7 @@ function literal(literal: C.literal): A.Literal {
     let flattened = literal.flatten();
 
     if (literal instanceof C.literal_real_underscore_literal) {
-        return new A.Number(parseFloat(flattened));
+        return new A.Number(parseFloat(flattened), flattened.indexOf(".") != -1);
     }else if (literal instanceof C.literal_boolean_underscore_literal) {
         return new A.Bool(flattened == 'true');
     }else if (literal instanceof C.literal_string_underscore_literal) {
