@@ -28,6 +28,8 @@ function visitObject(obj: A.AbstractSyntaxType, visitor: SuperVisitor) {
         visitOperation(obj, visitor);
     } else if (obj instanceof A.Application) {
         visitApplication(obj, visitor);
+    } else if (obj instanceof A.Vector) {
+        visitVector(obj, visitor);
     }
     visitor.afterVisitNode(obj);
 }
@@ -71,6 +73,12 @@ function visitLoop(obj: A.Loop, visitor: SuperVisitor) {
     visit(obj.test, visitor);
     if (obj.last) {
         visit(obj.last, visitor);
+    }
+}
+
+function visitVector(obj: A.Vector, visitor: SuperVisitor) {
+    for (let cl of obj.values) {
+        visit(cl, visitor);
     }
 }
 

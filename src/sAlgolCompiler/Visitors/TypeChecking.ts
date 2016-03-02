@@ -2,10 +2,11 @@ import {SuperVisitor} from "./SuperVisitor";
 import * as A from '../AbstractSyntax';
 import {
     ContextSensitiveError, OperationTypeError, ArgumentError,
-    WrongNumberOfArguments, WrongReturnValue
+    WrongNumberOfArguments, WrongReturnValue, ElementError
 } from "../ContextSensitiveError";
 import {ScopeError} from "../ContextSensitiveError";
 import {AppliedArgumentToVariable} from "../ContextSensitiveError";
+import {Vector} from "../AbstractSyntax";
 
 export class TypeChecking extends SuperVisitor {
 
@@ -59,6 +60,14 @@ export class TypeChecking extends SuperVisitor {
             }
         } else {
             this.addToCurrentScope(obj.identifier, obj);
+        }
+    }
+
+    afterVisitVector(obj: A.Vector): void {
+        for (let ele of obj.values) {
+            if (!obj.returnType.references(ele.returnType)) {
+                ele.addError(new ElementError(ele, obj));
+            }
         }
     }
 

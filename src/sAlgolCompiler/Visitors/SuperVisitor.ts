@@ -33,6 +33,8 @@ export class SuperVisitor {
             this.beforeVisitPixel(obj);
         } else if (obj instanceof A.NullFile) {
             this.beforeVisitNullFile(obj);
+        } else if (obj instanceof A.Vector) {
+            this.beforeVisitVector(obj);
         }
     }
 
@@ -67,6 +69,8 @@ export class SuperVisitor {
             this.afterVisitPixel(obj);
         } else if (obj instanceof A.NullFile) {
             this.afterVisitNullFile(obj);
+        } else if (obj instanceof A.Vector) {
+            this.afterVisitVector(obj);
         }
     }
 
@@ -75,6 +79,14 @@ export class SuperVisitor {
     }
 
     afterVisitNode(obj: A.AbstractSyntaxType) {
+
+    }
+
+    beforeVisitVector(obj: A.Vector) {
+
+    }
+
+    afterVisitVector(obj: A.Vector) {
 
     }
 

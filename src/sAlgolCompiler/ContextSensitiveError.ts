@@ -95,12 +95,25 @@ export class WrongReturnValue extends TypeError {
 
     constructor(node: A.Declaration, returned: A.Type) {
         super(node);
-        this.node = node;
         this.returned = returned;
     }
 
     get error(): string {
         return `Procedure ${this.node.identifier} should return ${this.node.returnType.toString()}, not`
         + ` ${this.returned.toString()}`;
+    }
+}
+
+export class ElementError extends TypeError {
+    node: A.Clause;
+    vector: A.Vector;
+
+    constructor(node: A.Clause, vector: A.Vector) {
+        super(node);
+        this.vector = vector;
+    }
+
+    get error(): string {
+        return `Vector err`;
     }
 }

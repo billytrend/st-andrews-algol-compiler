@@ -85,6 +85,29 @@ export class Type extends AbstractSyntaxType {
         return this.type === other.type && _.isEqual(this.constantStack, other.constantStack);
     }
 
+    references(other: Type): boolean {
+        let start = 1;
+        if (this.constantStack[0] === type_prefix.constant) {
+            start = 2;
+        }
+
+        if (this.constantStack.length - start != other.constantStack.length) {
+            return false;
+        }
+
+        if (this.type !== other.type) {
+            return false;
+        }
+
+        for (let i = start; i < this.constantStack.length; i++) {
+            if (this.constantStack[i] != other.constantStack[i - start]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     toString(): string {
         let out = "";
         for (let cons of this.constantStack) {
