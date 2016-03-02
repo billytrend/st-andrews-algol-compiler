@@ -319,7 +319,6 @@ export class Vector extends Expression {
     values: Clause[] = [];
     upb: Clause;
     lb: Clause;
-    returnType = new Type(concrete_type.vector);
     innerType: Type;
 
     compile(): E.ArrayExpression {

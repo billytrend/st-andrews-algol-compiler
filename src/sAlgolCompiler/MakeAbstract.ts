@@ -419,6 +419,8 @@ function vector(vector: C.vector_constr): A.Vector {
         out.innerType = type1(tight.type1_3);
         out.values = clause_list(tight.clause_list_5);
         out.lb = clause(tight.clause_1);
+        out.returnType = type1(tight.type1_3);
+        out.returnType.constantStack.unshift(A.type_prefix.star);
     }
 
     return out;
