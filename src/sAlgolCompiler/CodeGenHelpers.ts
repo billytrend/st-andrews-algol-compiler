@@ -252,7 +252,7 @@ export function loop(test: E.Expression, start: E.Expression, end: E.Expression)
 }
 
 export function maybeRaiseToExpressionStatement(maybeExpression: E.Expression): E.Statement {
-    if (maybeExpression.type.indexOf("Expression") !== -1) {
+    if (maybeExpression && maybeExpression.type.indexOf("Expression") !== -1) {
         let expSt = <E.ExpressionStatement>getASTNode("ExpressionStatement");
         expSt.expression = maybeExpression;
         return expSt;

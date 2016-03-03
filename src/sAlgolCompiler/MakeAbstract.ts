@@ -298,8 +298,8 @@ function for_decl(forward: C.forward): A.Declaration {
     return decl;
 }
 
-function ptype_list(list: C.ptype_list): A.Declaration[] {
-    let out: A.Declaration[] = [];
+function ptype_list(list: C.ptype_list): A.Type[] {
+    let out: A.Type[] = [];
     while (true) {
         if(list instanceof C.ptype_list_type1_maybe_underscore_1lamsg5) {
             let tight = <C.ptype_list_type1_maybe_underscore_1lamsg5> list;
@@ -334,7 +334,7 @@ function proc_type(proc_type: C.proc_type): A.Declaration {
     if (tight.maybe_8jf5s5_1 instanceof C.maybe_8jf5s5_ptype_underscore_list) {
         let tight1 = <C.maybe_8jf5s5_ptype_underscore_list>tight.maybe_8jf5s5_1;
         let list = tight1.ptype_list_0;
-        out.args = ptype_list(list);
+        out.args = ptype_list(list).map(x => new A.Declaration(null, A.declaration_type.VAR_DECL, x));
     }
 
     if (tight.maybe_154oq1b_2 instanceof C.maybe_154oq1b_arrow_type_underscore_id) {

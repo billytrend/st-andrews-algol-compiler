@@ -21,6 +21,13 @@ import {getNewObj} from "./CodeGenHelpers";
 import {varAss} from "./CodeGenHelpers";
 import * as _ from 'lodash';
 
+export function mergePrograms(a: Program, b: Program): Program {
+    let newProg = new Program();
+    newProg.sequence.clauses = a.sequence.clauses.concat(b.sequence.clauses);
+    return newProg;
+}
+
+
 export class AbstractSyntaxType {
     type: concrete_type;
     errors: ContextSensitiveError[] = [];x
@@ -41,8 +48,9 @@ export class Program extends AbstractSyntaxType {
     sequence: Sequence = new Sequence();
 
     compile(): E.Program {
+        this.sequence.returnType = new Type(concrete_type.void);
         let program = CodeGen.getProgram([
-            this.sequence.compileVoid()
+            this.sequence.compile()
         ]);
         return program;
     }
@@ -139,9 +147,10 @@ export class Declaration extends Clause {
     args: Declaration[] = [];
     declType: declaration_type;
 
-    constructor(identifier: string, type: declaration_type) {
+    constructor(identifier: string, type: declaration_type, ret?:Type) {
         this.identifier = identifier;
         this.declType = type;
+        this.returnType = ret;
     }
 
     compile(): E.Statement {
@@ -155,8 +164,9 @@ export class Declaration extends Clause {
             case declaration_type.FORWARD:
                 return null;
             case declaration_type.PROC:
-                let body = this.body.compile();
-                let la = functionDefinition(this.identifier, this.args.map(arg => arg.identifier), raiseToBlockStatement([body]));
+                let body = raiseToBlockStatement([this.body.compile()]);
+                body = this.body.returnType.type !== concrete_type.void ? makeBlockReturn(body) : body;
+                let la = functionDefinition(this.identifier, this.args.map(arg => arg.identifier), body);
                 return la;
         }
     }
@@ -221,6 +231,7 @@ export class Sequence extends Expression {
         });
     }
 
+
     compile(): E.CallExpression {
         this.filterEmptyClauses();
 
@@ -228,19 +239,11 @@ export class Sequence extends Expression {
             return maybeRaiseToExpressionStatement(cl.compile())
         });
 
-        let bodyBlock = makeBlockReturn(raiseToBlockStatement(body));
-
-        return getClosure(bodyBlock);
-    }
-
-    compileVoid(): E.CallExpression {
-        this.filterEmptyClauses();
-
-        let body = this.clauses.map(cl => {
-            return maybeRaiseToExpressionStatement(cl.compile())
-        });
-
         let bodyBlock = raiseToBlockStatement(body);
+
+        if (this.returnType.type !== concrete_type.void) {
+            bodyBlock = makeBlockReturn(bodyBlock);
+        }
 
         return getClosure(bodyBlock);
     }

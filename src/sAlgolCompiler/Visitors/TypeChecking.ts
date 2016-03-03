@@ -49,7 +49,7 @@ export class TypeChecking extends SuperVisitor {
     }
 
     afterVisitDeclaration(obj: A.Declaration): void {
-        if (obj.declType === A.declaration_type.VAR_DECL) {
+        if (obj.declType === A.declaration_type.VAR_DECL && obj.body) {
             obj.returnType = obj.body.returnType;
         }
 
