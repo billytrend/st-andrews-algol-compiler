@@ -381,6 +381,7 @@ However, the problem with these grammars is that they can be ambiguous. Ambiguit
 
 \begin{lstlisting}[caption={S-Algol dangling else},label={lst:dangle}, escapechar="|"]
 if 2 < 1
+
 	then if true	|\label{line:dang1}|
 		then {write 1}
 		else {write 2}; |\label{line:dang2}|
@@ -430,6 +431,71 @@ begin
      end
 end
 \end{lstlisting}
+
+This is a clear example of how the definition of a language's grammar cannot solely lie in its context-free grammar. Rather, it must be specified.
+
+\subsection{Lexer}
+
+The role of a lexer in a compiler is to break up a continuous input string into lexical symbols that can be accepted by the parser. As such a lexer does not necessarily need to respect the grammar of a language. This assumption actually diverges from the original S-Algol implementation. The single-pass nature of the original implementation means that the input string is 'lexed' in the same recursive descent as all of the other language operations as such, the program 'knows' a subest of symbols that should be expected to be lexed. For example, it the program is currently executing the function that handles let declarations, it knows to first expect the characters 'let' and nothing else; then the next string of characters will be a sequence of valid identifier characters. A marginal advantage of this method is that it might save a bit of computation given this knowledge of whats coming next since only a few possibilities need checking. However, it adds bulk to the parsing stage of the compiler and since the overall design of this new implementation is to emphasise separation of concerns rather than efficiency, it makes sense to implement a simple lexer and separate parser than to add a lexer to the already-complex parser.
+
+Since the lexer should be able to lex input from any point within a program and does not have grammatical understanding of the input, there are some considerations that must be made to ensure the correct symbols are lexed. For example, when a lexer sees 'let', it should produce a single LET symbol; but when a lexer sees 'foo', it should produce the three symbols F, O, O. As such, symbols can be broken into priority classes. It is common practice for a language to reserve a set of keywords that may not be used as identifiers such that \lstinline{let let = 1?} might be an invalid program.
+
+The basic algorithm implemented by this lexer is to try to recognise some class of symbol from the head of the input and if a match is found, consume that match from the head of the input and produce apropriate symbols. In Typescript, it was most appropriate to implement these symbols using the enum structure. To aid the implementation of this further, this enum is generated as part of the meta-compiler TODO: expand.
+
+Each class of language is represented by a regular expression. TODO: maybe cite the java compiler book. 
+Listing \ref{lst:keywordsregex} shows the regular expression that is used to recognise keywords. It is checked first. It is roughly separable into three parts.
+
+The initial character \lstinline{^} asserts that the following regular expression should only match if it matches at the start of the line. This is important for efficiency and general function of the lexer. It is useless to recognise the string '; let a = 1;' as starting with a LET symbol because it does not.
+
+The body of Listing \ref{lst:keywordsregex} contains and enumeration of all the possible keywords (these are selected from the list of the language's terminals that is generated from the meta-compiler). Full-stop literal characters are escaped since they are usually wild cards in regular expressions. An important consideration of the body of the regular expression is that the keywords are in reverse order of length. This means that if two keywords have the same beginning characters, the longest one will always match. For example, the javascript expressions \lstinline{"isnt".match(/^(is|isnt)/)} will incorrectly match the front of the input as starting with an IS symbol whereas \lstinline{"isnt".match(/^(isnt|is)/)} will correctly match the input string as starting with an ISNT symbol.
+
+The final part of this regex is a negative lookahed \lstinline{(?![a-zA-Z0-9.])}. This is a precaution that checks the front of the input is not an identifier that starts with a keyword. It seems a sensible precaution in a language to prevent keywords being used as identifiers but potentially lazy on the part of the language implementor to disallow any identifier beginning with a keyword. The negative lookahead checks that the character immediately after the keyword is not part of an identifier. If it is, no match is made by this regular expression. As such, this compiler accepts 'let letitia = 1?' as a lexically and grammatically correct program that assigns 1 to variable letitia. Without the negative lookahead, this programme would not be acceptable.
+
+\begin{lstlisting}[caption={},label={lst:keywordsregex}, escapechar="|"]
+/^(read\.a\.line|structure|procedure|read\.name|read\.byte|default:|out\.byte|nullfile|forward|read\.32|#cpixel|maxreal|epsilon|read\.16|screen|maxint|repeat|#pixel|string|cursor|colour|rotate|out\.32|output|vector|out\.16|write|pixel|reads|readb|readr|image|limit|shift|scale|readi|begin|while|abort|false|peek|true|rand|onto|text|read|case|xnor|nand|from|copy|else|then|real|file|pntr|bool|isnt|end|xor|lwb|and|ror|upb|eof|int|off|nil|for|let|r\.w|i\.w|s\.w|s\.o|s\.i|div|rem|pic|nor|not|on|pi|do|is|by|if|to|of|at|or|in)(?![a-zA-Z0-9.])/
+\end{lstlisting}
+
+The next class of symbol is that of the punctuation symbols. The regular expression follows a similar structure. Here, order is important such that '>=' is recognised before '>'. Lookahead is not importatant because they cannot be part of an identifier since identifiers can only start with an 
+
+\begin{lstlisting}[caption={},label={lst:puncregex}, escapechar="|"]
+/^(structure\(|:=|::|\+\+|!=|<=|>=|\*|;|:|~|\{|\}|@|=|!|#|\$|%|&|\?|\+|-|\/|<|>|\[|\\|\]|\^|_|`|\||0|\(|\)|,|"|'|\.)/
+\end{lstlisting}
+
+The symbols that represent types are mostly just keywords, however, they may be prefixed by an arbitrary number of asterisks and c's. \lstinline{[\*c]*} matches such a prefix however. It would be possible to write a regex that only lexes correct types ie not 'c*c*c*cint' but not 'ccccint' however, this is done by the parser so is an unecessary complexity. Again, the type regex requires a negative lookahead check that it is not trailed by identifier characters such that the identifier of the declaration 'let introduction = 1?' can be correctly lexed.
+
+\begin{lstlisting}[caption={},label={lst:typeregex}, escapechar="|"]
+/^[\*c]*(int|real|bool|string|pixel|pic|pntr|file|#pixel|#cpixel)(?![a-zA-Z0-9.])/
+\end{lstlisting}
+
+The final and most permissive regular expressions match strings and numbers. Listing \ref{lst:idregex} shows the expression that matches identifier (which must start with an upper or lower case letter but may contain numbers and full stops).
+
+\begin{lstlisting}[caption={},label={lst:idregex}, escapechar="|"]
+/^[a-zA-Z][a-zA-Z0-9\.]*/
+\end{lstlisting}
+
+Listing \ref{lst:idregex} shows the expression that matches numbers including integers, floats and exponents.
+
+\begin{lstlisting}[caption={},label={lst:numberregex}, escapechar="|"]
+^(\+|-)?[0-9]+(\.[0-9]+)?(e[0-9]+)?
+\end{lstlisting}
+
+\section{Context Sensitive Analysis}
+
+After a lexer and a parser has been implemented, all further development of a programming language lies in static analysis of the code. This includes type checking and scope checking.
+
+
+
+% let identifierRegex = /^[a-zA-Z][a-zA-Z0-9\.]*/;
+% let number = /^(\+|-)?[0-9]+(\.[0-9]+)?(e[0-9]+)?/;
+% let punc = new RegExp(
+%     `^(${Object.keys(punctuation).sort(sort).map(escape).join('|')})`
+% );
+% let types = "(int|real|bool|string|pixel|pic|pntr|file|#pixel|#cpixel)(?![a-zA-Z0-9\.])";
+% let concType = new RegExp(types);
+% let augTypeReg = new RegExp(`^[\\*c]*${types}`);
+% let stringReg = /"([ -!#-&(-~]|('")|(''))*"/;
+
+
 
 - initial approach, investigation of techniques
 - justify choice of typescipt
