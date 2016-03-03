@@ -20,12 +20,6 @@ export class SalgolSymbol {
 
 }
 
-var input: string[];
-var lexed: SalgolSymbol[];
-var curLine: number;
-var curColumn: number;
-var lastSeen: LexType = LexType.space;
-
 let identifierRegex = /^[a-zA-Z][a-zA-Z0-9\.]*/;
 let number = /^(\+|-)?[0-9]+(\.[0-9]+)?(e[0-9]+)?/;
 let punc = new RegExp(
@@ -37,67 +31,79 @@ let keyword = new RegExp(
 let types = "(int|real|bool|string|pixel|pic|pntr|file|#pixel|#cpixel)(?![a-zA-Z0-9\.])";
 let concType = new RegExp(types);
 let augTypeReg = new RegExp(`^[\\*c]*${types}`);
+let stringReg = /"([ -!#-&(-~]|('")|(''))*"/;
+let whiteSpace = /\s*/;
 
-let whiteSpace = /\s*/
 
-function getLoc(begin: number): E.SourceLocation {
-    return <E.SourceLocation>{
-        source: "test",
-        start: { line: curLine, column: begin },
-        end:  { line: curLine, column: curColumn }
-    }
-}
-export function consumeStringFromHead(expression: RegExp): string {
-    let match = input[curLine].match(expression);
-    if (match === null) {
-        return null;
-    }
-    curColumn += match[0].length;
-    input[curLine] = input[curLine].slice(match[0].length);
-    return match[0];
-}
+export class SalgolLexer {
+    input: string[];
+    lexed: SalgolSymbol[];
+    curLine: number;
+    curColumn: number;
 
-export function lexTerminal(): boolean {
-    let str;
-    let begin = curColumn;
-    if (str = (consumeStringFromHead(keyword)||consumeStringFromHead(punc))) {
-        lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(str)], getLoc(begin)));
-    } else if (str = consumeStringFromHead(augTypeReg)) {
-        let concrete = str.match(concType);
-        let prefix = str.slice(0, concrete.index);
-        lexed = lexed.concat(prefix.split('').map(item => {
-            return new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(item[0])], getLoc(begin));
-        }));
-        lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(concrete[0])], getLoc(begin)));
-    } else if (str = (consumeStringFromHead(number) || consumeStringFromHead(identifierRegex))) {
-        lexed = lexed.concat(str.split('').map(item => {
-            return new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(item)], getLoc(begin));
-        }));
-    } else {
-        return false;
+    getLoc(begin: number): E.SourceLocation {
+        return <E.SourceLocation>{
+            source: "test",
+            start: { line: this.curLine, column: begin },
+            end:  { line: this.curLine, column: this.curColumn }
+        }
     }
 
-    return true;
-}
+    consumeStringFromHead(expression: RegExp): string {
+        let match = this.input[this.curLine].match(expression);
+        if (match === null) {
+            return null;
+        }
+        this.curColumn += match[0].length;
+        this.input[this.curLine] = this.input[this.curLine].slice(match[0].length);
+        return match[0];
+    }
 
-export function lexLine(): boolean {
-    while (input[curLine].length > 0) {
-        consumeStringFromHead(whiteSpace);
-        if (!lexTerminal()) {
-            console.log("Couldn't lex the head of " + input[curLine]);
+    lexTerminal(): boolean {
+        let str;
+        let begin = this.curColumn;
+        if (str = (this.consumeStringFromHead(keyword)||this.consumeStringFromHead(punc))) {
+            this.lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(str)], this.getLoc(begin)));
+        } else if (str = this.consumeStringFromHead(augTypeReg)) {
+            let concrete = str.match(concType);
+            let prefix = str.slice(0, concrete.index);
+            this.lexed = this.lexed.concat(prefix.split('').map(item => {
+                return new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(item[0])], this.getLoc(begin));
+            }));
+            this.lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(concrete[0])], this.getLoc(begin)));
+        } else if (str = (this.consumeStringFromHead(number) || this.consumeStringFromHead(identifierRegex))) {
+            this.lexed = this.lexed.concat(str.split('').map(item => {
+                return new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(item)], this.getLoc(begin));
+            }));
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    lexLine(): boolean {
+    while (this.input[this.curLine].length > 0) {
+        this.consumeStringFromHead(whiteSpace);
+        if (!this.lexTerminal()) {
+            console.log("Couldn't lex the head of " + this.input[this.curLine]);
             return false;
         }
     }
     return true;
 };
 
-export function lex(lines: string[]): SalgolSymbol[] {
-    input = lines;
-    lexed = [];
-    curLine = 0;
-    for (; curLine < input.length; curLine++) {
-        curColumn = 0;
-        lexLine();
+    lex(): SalgolSymbol[] {
+        for (; this.curLine < this.input.length; this.curLine++) {
+            this.curColumn = 0;
+            this.lexLine();
+        }
+        return this.lexed;
     }
-    return lexed;
+
+    constructor(lines: string[]) {
+        this.input = lines;
+        this.lexed = [];
+        this.curLine = 0;
+    }
 }
