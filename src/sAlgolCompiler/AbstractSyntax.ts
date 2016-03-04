@@ -30,7 +30,8 @@ export function mergePrograms(a: Program, b: Program): Program {
 
 export class AbstractSyntaxType {
     type: concrete_type;
-    errors: ContextSensitiveError[] = [];x
+    errors: ContextSensitiveError[] = [];
+    shouldTypeCheck = true;
 
     compile(): any {
         return CodeGen.getConsoleLog();
@@ -146,9 +147,9 @@ export class Declaration extends Clause {
     body: Clause;
     args: Declaration[] = [];
     declType: declaration_type;
-
+    
     constructor(identifier: string, type: declaration_type, ret?:Type) {
-        this.identifier = identifier;
+        this.identifier = identifier != null ? identifier.replace(/\./g, "_") : identifier;
         this.declType = type;
         this.returnType = ret;
     }
@@ -286,7 +287,7 @@ export class Application extends Expression {
     applType: declaration_type;
 
     constructor(identifier: string) {
-        this.identifier = identifier;
+        this.identifier = identifier.replace(/\./g, "_");
     }
 
     compile(): E.Expression {

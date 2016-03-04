@@ -1,6 +1,7 @@
 import * as C from "./GeneratedFiles/ConcreteSyntax";
 import * as A from "./AbstractSyntax";
 import {operation_type} from "./AbstractSyntax";
+import {write_type} from "./AbstractSyntax";
 
 export var flatten = program;
 class ProcedureType {
@@ -115,8 +116,26 @@ function reassignment(reass:C.clause_name_colon_equals_clause): A.Declaration {
     return out;
 }
 
-function write_clause(clause:C.clause_write_underscore_clause) {
-
+function write_clause(wr_clause:C.clause_write_underscore_clause) {
+    if (wr_clause.write_clause_0 instanceof  C.write_clause_write_write_underscore_list) {
+        let out = new A.Application("write");
+        out.shouldTypeCheck = false;
+        out.returnType = new A.Type(A.concrete_type.void);
+        out.applType = A.declaration_type.PROC;
+        let tight = <C.write_clause_write_write_underscore_list>wr_clause.write_clause_0;
+        if (tight.write_list_1 instanceof C.write_list) {
+            let write_list = <C.write_list_clause_maybe_underscore_160tn3f_maybe_underscore_1k3m0xc>tight.write_list_1;
+            while (true) {
+                out.args.push(clause(write_list.clause_0));
+                if (write_list.maybe_1k3m0xc_2 instanceof C.write_list_clause_maybe_underscore_160tn3f_maybe_underscore_1k3m0xc) {
+                    write_list = <C.write_list_clause_maybe_underscore_160tn3f_maybe_underscore_1k3m0xc>write_list.maybe_1k3m0xc_2;
+                } else {
+                    break;
+                }
+            }
+        }
+        return out;
+    }
 }
 
 function recogniseRaster(raster_op_0:C.raster_op): A.operation_type {

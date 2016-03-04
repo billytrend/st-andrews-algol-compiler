@@ -9,6 +9,8 @@ import escodegen = require('escodegen');
 import {TypeChecking} from "./Visitors/TypeChecking";
 import {stdLib} from "./SaloglSources/SAlgolStd";
 import {mergePrograms, Program} from "./AbstractSyntax";
+import esprima = require('esprima');
+import {prelude} from "./SaloglSources/Prelude";
 
 export class Config {
     typeCheck = true;
@@ -29,7 +31,7 @@ export function compile(lines: string[], config?: Config) {
     let ast = compileToAST(lines);
 
     if (config.prelude) {
-        // ast = mergePrograms(ast, compilePrelude());
+        ast = mergePrograms(compilePrelude(), ast);
     }
 
     if (config.typeCheck) {
@@ -42,12 +44,15 @@ export function compile(lines: string[], config?: Config) {
     if (errorReport.foundErrors) {
         process.exit(1);
     }
+    let estreeObj = ast.compile();
+    let preludeAst = esprima.parse(prelude());
+    estreeObj.body = estreeObj.body.concat(preludeAst.body);
     //noinspection TypeScriptUnresolvedFunction
-    let outProgram = escodegen.generate(ast.compile());
+    let outProgram = escodegen.generate(estreeObj);
 
     return outProgram;
 }
 
 function compilePrelude() {
-    return compileToAST(stdLib);
+    return compileToAST(stdLib());
 }

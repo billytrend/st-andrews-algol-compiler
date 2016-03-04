@@ -50,6 +50,10 @@ export class ScopeChecking extends SuperVisitor {
     }
 
     beforeVisitApplication(obj: A.Application): void {
+        if (!obj.shouldTypeCheck) {
+            return;
+        }
+
         let decl = this.findInScope(obj.identifier);
         if (decl === null) {
             obj.addError(new ScopeError(obj));
