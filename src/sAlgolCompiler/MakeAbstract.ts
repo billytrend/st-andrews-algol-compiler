@@ -47,18 +47,18 @@ function sequence(seq: C.sequence): A.Sequence {
     return out;
 }
 
-function if_clause(if_cl:C.clause_if_clause_do_clause): A.Conditional {
+function if_clause(if_cl:C.clause_if_clause_disambiguated_underscore_less_than_clause_greater_than): A.Conditional {
     let out = new A.Conditional();
     out.test = clause(if_cl.clause_1);
-    out.thenCl = clause(if_cl.clause_3);
-    return out;
-}
 
-function if_else_clause(if_cl:C.clause_if_clause_then_clause_else_clause): A.Conditional {
-    let out = new A.Conditional();
-    out.test = clause(if_cl.clause_1);
-    out.thenCl = clause(if_cl.clause_3);
-    out.elseCl = clause(if_cl.clause_5);
+    if (if_cl.disambiguated_clause_2 instanceof C.disambiguated_clause_do_clause) {
+        let tight = <C.disambiguated_clause_do_clause>if_cl.disambiguated_clause_2;
+        out.thenCl = clause(tight.clause_1);
+    } else if (if_cl.disambiguated_clause_2 instanceof C.disambiguated_clause_then_clause_else_clause) {
+        let tight = <C.disambiguated_clause_then_clause_else_clause>if_cl.disambiguated_clause_2;
+        out.thenCl = clause(tight.clause_1);
+        out.elseCl = clause(tight.clause_3);
+    }
     return out;
 }
 
@@ -110,12 +110,6 @@ function switch_statment(stmt: C.clause_case_clause_of_case_underscore_list_defa
     return out;
 }
 
-function reassignment(reass:C.clause_name_colon_equals_clause): A.Declaration {
-    let out = new A.Declaration(reass.name_0.flatten(), A.declaration_type.VAR_DECL);
-    out.body = clause(reass.clause_2);
-    return out;
-}
-
 function write_clause(wr_clause:C.clause_write_underscore_clause) {
     if (wr_clause.write_clause_0 instanceof  C.write_clause_write_write_underscore_list) {
         let out = new A.Application("write");
@@ -154,15 +148,13 @@ function raster_op(rast:C.clause_raster): A.Operation {
 }
 
 function abort(): A.Application {
-    return new A.Application("abort");;
+    return new A.Application("abort");
 }
 
 function clause(clause: C.clause): A.Clause {
 
-    if (clause instanceof C.clause_if_clause_do_clause) {
+    if (clause instanceof C.clause_if_clause_disambiguated_underscore_less_than_clause_greater_than) {
         return if_clause(clause);
-    } else if (clause instanceof C.clause_if_clause_then_clause_else_clause) {
-        return if_else_clause(clause);
     } else if (clause instanceof C.clause_repeat_clause_while_clause_maybe_underscore_misevu) {
         return repeat_while_do(clause);
     } else if (clause instanceof C.clause_while_clause_do_clause) {
@@ -171,8 +163,6 @@ function clause(clause: C.clause): A.Clause {
         return for_loop(clause);
     } else if (clause instanceof C.clause_case_clause_of_case_underscore_list_default_colon_clause) {
         return switch_statment(clause);
-    } else if (clause instanceof C.clause_name_colon_equals_clause) {
-        return reassignment(clause);
     } else if (clause instanceof C.clause_write_underscore_clause) {
         return write_clause(clause);
     } else if (clause instanceof C.clause_raster) {
@@ -491,17 +481,30 @@ function clause_list(list: C.clause_list): A.Clause[] {
 }
 
 function application(application:C.application):A.Expression {
-    let tightened = <C.application_identifier_maybe_underscore_1cr5dkj> application;
-    let out = new A.Application(tightened.identifier_0.flatten());
+    let tightened = <C.application_identifier_maybe_underscore_254f26> application;
+    let tight1 = tightened.maybe_254f26_1;
+    let out;
 
-    let brackets = tightened.maybe_1cr5dkj_1;
-    if (brackets instanceof C.maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis) {
-        let maybeClauseList = <C.maybe_bk760w>brackets.maybe_bk760w_1;
+    if (tight1 instanceof C.maybe_254f26_app_underscore_tail) {
+        let tail = tight1.app_tail_0;
+        if (tail instanceof C.app_tail_colon_equals_clause) {
+            out = new A.Declaration(tightened.identifier_0.flatten(), A.declaration_type.VAR_ASS);
+            out.body = clause(tail.clause_1);
+        } else if (tail instanceof C.app_tail_maybe_underscore_1cr5dkj) {
+            out = new A.Application(tightened.identifier_0.flatten());
+            let brackets = tail.maybe_1cr5dkj_0;
+            if (brackets instanceof C.maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis) {
+                let maybeClauseList = <C.maybe_bk760w>brackets.maybe_bk760w_1;
 
-        if (maybeClauseList instanceof C.maybe_bk760w_clause_underscore_list) {
-            out.args = clause_list(brackets.maybe_bk760w_1.clause_list_0);
+                if (maybeClauseList instanceof C.maybe_bk760w_clause_underscore_list) {
+                    out.args = clause_list(brackets.maybe_bk760w_1.clause_list_0);
+                }
+            }
         }
+    } else {
+        out = new A.Application(tightened.identifier_0.flatten());
     }
+
 
     return out;
 }

@@ -1,12 +1,5 @@
-import {lex} from "./Lexer";
-import Parser from "./Parser";
-import {flatten} from "./MakeAbstract";
-import {compileDefault} from "../metaCompiler/BNFParser/Compiler";
 var readline = require('readline');
 import escodegen = require('escodegen');
-import {ScopeChecking} from "./Visitors/ScopeChecking";
-import {visit} from "./Visitors/VisitorTraversal";
-import {ErrorOutputting} from "./Visitors/ErrorOutputting";
 import ArgumentParser = require('argparse');
 import {compile} from './Compiler';
 

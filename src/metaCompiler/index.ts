@@ -35,4 +35,4 @@ export function doPass(name: string) {
     logArray(visitor.output);
 }
 
-doPass("MakeLexerEnum");
+doPass("MakeClassDefinitions");

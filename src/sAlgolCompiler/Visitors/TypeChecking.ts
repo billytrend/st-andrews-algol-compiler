@@ -81,10 +81,10 @@ export class TypeChecking extends SuperVisitor {
     }
 
     afterVisitApplication(obj: A.Application) {
-        if (!obj.shouldTypeCheck) {
+        if (obj.shouldTypeCheck === false) {
             return;
         }
-        
+
         let decl = this.findInScope(obj.identifier);
         if (decl === null) {
             obj.addError(new ScopeError(obj));
@@ -176,7 +176,8 @@ export class TypeChecking extends SuperVisitor {
 
                 }
 
-                return left.type;
+                obj.returnType = left.returnType;
+                return;
             case A.operation_type.MUL:
             case A.operation_type.DIV:
                 if (!this.isWithinTypeClass(A.concrete_type.arith, left.type)) {
@@ -187,7 +188,8 @@ export class TypeChecking extends SuperVisitor {
                     return null;
                 }
 
-                return left.type;
+                obj.returnType = left.returnType;
+                return;
             case A.operation_type.IS:
             case A.operation_type.ISNT:
             // if (left.type === A.concrete_type.pntr &&

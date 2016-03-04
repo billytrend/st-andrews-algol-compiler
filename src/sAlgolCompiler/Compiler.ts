@@ -11,6 +11,7 @@ import {stdLib} from "./SaloglSources/SAlgolStd";
 import {mergePrograms, Program} from "./AbstractSyntax";
 import esprima = require('esprima');
 import {prelude} from "./SaloglSources/Prelude";
+import {SalgolTerminal} from "./GeneratedFiles/SalgolTerminal";
 
 export class Config {
     typeCheck = true;
@@ -20,6 +21,10 @@ export class Config {
 function compileToAST(lines: string[]): Program {
     let lexer = new SalgolLexer(lines);
     let lexed = lexer.lex();
+    // for (let i of lexed) {
+    //    console.log(SalgolTerminal[i.type]);
+    // }
+
     let grammar = compileDefault();
     let parsed = new Parser(lexed, grammar);
     let program  = parsed.parse();
@@ -31,7 +36,7 @@ export function compile(lines: string[], config?: Config) {
     let ast = compileToAST(lines);
 
     if (config.prelude) {
-        ast = mergePrograms(compilePrelude(), ast);
+        // ast = mergePrograms(compilePrelude(), ast);
     }
 
     if (config.typeCheck) {

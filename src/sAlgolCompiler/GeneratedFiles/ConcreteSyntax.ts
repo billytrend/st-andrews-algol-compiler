@@ -247,19 +247,10 @@ export class identifier_list_identifier_maybe_underscore_d7691q extends identifi
     public maybe_d7691q_1:maybe_d7691q;
 }
 export class clause extends SalgolParseSymbol {};
-export class clause_if_clause_do_clause extends clause{
+export class clause_if_clause_disambiguated_underscore_less_than_clause_greater_than extends clause{
     public if_0: SalgolTerminalClass;
     public clause_1:clause;
-    public do_2: SalgolTerminalClass;
-    public clause_3:clause;
-}
-export class clause_if_clause_then_clause_else_clause extends clause{
-    public if_0: SalgolTerminalClass;
-    public clause_1:clause;
-    public then_2: SalgolTerminalClass;
-    public clause_3:clause;
-    public else_4: SalgolTerminalClass;
-    public clause_5:clause;
+    public disambiguated_clause_2:disambiguated_clause;
 }
 export class clause_repeat_clause_while_clause_maybe_underscore_misevu extends clause{
     public repeat_0: SalgolTerminalClass;
@@ -309,6 +300,17 @@ export class clause_abort extends clause{
 }
 export class clause_expression extends clause{
     public expression_0:expression;
+}
+export class disambiguated_clause extends SalgolParseSymbol {};
+export class disambiguated_clause_do_clause extends disambiguated_clause{
+    public do_0: SalgolTerminalClass;
+    public clause_1:clause;
+}
+export class disambiguated_clause_then_clause_else_clause extends disambiguated_clause{
+    public then_0: SalgolTerminalClass;
+    public clause_1:clause;
+    public else_2: SalgolTerminalClass;
+    public clause_3:clause;
 }
 export class maybe_misevu extends SalgolParseSymbol {};
 export class maybe_misevu_empty extends maybe_misevu{
@@ -561,6 +563,25 @@ export class dereference extends SalgolParseSymbol {};
 export class dereference_clause_underscore_list extends dereference{
     public clause_list_0:clause_list;
 }
+export class maybe_254f26 extends SalgolParseSymbol {};
+export class maybe_254f26_empty extends maybe_254f26{
+}
+export class maybe_254f26_app_underscore_tail extends maybe_254f26{
+    public app_tail_0:app_tail;
+}
+export class application extends SalgolParseSymbol {};
+export class application_identifier_maybe_underscore_254f26 extends application{
+    public identifier_0:identifier;
+    public maybe_254f26_1:maybe_254f26;
+}
+export class app_tail extends SalgolParseSymbol {};
+export class app_tail_colon_equals_clause extends app_tail{
+    public colon_equals_0: SalgolTerminalClass;
+    public clause_1:clause;
+}
+export class app_tail_maybe_underscore_1cr5dkj extends app_tail{
+    public maybe_1cr5dkj_0:maybe_1cr5dkj;
+}
 export class maybe_bk760w extends SalgolParseSymbol {};
 export class maybe_bk760w_empty extends maybe_bk760w{
 }
@@ -574,11 +595,6 @@ export class maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parent
     public open_parenthesis_0: SalgolTerminalClass;
     public maybe_bk760w_1:maybe_bk760w;
     public close_parenthesis_2: SalgolTerminalClass;
-}
-export class application extends SalgolParseSymbol {};
-export class application_identifier_maybe_underscore_1cr5dkj extends application{
-    public identifier_0:identifier;
-    public maybe_1cr5dkj_1:maybe_1cr5dkj;
 }
 export class name extends SalgolParseSymbol {};
 export class name_identifier extends name{
@@ -790,6 +806,36 @@ export class string_literal_double_underscore_quote_maybe_underscore_1nfudoo_dou
     public double_quote_2:double_quote;
 }
 export class char extends SalgolParseSymbol {};
+export class char_zero extends char{
+    public zero_0: SalgolTerminalClass;
+}
+export class char_one extends char{
+    public one_0: SalgolTerminalClass;
+}
+export class char_two extends char{
+    public two_0: SalgolTerminalClass;
+}
+export class char_three extends char{
+    public three_0: SalgolTerminalClass;
+}
+export class char_four extends char{
+    public four_0: SalgolTerminalClass;
+}
+export class char_five extends char{
+    public five_0: SalgolTerminalClass;
+}
+export class char_six extends char{
+    public six_0: SalgolTerminalClass;
+}
+export class char_seven extends char{
+    public seven_0: SalgolTerminalClass;
+}
+export class char_eight extends char{
+    public eight_0: SalgolTerminalClass;
+}
+export class char_nine extends char{
+    public nine_0: SalgolTerminalClass;
+}
 export class char_exclamation_mark extends char{
     public exclamation_mark_0: SalgolTerminalClass;
 }
@@ -828,36 +874,6 @@ export class char_period extends char{
 }
 export class char_forward_slash extends char{
     public forward_slash_0: SalgolTerminalClass;
-}
-export class char_zero extends char{
-    public zero_0: SalgolTerminalClass;
-}
-export class char_one extends char{
-    public one_0: SalgolTerminalClass;
-}
-export class char_two extends char{
-    public two_0: SalgolTerminalClass;
-}
-export class char_three extends char{
-    public three_0: SalgolTerminalClass;
-}
-export class char_four extends char{
-    public four_0: SalgolTerminalClass;
-}
-export class char_five extends char{
-    public five_0: SalgolTerminalClass;
-}
-export class char_six extends char{
-    public six_0: SalgolTerminalClass;
-}
-export class char_seven extends char{
-    public seven_0: SalgolTerminalClass;
-}
-export class char_eight extends char{
-    public eight_0: SalgolTerminalClass;
-}
-export class char_nine extends char{
-    public nine_0: SalgolTerminalClass;
 }
 export class char_colon extends char{
     public colon_0: SalgolTerminalClass;

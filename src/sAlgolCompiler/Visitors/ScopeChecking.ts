@@ -37,7 +37,10 @@ export class ScopeChecking extends SuperVisitor {
     }
 
     beforeVisitDeclaration(obj: A.Declaration): void {
-        this.addToCurrentScope(obj.identifier, obj.declType, obj.type)
+        if (obj.declType !== A.declaration_type.VAR_ASS) {
+            this.addToCurrentScope(obj.identifier, obj.declType, obj.type)
+        }
+
         if (obj.declType === A.declaration_type.PROC) {
             this.beforeVisitSequence(null);
         }
@@ -50,7 +53,7 @@ export class ScopeChecking extends SuperVisitor {
     }
 
     beforeVisitApplication(obj: A.Application): void {
-        if (!obj.shouldTypeCheck) {
+        if (obj.shouldTypeCheck === false) {
             return;
         }
 
