@@ -31,6 +31,23 @@ Title page
 % (* to be filled in as appropriate)
 % If there is a strong case for the protection of confidential data, the parts of the declaration giving permission for its use and publication may be omitted by prior permission of the Honours Coordinator.
 
+\section{Introduction}
+% Describe the problem you set out to solve and the extent of your success in solving it. You should include the aims and objectives of the project in order of importance and try to outline key aspects of your project for the reader to look for in the rest of your report.
+
+The aim of this project was to produce a compiler for S-Algol to Javascript to preserve the language for people interested in its history. It quickly became clear during development that actually a the task of building a 'compiler' is not a closed specfication. There is an infinite amount of work that may be put into writing a compiler (in the case of the optimisation stage of a compiler, this is literally true since the best optimiser would be able to delete infinite loops in code which would be a solution to the halting problem, a problem that is known to be unsolvable). As such, it was important to place more concrete boundaries on the functionality of the compiler. The features that have been implemented are listed below.
+
+\begin{enumerate}
+\item A lexer and parser for the full S-Algol according to the grammar (TODO: add grammar to appendix)
+\item Code generation for most of the language features (procedures, variables, operations, vectors and structs)
+\item Checking for scope errors
+\item Checking for various possible type errors
+\item A command-line interface for the compiler
+\item A test suite for individual parts of the compiler tool chain and hollistic end-to-end testing
+\end{enumerate}
+
+A considerable amount of time for the project was spent doing archaeology into the various pieces of documentation that were available. There were problems both with conflicting documentation and documentation that was too sparse. Furthermore, the source of the original S-Algol compiler is difficult to read for people that are more used to modern languages - especially since there are no syntax highlights available for it.
+
+
 \section{Context survey}
 % Surveying the context, the background literature and any recent work with similar aims. The context survey describes the work already done in this area, either as described in textbooks, research papers, or in publicly available software. You may also describe potentially useful tools and technologies here but do not go into project-specific decisions.
 
@@ -44,7 +61,7 @@ S-algol is a member of a family of languages known as the 'ALGOLs'. The name of 
     \item "Scope rules and block structure"
     \item "Abstraction facility"
     \item "Compile time type checking"
-    \item "Infinite store".
+    \item "Infinite store"
 \end{enumerate}
 
 Given this description, it is clear that many modern languages could arguably be described as being part of the ALGOL family. Indeed it seems that this is so much the case that it is no longer particularly useful to classify languages as ALGOLs (TODO: maybe talk abot algol lisp dichotemy). Certainly there are no modern languages that are not influenced heavily by ALGOL programs. Reynolds defines the ALGOL family in 1981 to be "a conceptual universe for language design that one hopes will encompass languages far more general than its progenitor" \cite{reynolds}. This codifies the intention for the class of languages to be as inclusive as possible. 
@@ -476,13 +493,102 @@ The final and most permissive regular expressions match strings and numbers. Lis
 Listing \ref{lst:idregex} shows the expression that matches numbers including integers, floats and exponents.
 
 \begin{lstlisting}[caption={},label={lst:numberregex}, escapechar="|"]
-^(\+|-)?[0-9]+(\.[0-9]+)?(e[0-9]+)?
+ 
 \end{lstlisting}
 
 \section{Context Sensitive Analysis}
 
 After a lexer and a parser has been implemented, all further development of a programming language lies in static analysis of the code. This includes type checking and scope checking.
 
+
+\subsection{Implementation Structure of Context-Sensitive Checking}
+
+Most context-sensitive checking requires a pass through the abstract syntax tree. Since the ordering of these passes is generally the same, it makes sense to use the same visitor pattern that was used in the meta-compiler to abstract the analysis of each node in the tree from the traversal mechanism. Using this pattern, a visitor object may be implemented with a set of functions called 'afterVisit<node>' and 'beforeVisit<node>' (where '<node>' is the name of an abstract syntax tree type). This allows a visitor some flexibility in whether it needs to travers the tree 'in-order' (left-to-right) or 'post-order' (right-to-left). For example, to work out the actual return type of a procedure, it may be necessary to visit the procedure after its body has been visited.
+
+More generic functions are also implemented such as 'afterVisitNode' and 'beforeVisitNode' that are called for every tree node visitation. The utility of these functions is demonstrated in Listing \ref{lst:erroroutput} which requires a traversal that touches all syntax nodes and treats them as the same type (since all nodes may have errors).
+
+A further implementation detail that seemed appropriate was to use classes to represent errors. This means that meta-data can be stored within error messages such that they can be made informative. Furthermore, the instantiations of these errors are stored within the abstract syntax objects as an array. This means that if - for example - there is a tpye error on an operation, the error will be stored in the node that represents that operation. It makes sense to keep errors tightly bound to syntax tree node in this way since it maintains an implicit ordering of errors (inline with the flow of the original program) and also allows for simple inspection of nodes for testing.
+
+Given this method of storing errors, a visitor class is implemented to traverse the tree and output error messages to \lstinline{std.err}. Listing \ref{lst:erroroutput} shows the code that prints the errors. It also demonstrates the terseness of the code that can be written using the visitor pattern: most of the complexity of this feature is wrapped up in the \lstinline{visit} function.
+
+\begin{lstlisting}[caption={Error outputting visitor},label={lst:erroroutput}, language=typescript]
+export class ErrorOutputting extends SuperVisitor {
+    foundErrors = false;
+
+    afterVisitNode(node: A.AbstractSyntaxType) {
+        if (node.errors && node.errors.length > 0) {
+            this.foundErrors = true;
+            for (let error of node.errors) {
+                console.error(error.toString());
+            }
+        }
+    }
+}
+// the visit function comes from a separate module that implements the abstract tree traversal of the visitor pattern
+// the abstractSyntaxTree is an S-Algol program in tree form
+visit(abstractSyntaxTree, new ErrorOutputting());
+\end{lstlisting}
+
+\subsection{Scope Checking}
+
+A basic type of context-sensitive checking involves checking for scope irregularities. This might pick up problems such as a variable, procedure or structure being operated on, applied or initialised when it has not already been declared. \lstinline{let a = b + 1?} is an example of a program that might trigger a scoping error. Here, the variable b is referred to despite the fact that it has not been yet been declared. 
+
+S-Algol has a simple block-scoping mechanism. A \lstinline{\{} or \lstinline{begin} keyword starts a scope that continues until the next unmatched \lstinline{\}} or \lstinline{end}. Any variable declared within a scope is available until the end of the scope and in all child scopes that exist within it.
+
+Listing \ref{lst:correctscope} represents a correctly scoped program. Variable \lstinline{a} is declared and initialised in the outer scope, updated in a child scope and written to std.out. The program will print '2'.
+
+\begin{lstlisting}[caption={Correctly scoped program},label={lst:correctscope}, escapechar="|"]
+let a = 1;
+if true do { a = 2 };
+write a?
+\end{lstlisting}
+
+Listing \ref{lst:incorrectscope} represents an incorrectly scoped program. Variable \lstinline{z} is declared within a child scope and an access attempt is made in the parent scope. By the time the access attempt is made, that variable is no longer in scope. 
+
+\begin{lstlisting}[caption={Incorrectly scoped program},label={lst:incorrectscope}, escapechar="|"]
+if true do { let z = 3 };
+write z?
+\end{lstlisting}
+
+In this compiler implemntation, scope-checking has a two fold advantage. Primarily, it helps a programmer catch bugs that they may not have noticed. However, it also a borderline requirement for a correct implmentation. Since javascript is more permissive than S-Algol, an incorrectly-scoped program may fail silently. For example, the incorrectly scoped program in listing \ref{lst:incorrectscope} might be compiled to the Javascript code shown in Listing \ref{lst:incorrectcompilation}. This, when executed will print '3' as a programmer might have expected from the original S-Algol code. However, this is incorrect usage of the language and should not be encouraged. TODO: justify not permitting usage of javascript features.
+
+\begin{lstlisting}[caption={Possible compilation of Listing \ref{lst:incorrectscope}},label={lst:incorrectcompilation}, language=javascript]
+if (true) {
+	var z = 3;
+}
+console.log(z);
+\end{lstlisting}
+
+The implementation of the scope checking algorithm is fairly straight forward. Before traversal, an empty stack is initialised. The abstract syntax tree is then traversed in-order.
+
+When the program is entered and at every to a scope, a dictionary object is pushed onto the stack. Every declaration of a variable, procedure or structure that is encountered is recorded in the top-most stack object using the identifier as the key and any meta-infrmation as an object value.
+
+The identifier of every variable, procedure or structure access is checked against the objects in the stack from the top to the bottom. If no objects in the stack contain the identifier then it is not available in scope and there is an error.
+
+Whenever a scope is exited, an object is popped from the stack. As such, all variables that were declared in that scope are no longer visible to the scope checker.
+
+\subsection{Type Checking}
+
+Type checking finds problems in a program that are caused by incorrect passing of literals or language features that represent literals. For example, a variable \lstinline{x} may be declared as type a and operated on as though it were some incompatible type b. This represents a type checking issue.
+
+It quickly becomes clear in the implementation that type checking has a very similar mechanism to scope checking. This is because type checking also relies on keeping track of the current variable scope just as much as scoping checking does. However, in the type checking implementation, more detail must be kept about the variable declarations. In this compiler implementation, the actual abstract syntax tree objects of declarations are kept as a values of the objects in the scope stack that represent the current scope and all parent scopes. These abstract syntax tree objects contain all the relevant meta-data about a declaration. For a procedure, this would be its signature and return type; for a variable, its type; and for a structure, its signature. As such, when an application of one of these language features is encountered, it can be checked for correctness based on this meta-data.
+
+To a large extent, type checking is an aid to the programmer rather than the compiler. In most cases, the compiler does not need to know about typing to correctly compile a program. In some cases however, it is necessary. Listing \ref{lst:untypedambiguity} shows such a case. This program uses S-Algol's support of passing procedures as arguments to other procedures. The high-level function called \lstinline{doAdderThenMultiplyBy2} accepts a procedures and a number, executes the function on the number and multiplies the result by 2. However this syntax conflicts with another syntax feature, that is that procedures in S-Algol may be called without use of parenthesise. As such, another understanding of this program might be that \lstinline{addOne} is executed in line \ref{line:exec} and the result is passed into \ref{doAdderThenMultiplyBy2}. Clearly the latter understanding would cause a type error and the former would not but since the two understandings of the program imply very different semantics, types must be analysed to produce correctly output code.
+
+\begin{lstlisting}[caption={},label={lst:untypedambiguity}, escapechar="|"]
+procedure addOne(int -> int); {
+	a + 1
+};
+
+procedure doAdderThenMultiplyBy2((int -> int) adder; int x -> int); {
+	adder(x) * 2;
+};
+
+let result = doAdderThenMultiplyBy2(addOne, 5); |\label{line:exec}|
+write result?
+\end{lstlisting}
+
+In a similar vein, 
 
 
 % let identifierRegex = /^[a-zA-Z][a-zA-Z0-9\.]*/;
