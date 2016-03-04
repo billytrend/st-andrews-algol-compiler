@@ -29,6 +29,7 @@
     "escape-html": "^1.0.3",
     "escape-string-regexp": "^1.0.4",
     "escodegen": "^1.8.0",
+    "esprima": "^2.7.2",
     "json-loader": "^0.5.4",
     "lex": "^1.7.9",
     "lodash": "^3.10.1",

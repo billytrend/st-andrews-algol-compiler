@@ -58,7 +58,7 @@ export class TypeChecking extends SuperVisitor {
             if (!obj.returnType.equals(obj.body.returnType)) {
                 obj.addError(new WrongReturnValue(obj, obj.body.returnType));
             }
-        } else {
+        } else if (obj.declType !== A.declaration_type.VAR_ASS) {
             this.addToCurrentScope(obj.identifier, obj);
         }
     }
@@ -106,6 +106,7 @@ export class TypeChecking extends SuperVisitor {
                     obj.returnType = decl.returnType;
                     break;
                 case A.declaration_type.VAR_DECL:
+                case A.declaration_type.VAR_ASS:
                     if (obj.args.length > 0) {
                         obj.addError(new AppliedArgumentToVariable(obj));
                     }
