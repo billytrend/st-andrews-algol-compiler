@@ -25,16 +25,16 @@ Title page
 \end{abstract}
 
 \section{Declaration}
-% "I/we* declare that the material submitted for assessment is my/our* own work except where credit is explicitly given to others by citation or acknowledgement. This work was performed during the current academic year except where otherwise stated.
-% "The main text of this project report is NN,NNN* words long, including project specification and plan.
-% "In submitting this project report to the University of St Andrews, I/we* give permission for it to be made available for use in accordance with the regulations of the University Library. I/we* also give permission for the title and abstract to be published and for copies of the report to be made and supplied at cost to any bona fide library or research worker, and to be made available on the World Wide Web. I/we* retain the copyright in this work."
-% (* to be filled in as appropriate)
-% If there is a strong case for the protection of confidential data, the parts of the declaration giving permission for its use and publication may be omitted by prior permission of the Honours Coordinator.
+I declare that the material submitted for assessment is my/our* own work except where credit is explicitly given to others by citation or acknowledgement. This work was performed during the current academic year except where otherwise stated.
+
+The main text of this project report is TODO words long, including project specification and plan.
+
+In submitting this project report to the University of St Andrews, I give permission for it to be made available for use in accordance with the regulations of the University Library. I also give permission for the title and abstract to be published and for copies of the report to be made and supplied at cost to any bona fide library or research worker, and to be made available on the World Wide Web. I retain the copyright in this work.
 
 \section{Introduction}
 % Describe the problem you set out to solve and the extent of your success in solving it. You should include the aims and objectives of the project in order of importance and try to outline key aspects of your project for the reader to look for in the rest of your report.
 
-The aim of this project was to produce a compiler for S-Algol to Javascript to preserve the language for people interested in its history. It quickly became clear during development that actually a the task of building a 'compiler' is not a closed specfication. There is an infinite amount of work that may be put into writing a compiler (in the case of the optimisation stage of a compiler, this is literally true since the best optimiser would be able to delete infinite loops in code which would be a solution to the halting problem, a problem that is known to be unsolvable). As such, it was important to place more concrete boundaries on the functionality of the compiler. The features that have been implemented are listed below.
+The aim of this project is to produce a compiler for S-Algol to Javascript to preserve the language for people interested in its history. It quickly became clear during development that actually a the task of building a 'compiler' is not a closed specfication. There is an infinite amount of work that may be put into writing a compiler (in the case of the optimisation stage of a compiler, this is literally true since the best optimiser would be able to delete infinite loops in code which would be a solution to the halting problem, a problem that is known to be unsolvable). As such, it was important to place more concrete boundaries on the functionality of the compiler. The features that have been implemented are listed below.
 
 \begin{enumerate}
 \item A lexer and parser for the full S-Algol according to the grammar (TODO: add grammar to appendix)
@@ -82,7 +82,11 @@ The bulk of this project involves implementing a compiler that will take some S-
 
 \paragraph{Precedence} Javascript is used as a target language for other technological preservation projects. The 'Javascript MESS' project is a movement to produce an emulator for 'hundreds' of machine types in the browser. The overall aim 
 
-% IRRELEVANT: This is a different paradigm or compilation to the original design of the S-algol compiler. Originally, the S-algol compiler converted S-algol input to 'S-code'. This S-code could then be executed on an S-code machine. This is very similar to Java's model: Java code is compiled to bytecode and run on a JVM. The advantage of this is that such machines maybe be implemented for arbitrary hardware and operating system targets such that code in Java or S-algol could be run on any platform. 
+\subsection{Javascript as a Compile Target}
+
+Javascript is not only well suited on paper to being a compile target of other languages. There is also plenty of precedent. A list of compile-to-javascript languages is maintained in the wiki of a popular language called CoffeeScript \ref{compiletojs}. CoffeeScript is one of the most well-known compile-to-javscript implementation. It does not offer vastly different programming paradigms to regular javascript apart from its use of classical inhertitance as opposed to than Javascript's. Rather, the language offers 'syntactic sugar' to make writing succinct javascript easier. The language has been validated by many companies including GitHub as a viable programming language by using it for some of their big projects \ref{csusage}.
+
+The motivations for the many compile-to-javascript languages follow many of the justifications that hae been mentioned.
 
 - historical context
 - talk about how Salgol was used
@@ -118,6 +122,10 @@ This compiler-assistance is particularly useful when implementing a compiler. Th
 There is no performance penalty of TypeScript since all type information is discarded at compile time, leaving plain Javascript.
 
 A further advantage of using TypeScript is that it is a very modern languages and provides and excellent point of comparison with S-algol and the progress that programming languages have made over the last 35 years. 
+\section{Design}
+% Indicating the structure of the system, with particular focus on main ideas of the design, unusual design features, etc.
+
+% IRRELEVANT: This is a different paradigm or compilation to the original design of the S-algol compiler. Originally, the S-algol compiler converted S-algol input to 'S-code'. This S-code could then be executed on an S-code machine. This is very similar to Java's model: Java code is compiled to bytecode and run on a JVM. The advantage of this is that such machines maybe be implemented for arbitrary hardware and operating system targets such that code in Java or S-algol could be run on any platform. 
 
 \subsection{Compiler Design Options}
 
@@ -237,6 +245,10 @@ It seemed obvious that at least the parser stage should be generated programmati
 \end{enumerate}
 
 Furthermore, an object-based representation of the grammar syntax would allow production recognisers such as 'isDeclaration' to be generated programatically.
+
+
+\section{Implementation}
+% How the implementation was done and tested, with particular focus on important / novel algorithms and/or data structures, unusual implementation decisions, novel user interface features, etc.
 
 \subsection{Meta-Compiler Design}
 
@@ -610,9 +622,6 @@ In a similar vein,
 
 \section{Ethics}
 % Any ethical considerations for the project.
-
-\section{Design}
-% Indicating the structure of the system, with particular focus on main ideas of the design, unusual design features, etc.
  
 - examination of recursive descent 
 - justification for not choosing recursive descent directly
@@ -622,8 +631,6 @@ In a similar vein,
  http://www.cs.indiana.edu/~dyb/pubs/nano-jfp.pdf
 - argue that it offers better abstraction but perhaps less good performance
 
-\section{Implementation}
-% How the implementation was done and tested, with particular focus on important / novel algorithms and/or data structures, unusual implementation decisions, novel user interface features, etc.
  
 \section{Evaluation and critical appraisal}
 % You should evaluate your own work with respect to your original objectives. You should also critically evaluate your work with respect to related work done by others. You should compare and contrast the project to similar work in the public domain, for example as written about in published papers, or as distributed in software available to you.
