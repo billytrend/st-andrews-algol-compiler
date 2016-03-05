@@ -89,6 +89,8 @@ export class TypeChecking extends SuperVisitor {
         if (decl === null) {
             obj.addError(new ScopeError(obj));
         } else {
+            obj.applType = decl.declType;
+
             switch (decl.declType) {
                 case A.declaration_type.PROC:
                 case A.declaration_type.STRUCT:
@@ -107,10 +109,13 @@ export class TypeChecking extends SuperVisitor {
                     break;
                 case A.declaration_type.VAR_DECL:
                 case A.declaration_type.VAR_ASS:
-                    if (obj.args.length > 0) {
+                    if (decl.returnType.isVector && obj.args.length === 1) {
+                        obj.returnType = decl.returnType.dereference();
+                    } else if (obj.args.length > 0) {
                         obj.addError(new AppliedArgumentToVariable(obj));
+                    } else {
+                        obj.returnType = decl.returnType;
                     }
-                    obj.returnType = decl.returnType;
             }
         }
     }

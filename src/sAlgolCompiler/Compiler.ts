@@ -40,7 +40,7 @@ export function compile(lines: string[], config?: Config) {
     }
 
     if (config.typeCheck) {
-        visit(ast, new ScopeChecking());
+        // visit(ast, new ScopeChecking());
         visit(ast, new TypeChecking());
     }
 

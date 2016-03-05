@@ -20,6 +20,7 @@ import {getArray} from "./CodeGenHelpers";
 import {getNewObj} from "./CodeGenHelpers";
 import {varAss} from "./CodeGenHelpers";
 import * as _ from 'lodash';
+import {accessObject} from "./CodeGenHelpers";
 
 export function mergePrograms(a: Program, b: Program): Program {
     let newProg = new Program();
@@ -83,7 +84,6 @@ export enum type_prefix { star, constant }
 
 export class Type extends AbstractSyntaxType {
     type: concrete_type;
-    pointerOrdinal: number = 0;
     constantStack: type_prefix[] = [];
 
     constructor(type?: concrete_type) {
@@ -128,6 +128,16 @@ export class Type extends AbstractSyntaxType {
         }
         return out + concrete_type[this.type];
     }
+
+    isVector(): boolean {
+        return this.constantStack.indexOf(type_prefix.star) != -1;
+    }
+
+    dereference(): Type {
+        let out = new Type(this.type);
+        out.constantStack = this.constantStack.splice(this.constantStack.indexOf(type_prefix.star) + 1);
+        return out;
+    }
 }
 
 export class Clause extends AbstractSyntaxType {
@@ -143,31 +153,39 @@ export enum declaration_type {
 }
 
 export class Declaration extends Clause {
-    identifier: string;
+    private _identifier: string;
     body: Clause;
     args: Declaration[] = [];
     declType: declaration_type;
     
     constructor(identifier: string, type: declaration_type, ret?:Type) {
-        this.identifier = identifier != null ? identifier.replace(/\./g, "_") : identifier;
+        this._identifier = identifier;
         this.declType = type;
         this.returnType = ret;
+    }
+
+    set identifier(value:string) {
+        this._identifier =  value ? value.replace(/\./g, "_") : value;
+    }
+
+    get identifier():string {
+        return this._identifier;
     }
 
     compile(): E.Statement {
         switch (this.declType) {
             case declaration_type.VAR_ASS:
-                return varAss(getIdentifier(this.identifier), this.body.compile());
+                return varAss(getIdentifier(this._identifier), this.body.compile());
             case declaration_type.VAR_DECL:
-                return assignVariable(getIdentifier(this.identifier), this.body.compile());
+                return assignVariable(getIdentifier(this._identifier), this.body.compile());
             case declaration_type.STRUCT:
-                return objectDefinition(this.identifier, this.args.map(arg => arg.identifier));
+                return objectDefinition(this._identifier, this.args.map(arg => arg._identifier));
             case declaration_type.FORWARD:
                 return null;
             case declaration_type.PROC:
                 let body = raiseToBlockStatement([this.body.compile()]);
                 body = this.body.returnType.type !== concrete_type.void ? makeBlockReturn(body) : body;
-                let la = functionDefinition(this.identifier, this.args.map(arg => arg.identifier), body);
+                let la = functionDefinition(this._identifier, this.args.map(arg => arg._identifier), body);
                 return la;
         }
     }
@@ -286,6 +304,7 @@ export class Application extends Expression {
     identifier: string;
     applType: declaration_type;
 
+
     constructor(identifier: string) {
         this.identifier = identifier.replace(/\./g, "_");
     }
@@ -297,6 +316,9 @@ export class Application extends Expression {
             case declaration_type.STRUCT:
                 return getNewObj(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
             case declaration_type.VAR_DECL:
+                if (this.args.length === 1) {
+                    return accessObject(getIdentifier(this.identifier), this.args[0].compile(), true);
+                }
                 return getIdentifier(this.identifier);
         }
     }

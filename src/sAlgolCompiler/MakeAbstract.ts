@@ -490,6 +490,7 @@ function application(application:C.application):A.Expression {
         if (tail instanceof C.app_tail_colon_equals_clause) {
             out = new A.Declaration(tightened.identifier_0.flatten(), A.declaration_type.VAR_ASS);
             out.body = clause(tail.clause_1);
+            out.returnType = new A.Type(A.concrete_type.void);
         } else if (tail instanceof C.app_tail_maybe_underscore_1cr5dkj) {
             out = new A.Application(tightened.identifier_0.flatten());
             let brackets = tail.maybe_1cr5dkj_0;
