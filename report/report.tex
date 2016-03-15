@@ -1,10 +1,49 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage{svg}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
 
-Title page
+\lstdefinelanguage{javascript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+   language=JavaScript,
+   backgroundcolor=\color{lightgray},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\footnotesize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b,
+   postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
+}
+
+% Title page
 % Containing the title of the project, the names of the student(s), "University of St Andrews" and the date of submission. You may add the name of your supervisor if you wish.
 
-\title{sh-final}
+\title{St Andrews Algol to Javascript compiler project}
 \author{William Trend}
 \date{February 2016}
 
@@ -12,15 +51,9 @@ Title page
 
 \maketitle
 
-\section{Meta-compiler implementation}
-- simple recursive descent
-- good practice/insight for the full compiler
-
-\subsection{Normalising the grammar}
-- became clear that the grammar was not pre
-
 \begin{abstract}
-    % Outline of the project using at most 250 words.
+% Outline of the project using at most 250 words.
+This project contains the implementation and documentation of a compiler that accepts St Andrews Algol (S-Algol) programs and produces analagous javascript programs. It provides both a tool for the preservation the language and an investigation into how languages have devloped between 1979 and 2016.
 
 \end{abstract}
 
@@ -86,7 +119,12 @@ The bulk of this project involves implementing a compiler that will take some S-
 
 Javascript is not only well suited on paper to being a compile target of other languages. There is also plenty of precedent. A list of compile-to-javascript languages is maintained in the wiki of a popular language called CoffeeScript \ref{compiletojs}. CoffeeScript is one of the most well-known compile-to-javscript implementation. It does not offer vastly different programming paradigms to regular javascript apart from its use of classical inhertitance as opposed to than Javascript's. Rather, the language offers 'syntactic sugar' to make writing succinct javascript easier. The language has been validated by many companies including GitHub as a viable programming language by using it for some of their big projects \ref{csusage}.
 
-The motivations for the many compile-to-javascript languages follow many of the justifications that hae been mentioned.
+The motivations for the many compile-to-javascript languages follow many of the justifications that have been mentioned.
+
+
+\subsection{Design of other javascript compilers}
+
+A broad set of tooling has been developed to aid the implementation of javascript compilers. The CoffeeScript compiler uses a parser generator called 'Jison'. 'Jison' takes a grammar and produces a parser that will accept a language. It takes the leg work out of writing parsers. The approach it takes is that of 
 
 - historical context
 - talk about how Salgol was used
@@ -99,6 +137,8 @@ The motivations for the many compile-to-javascript languages follow many of the 
 
 \section{Requirements specification}
 % Capturing the properties the software solution must have in the form of requirements specification. You may wish to specify different types of requirements and given them priorities if applicable.
+
+The original project aim was to devlop a way for S-Algol to run in a web browser. The focus was 
 
 -  write whole project in javasciprt
 
@@ -125,7 +165,6 @@ A further advantage of using TypeScript is that it is a very modern languages an
 \section{Design}
 % Indicating the structure of the system, with particular focus on main ideas of the design, unusual design features, etc.
 
-% IRRELEVANT: This is a different paradigm or compilation to the original design of the S-algol compiler. Originally, the S-algol compiler converted S-algol input to 'S-code'. This S-code could then be executed on an S-code machine. This is very similar to Java's model: Java code is compiled to bytecode and run on a JVM. The advantage of this is that such machines maybe be implemented for arbitrary hardware and operating system targets such that code in Java or S-algol could be run on any platform. 
 
 \subsection{Compiler Design Options}
 
@@ -147,13 +186,27 @@ Design patterns can also make the multi-pass compiler highly abstract. Norman Ne
 
 The visitor pattern gives the abstract syntax tree responsibility for defining a traversal sequence to be followed by all visitors.
 
+\subsection{Code Target}
+
+The original implementation of the S-algol compiler converted S-algol input to 'S-code'. This S-code could then be executed on an S-code machine. This is very similar to Java's model: Java code is compiled to bytecode and run on a JVM. The advantage of this is that such machines maybe be implemented for arbitrary hardware and operating system targets such that code in Java or S-algol could be run on any platform without changing the compiler implementation.
+
+It would be possible to implement a similar approach for this compiler implementation. The compiler could emit S-code and an S-code machine could be implemented in javascript.
+
+The advantage of the S-code based approach would be very precise control over execution. The S-code machine would be able to execute instructions atomically and would have full access to the program state. As such, implementation of debuggers and other runtime tools would be trivial. Furthermore, some subtle implementation details of S-Algol could be implemented in the machine rather than the compiler. By compiling straight to javascript, this control is somewhat lost to the javascript virtual machine: all code outputted by the S-Algol compiler must precicisely represent S-Algol paradigms in terms of javascript paradigms.
+
+The advantage of compiling directly to javascript would be a smaller, simpler project. It would allow the features that are already built into most javascript virtual machines to be used such as debugging. It is also likely to offer better performance than an S-code. This is becuase many features would duplicated between the JavaScript machine and the S-code machine. For example, they would both require garbage collection, stack management and heap management.
+
+Another key advantage of cutting out the S-code component is that the output code can work inline with any external javascript or libraries. The javascript ecosystem has a very established set of libraries and build tools available. 
+
+The simplicity of the direct-to-javascript approach as opposed to attempting to implement the S-code machine was the main justification choosing it for this project.
+
 \subsection{Final Compiler Design}
 
 The final architecture for the project is a multi-pass implementation. The performance implications of this architecture seemed to be negligible in comparison to the benefits of more abstraction. The advantages of being able to add or remove parts of the compiler arbitrarily would also be useful in case the complete solution was not completed by the end of the project. Furthermore, since the target language is Javascript, not a bytecode, it might be necessary to output symbols not strictly in the order of parsing which would be easier to do given a full intermediate representation.
 
 The initial implementation involved hand-writing the recursive descent parser stage. This stage was designed to accept a string of symbols from a separate lexer and produce and abstract syntax tree to represent the input code. It would also detect context-free errors in the grammar. After a partial implementation of this, it was clear that the approach was problematic.
 
-First of all, the process of writing functions to represent syntax is very formulaic. The structure of the recursive descent was more or less a direct mapping from the syntax notation to functions. The corrolary of this was that it was easy to be inconsistent and cause confusion, especially with naming conventions and with the design of the objects into which the language was being parsed. It is not clear, nor semantically obvious whether the recursive grammar fragment,
+First of all, the process of writing functions to represent syntax is formulaic. The structure of the recursive descent was more or less a direct mapping from the syntax notation to functions. The corrolary of this was that it was easy to be inconsistent and cause confusion, especially with naming conventions and with the design of the objects into which the language was being parsed. It is not clear, nor semantically obvious whether the recursive grammar fragment,
 
 <foo> ::= bar<foo> | bar;
 
@@ -191,17 +244,20 @@ tions), and are never modified after that (until they are eventually discarded).
 
 Another point of difficulty was the process of recognising which production could be applied in a given situation. Take for example the simple S-algol program that assigns a to the expression "1".
 
-let a = 1;?
+let a = 1?
 
 The entry production for S-algol is <program>. The following productions are the subset required to parse the given section of S-algol:
 
-<program> &::= <sequence>?
-<sequence> &::= <declaration>[;<sequence>] | <clause>[;<sequence>]
-<declaration> &::= <let_decl> | <structure_decl> | <proc_decl> | <forward>
-<let_decl> &::= let <identifier><init_op><clause>
+\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod}]
+<program> \&::= <sequence>?
+<sequence> \&::= <declaration>[;<sequence>] | <clause>[;<sequence>]
+<declaration> \&::= <let_decl> | <structure_decl> | <proc_decl> | <forward>
+<let_decl> \&::= let <identifier><init_op><clause>
+\end{lstlisting}
 
 The difficulty parsing this program however, is recognising which productions apply in these cases. The following code represents a fragment of a recursive descent compiler that might being to handle the parsing of a let declaration.
 
+\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod},language=javascript]
 var input = ['let', 'a', '=', '1'];
 
 function program(): Program {
@@ -217,20 +273,28 @@ function sequence(): Sequence {
 
 	}
 }
+\end{lstlisting}
+
 
 The implementation difficulty with this code is the implementation of the functions, 'isDeclaration' and 'isClause'. While it is easy to see for isolated incidences which productions should be used to parse a snippet of code, in the general case, it is more complex.
 
 It might be possible to implement 'isDeclaration' as follows:
 
+\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod},language=javascript]
 function isDeclaration(): boolean {
 	return input[0] === "let";
 }
+\end{lstlisting}
+
 
 This seems obviously correct, because we know that if the leading symbol is currently equal to "let", we obviously are dealing with a declaration. But the real definition of 'isDeclaration' should be as follows.
 
+\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod},language=javascript]
 function isDeclaration(): boolean {
 	return input[0] === "let" || input[0] === "forward" || input[0] === "procedure" || input[0] === "let";
 }
+\end{lstlisting}
+
 
 It seems like it is necessary to write a recognition function for every production which could end up being very time consuming especially for some 'deep' productions.
 
@@ -256,7 +320,10 @@ The decision to programmatically generate the S-Algol compiler meant that the pa
 
 The meta-compiler represents the syntax using objects. A production such as 
 
+\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod}]
 <let_decl> ::= let <identifier><init_op><clause>
+\end{lstlisting}
+
 
 is represented using the following object structure
 
@@ -272,19 +339,70 @@ is represented using the following object structure
 
 Given this object, it is possible to algorithmically solve the problems encountered whilst hand-writing the parser.
 
-Initially the production recogniser had to be implemented. This is a function that takes the current production and the current first value in the input array then outputs which production will parse the current input; just as 'isDeclaration' did.
+The first thing that was implemented was the production recogniser. This is a function that takes the current expected production (initially, always '\lstinline{<program>}') and the current first value in the input array then outputs which production will parse the current input; just as 'isDeclaration' did. This recogniser uses a pre-computed table that is generated from the grammar. A subset of the table is displayed in Figure \ref{fig:recogniserobj}. Its utility can be demonstrated with an example. A program \lstinline{let a = 1?} is assumed to be a grammar fragment of type \lstinline{<program>}. The leading symbol, "let", is then looked up in the table for \<program\>. In this table, "let" maps to \<sequence\>. This identifies the beginning of the list to be of type \<sequence\>. It is then possible to look up "let" in the \<sequence\> table, to get \<declaration\>. This continues until the fragment is recognised as a \<let_decl\>. Here, the mapping gives a production that starts with 'let'. This allows the parser to consume the 'let' symbol and begin to parse the \<identifier\> in the same way.
 
-The basic algorithm is as follows:
+\begin{figure}[htbp]
+  \centering
+  \includesvg{image}
+  \caption{Recogniser table subset}
+  \label{fig:recogniserobj}
+\end{figure}
 
-function recogniserTable(grammar) {
-	for (entryPoint of grammar) {
-		for (production of entryPoint) {
-			for () {
-			
-			}
-		}
-	}
-}
+The algorithm represented by this example shows how the recogniser table can be used to effectively 'configure' a generic (and very simple) parser. Details of this parser will be discussed in a later section.
+
+When planning the compiler implementation initially, this approach seemed a fool-proof way to get a correct parser up and running. However, unexpected problems were encountered with the implementation.
+
+The first of these problems occurs when a production is not LL(1). LL(k) is a measure of how many symbols it takes to recognise a production. The implementation thus far is contingent on the premise that all productions can be recognised by their first symbol. This is mostly true for the language except for a few cases. One of these cases exists in the <clause> production, part of which is show in Listing \ref{lst:clauseprod}. 
+
+\begin{lstlisting}[caption={Fragment of the <clause> production},label={lst:clauseprod}]
+<clause> ::=
+if<clause>do<clause> |
+if<clause>then<clause>else<clause> |
+...
+\end{lstlisting}
+
+Listing \ref{lst:clauseprod} might produce a recogniser table containing the fragment shown in Figure \ref{fig:incorrectrecogniserobj}. 
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg{image}
+  \caption{Clause recogniser table subset}
+  \label{fig:incorrectrecogniserobj}
+\end{figure}
+
+The problem is obvious, it is impossible to tell whether to expect an 'if do' clause or an 'if then' clause simply by looking at the if symbol. One way to fix this problem is to defer the decision until 'do' or 'then' are encountered. This fix is problematic because it compromises the simplicity of possible compiler implementations. An alternative way to fix this issue is to alter the grammar. Listing \ref{lst:fixedclauseprod} shows how it is possible to alter the grammar in such a way to fix the issue and still accept the same set of strings.
+
+\begin{lstlisting}[caption={LL(1) <clause> production},label={lst:fixedclauseprod}]
+<if_tail> ::=
+do<clause> |
+then<clause>else<clause>
+
+<clause> ::=
+if<clause><if_tail> |
+...
+\end{lstlisting}
+
+The next problem with generating an unambiguous recogniser table is that of left recursion.  
+
+\begin{lstlisting}[caption={Fragment of the <clause> production},label={lst:clauseprod}]
+      
+<expression> ::= <exp1>[or<exp1>]*
+<exp1> ::= <exp2>[and<exp2>]*
+<exp2> ::= [~]<exp3>[<rel_op><exp3>]
+<exp3> ::= <exp4>[<add_op><exp4>]*
+<exp4> ::= <exp5>[<mult_op><exp5>]*
+<exp5> ::= [<add_op>]<exp6>
+<exp6> ::= 
+...
+<expression>(<clause><bar><clause>) |
+<expression>(<dereference>) | 
+...
+\end{lstlisting}
+
+
+\subsection{Grammar Transformations}
+
+After the implementation of the meta-compiler, the grammar was available as an object. The overall compiler design was to use this object to parse input. 
 
 \subsection{Implementing S-Algol Features}
 
@@ -617,6 +735,45 @@ In a similar vein,
 
 - initial approach, investigation of techniques
 - justify choice of typescipt
+\subsection{Vector Implementation}
+
+S-Algol arrays are typed, multidimensional and of fixed length. These features are common in array implementations, however the S-Algol array object does have some unusual aspects. Firstly, they have customisable origins. Most languages use zero indexing of arrays, such that the first element of an array is refered to as element 0. S-Algol has customisable indexing. Listing \ref{lst:arrinit} shows three arrays being assigned to variable named a, b and c. The arrays are of type *int and each have a length of 3. The values contained in each are also 1, 2 and 3. The difference between the arrays is that their first element of the array is indexed with each a different number. This number is perscribed by the expression after the '@' symbol. The first element of a has an index of 1, the first of b has an index of 100 and the first of c has an index of -60. The program will print three '1's.
+
+\begin{lstlisting}[caption={Array Initialisation},label={lst:arrinit}, escapechar="|"]
+let a = @ 1 of int [1,2,3];
+write a(1);
+
+let b = @ 100 of int [1,2,3];
+write b(100);
+
+let c = @ 40 - 100 of int [1,2,3];
+write c(-60)
+?
+\end{lstlisting}
+
+This design provides certain problems for the compiler design. Javascript has no such built-in method for customising the index scheme. As such, the index 'offset' must be stored such that it can be used to translate indicies into javascript's zero-indexed array scheme. One possible way to do this would be to wrap arrays in an object that stores the offest and the array values in two fields. Every time a lookup is performed, the offset may be used to translate the lookup value to the correct index in the object. This would work effectively bus the use of objects and arrays together might add confusion to the compiled code. As such, this compiler implementation uses the first value of the array that is compiled to represent the offset. This means that only arrays are being used in the compiler output. The fact that the first element of the javascript array is being used as the index offset is accounted for by adding 1 to the index translation.
+
+\begin{lstlisting}[caption={1-Indexed Array},label={lst:1ind}, escapechar="|"]
+let a = @ 1 + 2 of int [1,2,3];
+write a(3);
+?
+\end{lstlisting}
+
+The code in Listing \ref{lst:1ind} compiles to the code in \ref{lst:jsindex}. Line \ref{line:index} shows the storage of the index offset. Line \ref{line:offset} shows the calculation of the offset based in the desired index. This program correctly prints 1.
+
+\begin{lstlisting}[caption={TODO},label={lst:jsindex},language=javascript, escapechar="|"]
+var a = [
+    1 + 2, |\label{line:index}|
+    1,
+    2,
+    3
+];
+write(a[1 + (a[0] - 3)]); |\label{line:offset}|
+\end{lstlisting}
+
+This also works for multi-dimensional array access. The offsets from every level are simply taken into account.
+
+From the perspective of usability, it is not clear why the decision of customising indexing has been made. It is possible that it is to settle any argumentation over whether arrays should be 0-indexed or in fact 1-indexed TODO find argument about this.
 
 \subsection{Tool Usage}
 
@@ -642,10 +799,12 @@ In a similar vein,
 \section{Conclusions}
 % You should summarise your project, emphasising your key achievements and significant drawbacks to your work, and discuss future directions your work could be taken in.
 
+
 \section{Appendices}
 
 Testing summary
 % This should describe the steps taken to debug, test, verify or otherwise confirm the correctness of the various modules and their combination.
+
 
 User manual
  
