@@ -117,3 +117,17 @@ export class ElementError extends TypeError {
         return `Vector err`;
     }
 }
+
+export class DimensionError extends TypeError {
+    node: A.Application;
+    vector: A.Declaration;
+
+    constructor(node: A.Application, vector: A.Declaration) {
+        super(node);
+        this.vector = vector;
+    }
+
+    get error(): string {
+        return `The vector '${this.vector.identifier}' only has ${this.vector.returnType.dimensions()} dimensions. You tried to access dimension ${this.node.args.length}`;
+    }
+}

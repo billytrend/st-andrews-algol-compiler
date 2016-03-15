@@ -2,7 +2,7 @@ import {SuperVisitor} from "./SuperVisitor";
 import * as A from '../AbstractSyntax';
 import {
     ContextSensitiveError, OperationTypeError, ArgumentError,
-    WrongNumberOfArguments, WrongReturnValue, ElementError
+    WrongNumberOfArguments, WrongReturnValue, ElementError, DimensionError
 } from "../ContextSensitiveError";
 import {ScopeError} from "../ContextSensitiveError";
 import {AppliedArgumentToVariable} from "../ContextSensitiveError";
@@ -109,12 +109,18 @@ export class TypeChecking extends SuperVisitor {
                     break;
                 case A.declaration_type.VAR_DECL:
                 case A.declaration_type.VAR_ASS:
-                    if (decl.returnType.isVector && obj.args.length === 1) {
-                        obj.returnType = decl.returnType.dereference();
-                    } else if (obj.args.length > 0) {
-                        obj.addError(new AppliedArgumentToVariable(obj));
+                    if (decl.returnType.isVector) {
+                        if (obj.args.length <= decl.returnType.dimensions()) {
+                            obj.returnType = decl.returnType.dereference(1);
+                        } else {
+                            obj.addError(new DimensionError(obj, decl));
+                        }
                     } else {
-                        obj.returnType = decl.returnType;
+                        if (obj.args.length > 0) {
+                            obj.addError(new AppliedArgumentToVariable(obj));
+                        } else {
+                            obj.returnType = decl.returnType;
+                        }
                     }
             }
         }

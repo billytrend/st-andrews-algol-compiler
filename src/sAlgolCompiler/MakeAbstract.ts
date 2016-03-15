@@ -494,11 +494,18 @@ function application(application:C.application):A.Expression {
         } else if (tail instanceof C.app_tail_maybe_underscore_1cr5dkj) {
             out = new A.Application(tightened.identifier_0.flatten());
             let brackets = tail.maybe_1cr5dkj_0;
-            if (brackets instanceof C.maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis) {
-                let maybeClauseList = <C.maybe_bk760w>brackets.maybe_bk760w_1;
+            while (true) {
+                if (brackets instanceof C.maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis_maybe_underscore_1cr5dkj) {
+                    let tight = <C.maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis_maybe_underscore_1cr5dkj>brackets;
+                    let maybeClauseList = <C.maybe_bk760w>brackets.maybe_bk760w_1;
 
-                if (maybeClauseList instanceof C.maybe_bk760w_clause_underscore_list) {
-                    out.args = clause_list(brackets.maybe_bk760w_1.clause_list_0);
+                    if (maybeClauseList instanceof C.maybe_bk760w_clause_underscore_list) {
+                        out.args = out.args.concat(clause_list(brackets.maybe_bk760w_1.clause_list_0));
+                    }
+
+                    brackets = tight.maybe_1cr5dkj_3;
+                } else {
+                    break;
                 }
             }
         }

@@ -21,6 +21,7 @@ import {getNewObj} from "./CodeGenHelpers";
 import {varAss} from "./CodeGenHelpers";
 import * as _ from 'lodash';
 import {accessObject} from "./CodeGenHelpers";
+import {getLiteral} from "./CodeGenHelpers";
 
 export function mergePrograms(a: Program, b: Program): Program {
     let newProg = new Program();
@@ -133,10 +134,24 @@ export class Type extends AbstractSyntaxType {
         return this.constantStack.indexOf(type_prefix.star) != -1;
     }
 
-    dereference(): Type {
+    dereference(nTimes:number): Type {
         let out = new Type(this.type);
-        out.constantStack = this.constantStack.splice(this.constantStack.indexOf(type_prefix.star) + 1);
+        let offset;
+        for (offset = 0; offset < this.constantStack.length; offset++) {
+            if (this.constantStack[offset] == nTimes) {
+                nTimes--;
+            }
+
+            if (nTimes === 0) {
+                break;
+            }
+        }
+        out.constantStack = this.constantStack.splice(offset + 1);
         return out;
+    }
+
+    dimensions(): number {
+        return this.constantStack.filter(x => x === type_prefix.star).length;
     }
 }
 
@@ -316,10 +331,16 @@ export class Application extends Expression {
             case declaration_type.STRUCT:
                 return getNewObj(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
             case declaration_type.VAR_DECL:
-                if (this.args.length === 1) {
-                    return accessObject(getIdentifier(this.identifier), this.args[0].compile(), true);
+                let out = <E.Identifier|E.MemberExpression>getIdentifier(this.identifier);
+                for (let arg of this.args) {
+                    out = accessObject(out,
+                            binaryOperation(
+                                getLiteral(1),
+                                binaryOperation(accessObject(out, getLiteral(0), true), arg.compile(), "-"),
+                                "+"),
+                            true);
                 }
-                return getIdentifier(this.identifier);
+                return out;
         }
     }
 }
@@ -366,12 +387,11 @@ export class NullFile extends Literal {
 
 export class Vector extends Expression {
     values: Clause[] = [];
-    upb: Clause;
     lb: Clause;
     innerType: Type;
 
     compile(): E.ArrayExpression {
-        return getArray(this.values.map(x => x.compile()));
+        return getArray([this.lb.compile()].concat(this.values.map(x => x.compile())));
     }
 }
 

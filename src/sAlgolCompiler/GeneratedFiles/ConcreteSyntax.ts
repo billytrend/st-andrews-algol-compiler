@@ -284,11 +284,6 @@ export class clause_case_clause_of_case_underscore_list_default_colon_clause ext
     public default_colon_4: SalgolTerminalClass;
     public clause_5:clause;
 }
-export class clause_name_colon_equals_clause extends clause{
-    public name_0:name;
-    public colon_equals_1: SalgolTerminalClass;
-    public clause_2:clause;
-}
 export class clause_write_underscore_clause extends clause{
     public write_clause_0:write_clause;
 }
@@ -591,10 +586,11 @@ export class maybe_bk760w_clause_underscore_list extends maybe_bk760w{
 export class maybe_1cr5dkj extends SalgolParseSymbol {};
 export class maybe_1cr5dkj_empty extends maybe_1cr5dkj{
 }
-export class maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis extends maybe_1cr5dkj{
+export class maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis_maybe_underscore_1cr5dkj extends maybe_1cr5dkj{
     public open_parenthesis_0: SalgolTerminalClass;
     public maybe_bk760w_1:maybe_bk760w;
     public close_parenthesis_2: SalgolTerminalClass;
+    public maybe_1cr5dkj_3:maybe_1cr5dkj;
 }
 export class name extends SalgolParseSymbol {};
 export class name_identifier extends name{
