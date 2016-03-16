@@ -121,8 +121,9 @@ function write_clause(wr_clause:C.clause_write_underscore_clause) {
             let write_list = <C.write_list_clause_maybe_underscore_160tn3f_maybe_underscore_1k3m0xc>tight.write_list_1;
             while (true) {
                 out.args.push(clause(write_list.clause_0));
-                if (write_list.maybe_1k3m0xc_2 instanceof C.write_list_clause_maybe_underscore_160tn3f_maybe_underscore_1k3m0xc) {
-                    write_list = <C.write_list_clause_maybe_underscore_160tn3f_maybe_underscore_1k3m0xc>write_list.maybe_1k3m0xc_2;
+                if (write_list.maybe_1k3m0xc_2 instanceof C.maybe_1k3m0xc_comma_write_underscore_list) {
+                    let tight = <C.maybe_1k3m0xc_comma_write_underscore_list>write_list.maybe_1k3m0xc_2;
+                    write_list = <C.write_list_clause_maybe_underscore_160tn3f_maybe_underscore_1k3m0xc>tight.write_list_1;
                 } else {
                     break;
                 }
