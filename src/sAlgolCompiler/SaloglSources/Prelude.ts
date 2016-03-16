@@ -5,6 +5,10 @@ function write() {
     console.log(Object.keys(args).map(function (x) { return args[x] }).join(" "));
 }
 
+function abort() {
+    throw "This program has aborted itself."
+}
+
 // procedure sqrt( creal x -> real )
 // ! the non-negative square root of x where x ≥ 0.
 var sqrt = Math.sqrt;

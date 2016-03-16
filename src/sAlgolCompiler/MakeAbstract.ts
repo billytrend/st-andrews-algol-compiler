@@ -148,7 +148,10 @@ function raster_op(rast:C.clause_raster): A.Operation {
 }
 
 function abort(): A.Application {
-    return new A.Application("abort");
+    let out = new A.Application("abort");
+    out.shouldTypeCheck = false;
+    out.applType = A.declaration_type.PROC;
+    return out;
 }
 
 function clause(clause: C.clause): A.Clause {
