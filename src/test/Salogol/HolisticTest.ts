@@ -7,16 +7,22 @@ import {compile} from "../../sAlgolCompiler/Compiler";
 import * as _ from 'lodash';
 
 let tests = [
-    { input: "write 2?", output: ['2'] },
-    { input: "if true then write 1 else write 2?", output: ['1'] },
-    { input: "if false then write 1 else write 2?", output: ['2'] },
-    { input: "let a = 4; a := a + 1; write a?", output: ['5'] },
-    { input: "let a = 4; repeat a := a + 1 while a < 10; write a?", output: ['10'] },
-    { input: "let a = 4; while a < 10 do a := a + 1; write a?", output: ['10'] },
-    { input: "let a = 0; repeat {write 1; a := a + 1} while a < 2 do write 2?", output: ['1', '2', '1'] },
-    { input: "let a = 0; begin let a = 4; write a end; write a?", output: ['4', '0'] },
-    { input: "let a = 0; { let a = 4; write a }; write a?", output: ['4', '0'] },
-    { input: "let a = @ 0 of int[1,2,3,4]; write a(3)?", output: ['4'] }
+    //{ input: "write 2?", output: ['2'] },
+    //{ input: "if true then write 1 else write 2?", output: ['1'] },
+    //{ input: "if false then write 1 else write 2?", output: ['2'] },
+    //{ input: "let a = 4; a := a + 1; write a?", output: ['5'] },
+    //{ input: "let a = 4; repeat a := a + 1 while a < 10; write a?", output: ['10'] },
+    //{ input: "let a = 4; while a < 10 do a := a + 1; write a?", output: ['10'] },
+    //{ input: "let a = 0; repeat {write 1; a := a + 1} while a < 2 do write 2?", output: ['1', '2', '1'] },
+    //{ input: "let a = 0; begin let a = 4; write a end; write a?", output: ['4', '0'] },
+    //{ input: "let a = 0; { let a = 4; write a }; write a?", output: ['4', '0'] },
+    //{ input: "let a = @ 0 of int[1,2,3,4]; write a(3)?", output: ['4'] },
+    //{ input: "let a = @ 0 of *int[@ 2 of int[1,2,3,4]]; write a(0, 2)?", output: ['1'] },
+    //{ input: "procedure a(int b -> int); b; write(a(4))?", output: ['4'] },
+    //{ input: "procedure a(real b -> real); b; write(a(4.12))?", output: ['4.12'] },
+    //{ input: "let a = @ 0 of int [1,2,3,4]; procedure b(*int arr -> int); arr(2); write(b(a))?", output: ['3'] },
+    { input: "let a := -1; write abs(a)?", output: ['1'] }
+
 ];
 
 describe('Compiler', function() {

@@ -36,11 +36,11 @@ export function compile(lines: string[], config?: Config) {
     let ast = compileToAST(lines);
 
     if (config.prelude) {
-        // ast = mergePrograms(compilePrelude(), ast);
+         ast = mergePrograms(compilePrelude(), ast);
     }
 
     if (config.typeCheck) {
-        // visit(ast, new ScopeChecking());
+         //visit(ast, new ScopeChecking());
         visit(ast, new TypeChecking());
     }
 
@@ -51,7 +51,7 @@ export function compile(lines: string[], config?: Config) {
     }
     let estreeObj = ast.compile();
     let preludeAst = esprima.parse(prelude());
-    estreeObj.body = estreeObj.body.concat(preludeAst.body);
+    estreeObj.body = preludeAst.body.concat(estreeObj.body);
     //noinspection TypeScriptUnresolvedFunction
     let outProgram = escodegen.generate(estreeObj);
 

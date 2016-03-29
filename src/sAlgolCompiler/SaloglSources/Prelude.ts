@@ -1,12 +1,62 @@
 export function prelude() { return `
 
+function image(x, y) {
+    if (!canvas && require) {
+        Canv = require('canvas');
+        canvas = new Canv(x, y);
+    } else if (!canvas && document) {
+        canvas = document.createElement('canvas');
+        canvas.width = x;
+        canvas.height = y;
+    } else {
+        throw "No canvas available.";
+    }
+    
+    return canvas.getContext('2d');  
+}
+
+function _errorHandler(e) {
+    var err = "[Runtime Exception] ";
+    switch (e) {
+        case 0: err += "Program aborted itself."; break;
+        case 1: err += "Program attempted to access array index that is out of bounds."; break;
+        default: err += "Unknown error '" + e.message + "'."; break;
+    }
+    console.log(err);
+}
+
+function _array(lb, elements) {
+    this.elements = elements;
+    this.lb = lb;
+    this.size = elements.length;
+}
+
+_array.prototype.get = function(index) {
+    if (index < this.lb || index >= this.lb + this.size) {
+        throw 1;
+    }
+    return this.elements[index - this.lb];
+}
+
+_array.prototype.set = function(index, value) {
+    if (index < this.lb || index >= this.lb + this.size) {
+        throw 1;
+    }
+    this.elements[index + this.lb] = value;
+}
+
+function _accessArray(array) {
+    var indices = arguments.slice(1);
+
+}
+
 function write() {
     var args = arguments;
     console.log(Object.keys(args).map(function (x) { return args[x] }).join(" "));
 }
 
 function abort() {
-    throw "This program has aborted itself."
+    throw 0;
 }
 
 // procedure sqrt( creal x -> real )

@@ -22,6 +22,7 @@ import {varAss} from "./CodeGenHelpers";
 import * as _ from 'lodash';
 import {accessObject} from "./CodeGenHelpers";
 import {getLiteral} from "./CodeGenHelpers";
+import {getTryCatch} from "./CodeGenHelpers";
 
 export function mergePrograms(a: Program, b: Program): Program {
     let newProg = new Program();
@@ -53,7 +54,7 @@ export class Program extends AbstractSyntaxType {
     compile(): E.Program {
         this.sequence.returnType = new Type(concrete_type.void);
         let program = CodeGen.getProgram([
-            this.sequence.compile()
+            getTryCatch(raiseToBlockStatement([this.sequence.compile()]))
         ]);
         return program;
     }
@@ -150,8 +151,18 @@ export class Type extends AbstractSyntaxType {
         return out;
     }
 
+    reference(nTimes:number) {
+        for (let i = 0; i < nTimes; i++) {
+            this.constantStack.unshift(type_prefix.star);
+        }
+    }
+
     dimensions(): number {
         return this.constantStack.filter(x => x === type_prefix.star).length;
+    }
+
+    makeConstant() {
+        this.constantStack.unshift(type_prefix.constant);
     }
 }
 
@@ -164,7 +175,7 @@ export class Clause extends AbstractSyntaxType {
 }
 
 export enum declaration_type {
-    VAR_ASS, VAR_DECL, PROC, STRUCT, FORWARD
+    VAR_ASS, VAR_DECL, CONS_DECL, PROC, STRUCT, FORWARD
 }
 
 export class Declaration extends Clause {
@@ -174,7 +185,7 @@ export class Declaration extends Clause {
     declType: declaration_type;
     
     constructor(identifier: string, type: declaration_type, ret?:Type) {
-        this._identifier = identifier;
+        this.identifier = identifier;
         this.declType = type;
         this.returnType = ret;
     }
@@ -192,6 +203,7 @@ export class Declaration extends Clause {
             case declaration_type.VAR_ASS:
                 return varAss(getIdentifier(this._identifier), this.body.compile());
             case declaration_type.VAR_DECL:
+            case declaration_type.CONS_DECL:
                 return assignVariable(getIdentifier(this._identifier), this.body.compile());
             case declaration_type.STRUCT:
                 return objectDefinition(this._identifier, this.args.map(arg => arg._identifier));
@@ -319,7 +331,6 @@ export class Application extends Expression {
     identifier: string;
     applType: declaration_type;
 
-
     constructor(identifier: string) {
         this.identifier = identifier.replace(/\./g, "_");
     }
@@ -327,18 +338,15 @@ export class Application extends Expression {
     compile(): E.Expression {
         switch (this.applType) {
             case declaration_type.PROC:
+            case declaration_type.FORWARD:
                 return callFunc(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
             case declaration_type.STRUCT:
                 return getNewObj(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
             case declaration_type.VAR_DECL:
-                let out = <E.Identifier|E.MemberExpression>getIdentifier(this.identifier);
+            case declaration_type.CONS_DECL:
+                let out = <E.Identifier|E.CallExpression>getIdentifier(this.identifier);
                 for (let arg of this.args) {
-                    out = accessObject(out,
-                            binaryOperation(
-                                getLiteral(1),
-                                binaryOperation(accessObject(out, getLiteral(0), true), arg.compile(), "-"),
-                                "+"),
-                            true);
+                    out = callFunc(accessObject(out, getIdentifier("get")), [arg.compile()], false);
                 }
                 return out;
         }
@@ -376,7 +384,7 @@ export class Str extends Literal {
 }
 
 export class Pixel extends Literal {
-    value: number;
+    value: boolean;
     returnType = new Type(concrete_type.pixel);
 }
 
@@ -386,6 +394,16 @@ export class NullFile extends Literal {
 }
 
 export class Vector extends Expression {
+    values: Clause[] = [];
+    lb: Clause;
+    innerType: Type;
+
+    compile(): E.NewExpression {
+        return getNewObj(getIdentifier("_array"), [this.lb.compile(), getArray((this.values.map(x => x.compile())))]);
+    }
+}
+
+export class Image extends Expression {
     values: Clause[] = [];
     lb: Clause;
     innerType: Type;

@@ -14,6 +14,15 @@ export function accessObject(object: E.Expression, property: (E.Identifier|E.Exp
     return memExp;
 }
 
+export function getTryCatch(tryBlock: E.BlockStatement) {
+    let tryCatch = <E.TryStatement>getASTNode("TryStatement");
+    tryCatch.block = tryBlock;
+    tryCatch.handler = <E.CatchClause>getASTNode("CatchClause");
+    tryCatch.handler.param =  <E.Identifier>getIdentifier("e");
+    tryCatch.handler.body = raiseToBlockStatement([getExpressionStatement(callFunc(getIdentifier("_errorHandler"), [getIdentifier("e")]))]);
+    return tryCatch;
+}
+
 export function getReturnStatement(exp: E.Expression): E.ReturnStatement {
     let returnStmt = <E.ReturnStatement>getASTNode('ReturnStatement');
     returnStmt.argument = exp;

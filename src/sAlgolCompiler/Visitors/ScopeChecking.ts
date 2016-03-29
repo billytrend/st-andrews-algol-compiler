@@ -70,6 +70,7 @@ export class ScopeChecking extends SuperVisitor {
                     obj.applType = A.declaration_type.PROC;
                     break;
                 case A.declaration_type.VAR_DECL:
+                case A.declaration_type.CONS_DECL:
                     if (obj.args.length > 0) {
                         obj.addError(new AppliedArgumentToVariable(obj));
                     }

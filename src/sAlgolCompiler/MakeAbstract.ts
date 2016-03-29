@@ -254,7 +254,10 @@ function thing_declaration(decl: C.declaration): A.Declaration {
 
     if (decl instanceof C.declaration_let_underscore_decl) {
         let let_decl = <C.let_decl_let_identifier_init_underscore_op_clause>decl.let_decl_0;
-        out = new A.Declaration(let_decl.identifier_1.flatten(), A.declaration_type.VAR_DECL);
+        let constant = let_decl.init_op_2 instanceof C.init_op_colon_equals ?
+            A.declaration_type.CONS_DECL : A.declaration_type.VAR_DECL;
+        out = new A.Declaration(let_decl.identifier_1.flatten(), constant);
+
         out.body = clause(let_decl.clause_3);
     } else if (decl instanceof C.declaration_structure_underscore_decl) {
         let structure_decl = <C.structure_decl_structure_identifier_maybe_underscore_1digw99>decl.structure_decl_0;
@@ -430,6 +433,7 @@ function vector(vector: C.vector_constr): A.Vector {
     } else if(vector instanceof C.vector_constr_at_symbol_clause_of_type1_lsb_clause_underscore_list_rsb) {
         let tight = <C.vector_constr_at_symbol_clause_of_type1_lsb_clause_underscore_list_rsb>vector;
         out.innerType = type1(tight.type1_3);
+        //out.innerType.constantStack.unshift(A.type_prefix.star);
         out.values = clause_list(tight.clause_list_5);
         out.lb = clause(tight.clause_1);
         out.returnType = type1(tight.type1_3);

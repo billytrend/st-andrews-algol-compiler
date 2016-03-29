@@ -2,27 +2,20 @@
 ///<reference path="../../metaCompiler/BNFParser/AbstractManipulators/VisitorPass.ts"/>
 
 import chai = require('chai');
-import {SalgolSymbol, lex} from "../../sAlgolCompiler/Lexer";
-import Parser from "../../sAlgolCompiler/Parser";
 import {compileDefault} from "../../metaCompiler/BNFParser/Compiler";
-import {flatten} from "../../sAlgolCompiler/MakeAbstract";
-import {program_sequence_question_mark} from "../../sAlgolCompiler/GeneratedFiles/ConcreteSyntax";
 var expect = chai.expect;
 import escodegen = require('escodegen');
 import acorn = require('acorn');
-import {SalgolTerminal} from "../../sAlgolCompiler/GeneratedFiles/SalgolTerminal";
-import {visit} from "../../sAlgolCompiler/Visitors/VisitorTraversal";
-import {ScopeChecking} from "../../sAlgolCompiler/Visitors/ScopeChecking";
-import {ErrorOutputting} from "../../sAlgolCompiler/Visitors/ErrorOutputting";
-import {quickie} from "../../sAlgolCompiler/SaloglSources/quick";
+import {compile} from "../../sAlgolCompiler/Compiler";
 
 describe('Salgol Parser', () => {
     describe('parse', () => {
 
         it('should build sequence', (done) => {
             let gram = compileDefault();
+
             //let grammar = LeftFactoring.leftFactorGrammar(gram);
-            let input = lex(["let a = @ 1 of int[1]?"]);
+            console.log(compile([ "write 1, 1, 1?" ]));
             //     [
             //     //"forward console.log(int);",
             //     //"console.log(1)?",
@@ -34,16 +27,14 @@ describe('Salgol Parser', () => {
             //     // "procedure sin(int x ); {x}; sin(1)?",
             // ]
 
-            for (let i of input) {
-               console.log(SalgolTerminal[i.type]);
-            }
-            var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
-            let obj = parser.parse();
-            let flat = flatten(<program_sequence_question_mark>obj);
-            visit(flat, new ScopeChecking());
-            visit(flat, new ErrorOutputting());
-            //noinspection TypeScriptUnresolvedFunction
-            console.log("\n\n\n",escodegen.generate(flat.compile()));
+            // var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
+            // let obj = parser.parse();
+            // let flat = flatten(<program_sequence_question_mark>obj);
+            // visit(flat, new ScopeChecking());
+            // visit(flat, new TypeChecking());
+            // visit(flat, new ErrorOutputting());
+            // //noinspection TypeScriptUnresolvedFunction
+            // console.log("\n\n\n",escodegen.generate(flat.compile()));
             done();
         });
 

@@ -49,9 +49,10 @@ export class TypeChecking extends SuperVisitor {
     }
 
     afterVisitDeclaration(obj: A.Declaration): void {
-        if (obj.declType === A.declaration_type.VAR_DECL && obj.body) {
+        if (!obj.returnType && obj.body) {
             obj.returnType = obj.body.returnType;
         }
+
 
         if (obj.declType === A.declaration_type.PROC) {
             this.scopeStack.pop();
@@ -59,6 +60,9 @@ export class TypeChecking extends SuperVisitor {
                 obj.addError(new WrongReturnValue(obj, obj.body.returnType));
             }
         } else if (obj.declType !== A.declaration_type.VAR_ASS) {
+            if (obj.declType === A.declaration_type.CONS_DECL) {
+                obj.returnType.makeConstant();
+            }
             this.addToCurrentScope(obj.identifier, obj);
         }
     }
@@ -80,46 +84,51 @@ export class TypeChecking extends SuperVisitor {
         obj.returnType = obj.clauses[obj.clauses.length - 1].returnType;
     }
 
-    afterVisitApplication(obj: A.Application) {
-        if (obj.shouldTypeCheck === false) {
+    afterVisitApplication(appl: A.Application) {
+        if (appl.shouldTypeCheck === false) {
             return;
         }
 
-        let decl = this.findInScope(obj.identifier);
+        let decl = this.findInScope(appl.identifier);
         if (decl === null) {
-            obj.addError(new ScopeError(obj));
+            appl.addError(new ScopeError(appl));
         } else {
-            obj.applType = decl.declType;
+            if (!appl.applType) {
+                appl.applType = decl.declType;
+            }
 
             switch (decl.declType) {
                 case A.declaration_type.PROC:
                 case A.declaration_type.STRUCT:
                 case A.declaration_type.FORWARD:
-                    if (obj.args.length != decl.args.length) {
-                        obj.addError(new WrongNumberOfArguments(obj, decl));
+                    if (appl.args.length != decl.args.length) {
+                        appl.addError(new WrongNumberOfArguments(appl, decl));
                         break;
                     }
 
-                    for (let i = 0; i < obj.args.length; i++) {
-                        if (!obj.args[i].returnType.equals(decl.args[i].returnType)) {
-                            obj.addError(new ArgumentError(decl, obj, i));
+                    for (let i = 0; i < appl.args.length; i++) {
+                        if (!appl.args[i].returnType.equals(decl.args[i].returnType)) {
+                            appl.addError(new ArgumentError(decl, appl, i));
                         }
                     }
-                    obj.returnType = decl.returnType;
+                    appl.returnType = decl.returnType;
                     break;
                 case A.declaration_type.VAR_DECL:
+                case A.declaration_type.CONS_DECL:
                 case A.declaration_type.VAR_ASS:
                     if (decl.returnType.isVector) {
-                        if (obj.args.length <= decl.returnType.dimensions()) {
-                            obj.returnType = decl.returnType.dereference(1);
+                        if (appl.args.length === 0) {
+                            appl.returnType = decl.returnType;
+                        } else if (appl.args.length <= decl.returnType.dimensions()) {
+                            appl.returnType = decl.returnType.dereference(1);
                         } else {
-                            obj.addError(new DimensionError(obj, decl));
+                            appl.addError(new DimensionError(appl, decl));
                         }
                     } else {
-                        if (obj.args.length > 0) {
-                            obj.addError(new AppliedArgumentToVariable(obj));
+                        if (appl.args.length > 0) {
+                            appl.addError(new AppliedArgumentToVariable(appl));
                         } else {
-                            obj.returnType = decl.returnType;
+                            appl.returnType = decl.returnType;
                         }
                     }
             }
