@@ -2,12 +2,12 @@
 import path = require('path');
 import {ASCII} from "../../assorted/ASCII";
 import {Production} from "./Parser";
-import stringHash = require('string-hash');
+let stringHash = require('string-hash');
 
 export class Constants {
     static compilerRoot: string = '../';
 
-    static helperFiles: string = path.join(Constants.compilerRoot, 'GeneratedFileHelpers');
+    static helperFiles: string = path.join(Constants.compilerRoot, 'generatedFileHelpers');
     static parserHelper: string = path.join(Constants.helperFiles, 'Parser');
 
     static compilerClassesModuleName: string = "SalgolTypes";
@@ -45,7 +45,7 @@ export class Constants {
 
     static getEnumFromTerminal(symbol: string, regex?: RegExp) {
         regex = regex ? regex : /[ -@[-`{-~]/g;
-        let symbol = symbol.replace(regex, function (substring) {
+        symbol = symbol.replace(regex, function (substring) {
             return "_" + ASCII[substring] + "_";
         });
 

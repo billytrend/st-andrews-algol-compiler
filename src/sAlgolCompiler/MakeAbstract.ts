@@ -1,4 +1,4 @@
-import * as C from "./GeneratedFiles/ConcreteSyntax";
+import * as C from "./generatedFiles/ConcreteSyntax";
 import * as A from "./AbstractSyntax";
 import {operation_type} from "./AbstractSyntax";
 import {write_type} from "./AbstractSyntax";

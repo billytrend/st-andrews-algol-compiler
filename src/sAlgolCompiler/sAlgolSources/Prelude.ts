@@ -52,7 +52,11 @@ function _accessArray(array) {
 
 function write() {
     var args = arguments;
-    console.log(Object.keys(args).map(function (x) { return args[x] }).join(" "));
+    var argsArray = [];
+    for (var i = 0; i < args.length; i++) {
+        argsArray.push(args[i]);
+    }
+    console.log(argsArray.join(" "));
 }
 
 function abort() {

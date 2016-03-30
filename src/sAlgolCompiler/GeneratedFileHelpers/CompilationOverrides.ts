@@ -1,4 +1,4 @@
-import * as ConcreteSyntax from '../GeneratedFiles/ConcreteSyntax';
+import * as ConcreteSyntax from '../generatedFiles/ConcreteSyntax';
 
 // //noinspection TypeScriptUnresolvedVariable
 // ConcreteSyntax.let_decl_let_identifier_init_underscore_op_clause = ConcreteSyntax.let_decl_let_identifier_init_underscore_op_clause.bind(null, true);

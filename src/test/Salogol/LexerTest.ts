@@ -2,9 +2,8 @@
 
 import chai = require('chai');
 import {SalgolSymbol, SalgolLexer} from "../../sAlgolCompiler/Lexer";
-import {SalgolTerminal} from "../../sAlgolCompiler/GeneratedFiles/SalgolTerminal";
+import {SalgolTerminal} from "../../sAlgolCompiler/generatedFiles/SalgolTerminal";
 var expect = chai.expect;
-import escodegen = require('escodegen');
 
 let tests = [{ input: "1?", output: [
     SalgolTerminal.one,

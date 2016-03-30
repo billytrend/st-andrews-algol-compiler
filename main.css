@@ -1,0 +1,114 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body {
+    font-family: "Open Sans";
+    margin: 0;
+}
+.stripe {
+    width: 70%;
+    display: block;
+    padding: 20px 15% 20px 15%
+
+}
+
+.header {
+    height: 50px;
+    display:flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-content: stretch;
+    align-items: flex-end;
+}
+
+.banner {
+    height: 400px;
+    background-color: #FFFFCC;
+    display:flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+}
+
+.content {
+    padding-top: 75px;
+}
+
+.logo {
+    padding: 10px;
+    width: 400px;
+}
+
+.synopsis {
+    width: 350px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.crest {
+    height: 50px;
+    margin-right: 50px;
+}
+
+nav a {
+    margin-right: 40px;
+    text-decoration: none;
+}
+
+code {
+    display: block;
+    margin: 20px;
+    background-color: #202020;
+    padding: 10px;
+    color: white;
+}
+
+
+.code-panel {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-content: stretch;
+    align-items: stretch;
+    min-height: 200px;
+}
+
+#examples-react {
+    padding: 20px 5% 20px 5%;
+    background-color: #FFFFCC;
+}
+
+.code-panel>div {
+    flex-grow: 1;
+    flex-shrink: 0;
+    width: 45%;
+    height: auto;
+}
+
+.console {
+    background-color: #202020;
+    padding: 20px;
+    color: white;
+    overflow: auto;
+}
+
+.stderr {
+    color: #FF6B68;
+}
+
+.ideButton {
+    background-color: #202020;
+    border: none;
+    padding: 10px;
+    margin: 20px 20px 20px 0px;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.exampleDropdown {
+    margin-left: 10px;
+}

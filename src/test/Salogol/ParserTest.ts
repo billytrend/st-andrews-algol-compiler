@@ -4,8 +4,8 @@
 import chai = require('chai');
 import {compileDefault} from "../../metaCompiler/BNFParser/Compiler";
 var expect = chai.expect;
-import escodegen = require('escodegen');
-import acorn = require('acorn');
+let escodegen = require('escodegen');
+let acorn = require('acorn');
 import {compile} from "../../sAlgolCompiler/Compiler";
 
 describe('Salgol Parser', () => {

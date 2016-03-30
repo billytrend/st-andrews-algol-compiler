@@ -1,44 +1,22 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
 \usepackage{svg}
+\usepackage[toc,page]{appendix}
+\usepackage{csquotes}
 \usepackage{listings}
 \usepackage{amsmath}
 \usepackage{xcolor}
 \definecolor{lightgray}{rgb}{.9,.9,.9}
 \definecolor{darkgray}{rgb}{.4,.4,.4}
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+\graphicspath{ {images/} }
+\usepackage[
+backend=bibtex,
+doi=true
+]{biblatex}
+\addbibresource{ bib.bib }
 
-\lstdefinelanguage{javascript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
-  keywordstyle=\color{blue}\bfseries,
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/*}{*/},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily,
-  morestring=[b]',
-  morestring=[b]"
-}
-
-\lstset{
-   language=JavaScript,
-   backgroundcolor=\color{lightgray},
-   extendedchars=true,
-   basicstyle=\footnotesize\ttfamily,
-   showstringspaces=false,
-   showspaces=false,
-   numbers=left,
-   numberstyle=\footnotesize,
-   numbersep=9pt,
-   tabsize=2,
-   breaklines=true,
-   showtabs=false,
-   captionpos=b,
-   postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\color{red}\hookrightarrow\space}}
-}
 
 % Title page
 % Containing the title of the project, the names of the student(s), "University of St Andrews" and the date of submission. You may add the name of your supervisor if you wish.
@@ -50,15 +28,18 @@
 \begin{document}
 
 \maketitle
+\newpage
+\tableofcontents
+\newpage
 
 \begin{abstract}
 % Outline of the project using at most 250 words.
-This project contains the implementation and documentation of a compiler that accepts St Andrews Algol (S-Algol) programs and produces analagous javascript programs. It provides both a tool for the preservation the language and an investigation into how languages have devloped between 1979 and 2016.
+This document describes the implementation of a compiler that accepts St Andrews Algol (S-Algol) programs and produces analagous javascript programs. It is an examination an approach to building a compiler for a language developed in 1979.
 
 \end{abstract}
 
 \section{Declaration}
-I declare that the material submitted for assessment is my/our* own work except where credit is explicitly given to others by citation or acknowledgement. This work was performed during the current academic year except where otherwise stated.
+I declare that the material submitted for assessment is my own work except where credit is explicitly given to others by citation or acknowledgement. This work was performed during the current academic year except where otherwise stated.
 
 The main text of this project report is TODO words long, including project specification and plan.
 
@@ -67,18 +48,19 @@ In submitting this project report to the University of St Andrews, I give permis
 \section{Introduction}
 % Describe the problem you set out to solve and the extent of your success in solving it. You should include the aims and objectives of the project in order of importance and try to outline key aspects of your project for the reader to look for in the rest of your report.
 
-The aim of this project is to produce a compiler for S-Algol to Javascript to preserve the language for people interested in its history. It quickly became clear during development that actually a the task of building a 'compiler' is not a closed specfication. There is an infinite amount of work that may be put into writing a compiler (in the case of the optimisation stage of a compiler, this is literally true since the best optimiser would be able to delete infinite loops in code which would be a solution to the halting problem, a problem that is known to be unsolvable). As such, it was important to place more concrete boundaries on the functionality of the compiler. The features that have been implemented are listed below.
+The aim of this project is to produce a compiler for S-Algol to Javascript to preserve the language for people interested in its history. Clearly, the task of building a 'compiler' is not a closed specfication. As such, it was important to place more detailed boundaries on the functionality of the compiler. The features that have been implemented are listed below.
 
 \begin{enumerate}
 \item A lexer and parser for the full S-Algol according to the grammar (TODO: add grammar to appendix)
-\item Code generation for most of the language features (procedures, variables, operations, vectors and structs)
+\item Code generation for most of the language features (procedures, variables, operations, vectors and structs, TODO: add others)
 \item Checking for scope errors
-\item Checking for various possible type errors
+\item Checking for type errors
 \item A command-line interface for the compiler
-\item A test suite for individual parts of the compiler tool chain and hollistic end-to-end testing
+\item A 'promotional' web interface for the language
+\item A test suite for individual parts of the compiler tool chain and holistic end-to-end testing
 \end{enumerate}
 
-A considerable amount of time for the project was spent doing archaeology into the various pieces of documentation that were available. There were problems both with conflicting documentation and documentation that was too sparse. Furthermore, the source of the original S-Algol compiler is difficult to read for people that are more used to modern languages - especially since there are no syntax highlights available for it.
+A large proportion time for the project was spent doing archaeology into the various pieces of resources that were available. There were problems both with conflicting documentation and documentation that was too sparse. Furthermore, the source of the original S-Algol compiler is difficult to read for people that are more used to modern languages.
 
 
 \section{Context survey}
@@ -86,9 +68,9 @@ A considerable amount of time for the project was spent doing archaeology into t
 
 \subsection{Historical significance of S-algol}
 
-The St Andrews Algol language (S-algol) was designed as part of Ron Morrison's PHD thesis in 1979. It was subsequently use to teach programming to undergraduates in the university computer science department until 1999. It was also used at the local Madras college.
+The St Andrews Algol language (S-algol) was designed as part of Ron Morrison's PHD thesis in 1979. It was subsequently used to teach programming to undergraduates at the university computer science department until 1999 when it was replaced by Java. The language was also used at the local Madras college.
 
-S-algol is a member of a family of languages known as the 'ALGOLs'. The name of the family references their ability to easily abstract algorithms. In the seminal paper of S-algol, Morrison highlight 5 features of programming languages that 'roughly' classify the ALGOLs:
+S-algol is a member of a family of languages known as the 'ALGOLs'. The name of the family references their ability to easily abstract algorithms. In the seminal paper of S-algol, Morrison highlight 5 features of programming languages that 'roughly' distinguish the ALGOLs:
 
 \begin{enumerate}
     \item "Scope rules and block structure"
@@ -97,50 +79,91 @@ S-algol is a member of a family of languages known as the 'ALGOLs'. The name of 
     \item "Infinite store"
 \end{enumerate}
 
-Given this description, it is clear that many modern languages could arguably be described as being part of the ALGOL family. Indeed it seems that this is so much the case that it is no longer particularly useful to classify languages as ALGOLs (TODO: maybe talk abot algol lisp dichotemy). Certainly there are no modern languages that are not influenced heavily by ALGOL programs. Reynolds defines the ALGOL family in 1981 to be "a conceptual universe for language design that one hopes will encompass languages far more general than its progenitor" \cite{reynolds}. This codifies the intention for the class of languages to be as inclusive as possible. 
+Given this description, it is clear that many modern languages could be described as being part of the ALGOL family. Indeed it seems that this is so much the case that it is no longer particularly useful to classify languages as ALGOLs (TODO: maybe talk about algol vs lisp dichotemy). Certainly there are no modern languages that are not influenced heavily by the ALGOLs. Reynolds defines the ALGOL family in 1981 to be "a conceptual universe for language design that one hopes will encompass languages far more general than its progenitor" \cite{reynolds}. This codifies the intention for the class of languages to be as inclusive as possible. 
 
-In the introduction to his PHD thesis, Morrison offers a thoughtful commentary on the problems of programming language design and the ways in which S-Algol intends to solve them. In this spirit, this report shall provide a similar analysis with direct reference to S-Algol and modern languages. This historical continuity provides some of the motivation for this project. It is possible to gain insight into language development by observing the difference between S-algol and languages of today. The differences were made very clear during the development of this project since it is written in Typescript - a language released in 2012 \cite{jsconf}. Typescript has a very modern syntax and semantics and represents exactly how S-algol compares to the cutting edge of programming language design. Further motivation for this language choice will be explored in the 'Design' chapter.
+In the introduction to his PHD thesis, Morrison offers a thoughtful commentary on the problems of programming language design and the ways in which S-Algol intends to solve them. In this spirit, this report shall provide a similar analysis with direct reference to S-Algol and modern languages. This historical continuity provides some of the motivation for this project: it is possible to gain insight into language development by observing the difference between S-algol and languages of today.
+
+These differences were made very clear during the development of this project since it is written in Typescript - a language released in 2012 \cite{jsconf}. Typescript has modern syntax and semantics and provides execellent reference as to how S-algol compares to the cutting edge of programming language design. Further motivation for this language choice will be explored in the 'Design' chapter.
 
 \subsection{Javascript as a Tool for Preservation}
 
-The bulk of this project involves implementing a compiler that will take some S-algol program as input and output a valid Javascript program which can be run in a browser or on a server. The following aspects of Javascript were considered.
+This project implements a compiler that will take some S-algol program as input and output a valid Javascript program which can be run in a browser or on a server. The following aspects of Javascript were considered.
 
-\paragraph{Performance} Since the main aim of this project is simply to be able to execute code written in S-algol, performance is not particularly important. However, Javascript performance is known to be constantly improving: using certain techniques, Mozilla has managed to execute subsets of the languages at near native performance \cite{moz}. The performance of Javascript is at least good enough for this project. 
+\paragraph{Performance} Since the main aim of this project is simply to be able to execute code written in S-algol, performance is not particularly important. However, Javascript performance is known to be constantly improving: using certain techniques, Mozilla has managed to execute some subsets of the languages at near native performance \cite{moz}. The performance of Javascript is at least good enough for this project (TODO: maybe justify more?). 
 
-\paragraph{Portability} The principal aspect of Javascript that caused it to stand out as the most viable option for this project was portability. It is absolutely possible that using a compiled programming language such as C might be more performant than using Javascript, however, these languages are often very architecture dependent. C may need to be compiled especially for each architecture that it is to be run on. Javascript can be dsitributed as source and executed on any platform. Furthermore, executing C often requires elevated privileges since it can perform operations that might be undesirable. Javascript runs in a browser sandbox which means that it is encapsulated from the host operating system, preventing it from executing maliciously.
+\paragraph{Portability} The principal advantage of Javascript for this project was portability. It is absolutely possible that using a compiled programming language such as C might be more performant than using Javascript, however, these languages are often very architecture dependent. C may need to be compiled especially for each architecture that it is to be run on; Javascript can be distributed as source and executed on any platform. Furthermore, executing C often requires elevated privileges since it can perform operations that might be undesirable. Javascript runs in a browser sandbox which means that it is encapsulated from the host operating system, preventing it from executing maliciously.
 
-\paragraph{Ubiquity} Access to the websites is the most basic function of any consumer electronic device sold today. Since Javascript is the programming language of the web, this means that almost every every computing device sold today can run the platform at least through a web-browser. Some devices offer Javascript absolute first-class citizenship as a language. Native iOS apps for example may be written for the most part in javascript using the native 'bridge' that makes it possible to "JavaScript scripts from Objective-C or Swift code, to access values defined in or calculated in JavaScript, and to make native objects, methods, or functions accessible to JavaScript" \cite{apple}. The extent to which Javascript is embedded within today's technology means there is always likely to be some device that can run Javscript to hand.
+\paragraph{Ubiquity} Access to the websites is the most basic function of any consumer electronic device sold today. Since Javascript is the programming language of the web, almost every every computing device sold today can run it at least through a web-browser. Some devices offer Javascript first-class citizenship as an application-programming language. Native iOS apps for example may be written for the most part in javascript using the native 'bridge' that makes it possible to "JavaScript scripts from Objective-C or Swift code, to access values defined in or calculated in JavaScript, and to make native objects, methods, or functions accessible to JavaScript" \cite{apple}. The extent to which Javascript is embedded within today's technology means there is always likely to be some device that can run Javscript to hand.
 
-\paragraph{Longevity} The ubiquity of Javascript presupposes that the language will be still be usable many years in the future. Its longevity is being aided by the availability of 'compile-to-javascript'. These languages use Javascript as "JavaScript is an assembly language" \cite{hanselman}. Meijer goes further to say that "the browser can execute [Javascript], but no human should really care what’s there." As such, it is unlikely that the role of Javascript will be diminished any time soon.
+\paragraph{Longevity} The ubiquity of Javascript presupposes that the language will be still be usable many years in the future. Its longevity is being aided by the availability of 'compile-to-javascript'. It has been argued that these languages use Javascript as "an assembly language" \cite{hanselman}. Meijer takes this argument further to suggest that "the browser [may be able to] execute [Javascript], but no human should really care what’s there." As such, it is unlikely that the role of Javascript will be diminished any time soon.
 
-\paragraph{Precedence} Javascript is used as a target language for other technological preservation projects. The 'Javascript MESS' project is a movement to produce an emulator for 'hundreds' of machine types in the browser. The overall aim 
+\paragraph{Precedence} Javascript is used as a target language for other technological preservation projects. The 'Javascript MESS' project is a movement to produce an emulator for 'hundreds' of machine types in the browser especially for preserving computer games. Jason Scott states the benefit of using Javascript: "by porting this program into the standardized and cross-platform Javascript language, it will be possible to turn computer history and experience into the same embeddable object as movies, documents, and audio enjoy". \cite{TODO}
 
-\subsection{Javascript as a Compile Target}
-
-Javascript is not only well suited on paper to being a compile target of other languages. There is also plenty of precedent. A list of compile-to-javascript languages is maintained in the wiki of a popular language called CoffeeScript \ref{compiletojs}. CoffeeScript is one of the most well-known compile-to-javscript implementation. It does not offer vastly different programming paradigms to regular javascript apart from its use of classical inhertitance as opposed to than Javascript's. Rather, the language offers 'syntactic sugar' to make writing succinct javascript easier. The language has been validated by many companies including GitHub as a viable programming language by using it for some of their big projects \ref{csusage}.
-
-The motivations for the many compile-to-javascript languages follow many of the justifications that have been mentioned.
+Precedent also extends to the exact scope of this project. Many compile-to-javascript languages have been implmented. A list of these is maintained in the wiki of a popular language called CoffeeScript \ref{compiletojs}. CoffeeScript is one of the most well-known compile-to-javscript implementation. It does not offer vastly different programming paradigms to regular javascript apart from its use of classical inhertitance as opposed to than Javascript's. Rather, the language offers 'syntactic sugar' to make writing succinct javascript easier. The language has been validated by many companies including GitHub as a viable programming language by using it for some of their big projects \ref{csusage}.
 
 
 \subsection{Design of other javascript compilers}
 
-A broad set of tooling has been developed to aid the implementation of javascript compilers. The CoffeeScript compiler uses a parser generator called 'Jison'. 'Jison' takes a grammar and produces a parser that will accept a language. It takes the leg work out of writing parsers. The approach it takes is that of 
-
-- historical context
-- talk about how Salgol was used
-- current status
-- history of javascript
-- why t makes sense
-- problems with javascript
-- performance of javascript
-
+A broad set of tooling has been developed to aid the implementation of javascript compilers. The CoffeeScript compiler uses a parser generator called 'Jison'. 'Jison' takes a grammar and produces a parser that will accept a language. It takes the much leg work out of writing parsers by emphasising configuration over coding. (TODO: write more)
 
 \section{Requirements specification}
 % Capturing the properties the software solution must have in the form of requirements specification. You may wish to specify different types of requirements and given them priorities if applicable.
 
-The original project aim was to devlop a way for S-Algol to run in a web browser. The focus was 
+The project aim is to devlop a compiler for S-Algol to javascript. Compiler implementation is a task that has provably infinite scope:  the optimisation stage of a compiler alone is infinite since the best optimiser would be able to delete infinite loops in code thereby solving the halting problem - a problem that is known to be uncomputable. As such the scope of the project must be focused. To start to pare down the project into specific goals, it is useful to examine the motivations for the project.
 
--  write whole project in javasciprt
+The principal motivation is that of preservation. It is desired that the S-Algol language should remain usable into the future. 
+
+Preservation wins out over other potential motivations such as designing a compiler that allows the language to compete with modern-day languages. However, despite S-Algol playing its role in the development of programming languages is unlikely to be used for serious software development again since there are many more expressive languages available. Basic features that have become common-place in languages such as object-orientation are missing from S-Algol. If this were to be the case, a superset of the languages might have to be implemented. There is plenty of precident for this approach such as C which is a subset of C++ and javascript which is a subset of typescript. Whilst this is well beyond the scope of this project, it is important to consider futher development opportunities in the implementation of this compiler.
+
+This leads to the premise that the requirements of the compiler project should be orientated towards making the S-Algol language as accessible as possible. This requirement happens to be in-line with the aims of compilers for most programming languages: the success of a programming language and its compiler is directly proportional to its popularity and popularity is driven in a large part by how easy it is to start using the language.
+
+The homepages of several popular programming languages reveal how they promote accessibility.'http://coffeescript.org' contains documentation, a text field to try out the language and a detailed documentation of the language source code. 'https://www.haskell.org' contains a list of the language features, a REPL to try out Haskell and links to news, documentation and downloads.
+
+From these examples, the following concrete requirements are derived:
+
+\begin{enumerate}
+\item A play-ground to write and run the S-Algol code.
+\item A list of the S-Algol features.
+\item Links to the S-Algol source-code.
+\item Starting points for using S-Algol in production.
+\item A short history of the language.
+\end{enumerate}
+
+Of course, all of requirements still require the core implementation of the compiler. This requires its own set of requirements. To start breaking down these requirements, it is useful to break down the different processes in the compiler. Compilers often operate as a chain with different sections to handle different parts of the implementation. This includes, the lexer, parser, code generator, optimiser and static analyser.
+
+The lexer is a program that breaks a program string into logical tokens. Lexers are often trivial programs and as such would be expected to be fully implemented.
+
+The next phase is the grammatical verification of the tokens. This requires a parser. A parser accepts tokens that are in the correct order as defined by a grammar. Parsers often follow a fixed structure, built around the grammar structure. As such, once a parser is built for a basic part of the language, it is a matter of graft rather than design to finish its implementation. This means that a fully complete parser for the grammar should be a requirement. (TODO: is this clear/valid arguemnt?)
+
+After these two phases have been implemented, the 'middle' section of the compiler tool-chain is open for infinite amounts of development. Many algorithms can be designed to operate the parsed code tree: it may be checked for type safety, it may be optimised or it may be re-formatted. The flexibility of this section means that the requirements for this part of the compiler must be more carefully managed. Some of the requirements for this section are 'nice-to-have' rather than critical. This allows for variation in how much time each feature takes to implement. Features that are necessary for the compiler to output correct code are prioritised, next, the original features of the S-Algol compiler and finally, features that can further assist the programmer.
+
+The final phase of the compiler must be the generation of the code that is to be run. In this case, the code is javascript. The work required for this section is bounded by the number of constructs available in the S-Algol language. However, some constructs - such as complex io - may require significantly more work than the others. This means that development time for the code generator is not as predictable as for that of the parser and lexer.
+
+It is also important to test the compiler's components and also provide an end-to-end testing of the entire toolchain.
+
+This evaluation of the compiler's scope yields the following requirements.
+
+\begin{enumerate}
+\item A lexer that can correctly breaks an S-Algol program into symbols and keywords.
+\item A parser that accepts the full S-Algol grammar (TODO: appendix).
+\item Analysis phases sufficient for correct outputting of code. This includes correct recognition of constructs such as functions versus variable application.
+\item Code generation for as much as possible of the S-Algol language.
+\item A testing suite to verify correctness of the compiler and parts of the compiler.
+\end{enumerate}
+
+The final consideration that is made during the requirements specification is that of how input and output interaction should be managed in the Javascript generated from S-Algol. This can be considered part of the code generation since the implementaiton details only need to be addressed at this point, however, it does pose a significant hurdle in this part of the compiler.
+
+S-Algol has three first-class forms of input and output. The first is writing to stdin and reading from stdout. The second (which might be considered an extension of the first) is file reading and writing. The third form allows images to be manipulated and rendered to the screen. The problems associated with these modes come from javascripts evented io versus S-Algol's blocking io. Solutions will be addressed in the design section of this document. It is important at the requirements stage, to recognise that they may take longer to implement than expected.
+
+The choice of io affects which Javascript environment, the compiler is most compatible with. In browser environments, io is mostly orientated around the DOM but logging to the console is also possible and works in a similar way to writing to stdout. In the node Javascript environment, io also come from files and stdin. Since the focus is on browser compatibility. Io shall be prioritised in the following order.
+
+\begin{enumerate}
+\item stdin/stdout reading and writing.
+\item Image rendering.
+\item File reading and writing.
+\end{enumerate}
+
+There are some technical corollaries to these requirements that must be accounted for early in the process. The first of these is the choice of development language. The requirement that it must be possible to test-drive the compiler in a browser means that it might be sensible to use only languages that are compatible with javascript. This means that all compilation and execution can happen in the browser without need for a backend. There are advatanges to this approach: staticly served code is cheaper to host; it is less likely to break since a backend represents a single point of failure; and there are no security or performance considerations necessary (the haskell online REPL rate limits test programs so thatpeople do not exploit the service).
 
 \section{Software engineering process}
 % The development approach taken and justification for its adoption.
@@ -153,77 +176,84 @@ Before starting programming it was necessary to choose the tools that should be 
 
 \paragraph{NPM} is used for package management. This is the most popular Javascript dependency manager and has the best support from node.
 
-\paragraph{TypeScript} is used as the principal development language. The TypeScript project homepage states that "TypeScript is a typed super-set of Javascript that compiles to plain Javascript." \cite{typescript}. This means that any valid Javascript is valid TypeScript but not vice versa.
+\paragraph{TypeScript} is used as the principal development language. The TypeScript project homepage states that "TypeScript is a typed super-set of Javascript that compiles to plain Javascript." \cite{typescript}. This means that any valid Javascript is valid TypeScript but not necessarily vice versa.
 
 The extensions within typescript allow a programmer to give variables and functions explicit types. It also allows classical styles of inheritance as a substitute for Javascript's prototype-based inheritance. These permit better static checking of the code since TypeScript has enough information to check whether functions and objects are being used properly within their scope.
 
-This compiler-assistance is particularly useful when implementing a compiler. This is because a common pattern is to tie features of a language's grammar to objects within a language. Abstract and concrete syntax trees may be built up of the these objects. By explicitly defining the objects in a statically typed manner, it is never possible to access the wrong field of an object. In this project, there are over nine hundred classes to define the concrete syntax of S-algol. It would be impossible a human to remember all these classes and their field names. Fortunately, the WebStorm IDE has excellent TypeScript support and will automatically suggest the fields names.
+This compiler-assistance is particularly useful when implementing a compiler. This is because a common pattern is to tie features of a language's grammar to classes within a language. Abstract and concrete syntax trees may be built up of the these classes. By explicitly defining the classes in a statically typed manner, it is never possible to access the wrong field of an instantiation. In this project, there are over nine hundred classes that are generated to define the concrete syntax of S-algol. It would be impossible a human to remember all these classes and their field names. Fortunately, the WebStorm IDE has excellent TypeScript support and will automatically suggest the fields names.
 
 There is no performance penalty of TypeScript since all type information is discarded at compile time, leaving plain Javascript.
 
 A further advantage of using TypeScript is that it is a very modern languages and provides and excellent point of comparison with S-algol and the progress that programming languages have made over the last 35 years. 
+\paragraph{Mocha} is a Javascript test-runner comparable to JUnit. This allows automated testing with structures results. It also integrates well with continuous integration services.
+
 \section{Design}
 % Indicating the structure of the system, with particular focus on main ideas of the design, unusual design features, etc.
 
 
-\subsection{Compiler Design Options}
+\subsection{Compiler Design Evaluation}
 
 The original S-algol compiler was designed as a single-pass, recursive descent compiler. This design contrasts with multi-pass compilers.
 
-A single-pass compiler performs all the necessary steps including lexing, parsing, type checking and code generation in one pass of the code. Procedures are designed to handle each production of the concrete syntax. Within these functions, a series of statements consume the input programme in an appropriate manner. Errors will be reported wherever an input symbol is not as expected. When a terminal symbol is expected a set of statements will read the next characters, check that they represent the correct symbol and perform appropriate extra steps such as type checking and code generation. When a non-terminal is expected, a call is made to the function that is designed to handle the expected non-terminal.
+A single-pass compiler performs all the necessary steps including lexing, parsing, type checking and code generation in one pass of the code. Procedures are designed to handle each production of the concrete syntax. Within these functions, a series of statements consume the input programme in an appropriate manner. Errors will be reported wherever an input symbol is not as expected. 
 
-A multi-pass compiler may work in a similar way in parts but it does not perform all compiler stages in one pass. Instead, it abstracts compiler stages into separate passes and passes some representation of a program between these stages. This is called an intermediate representation, they are often trees of objects. Each pass traverses the intermediate representation as appropriate and passes on the results to the next stage.
+When a terminal symbol is expected a set of statements will read the next input characters, check that they represent the correct symbol and perform appropriate extra steps such as type checking and code generation. When a non-terminal is expected, a call is made to the function that is designed to handle the expected non-terminal.
+
+A multi-pass compiler does not perform all compiler stages in one pass. Instead, it abstracts compiler stages into separate passes and uses some intermediate representation of a program to communicate these stages. These representations are often trees of objects. Each pass traverses the intermediate representation appropriately and passes on the results to the next stage.
 
 Time complexities of single and multi-pass compilers are exactly the same since both a single-pass compiler must traverse a program input once and a multi-pass compiler must pass it a n number of times where n is the number of passes. A single pass compiler however will often benefit from better performance this constant factor is minimised.
 
-(TODO: maybe not that different given input/output) Space complexities of single and multi-pass compilers will be different. Both methods operate on syntax trees which must necessarily have a size that is proportional to the input code. Single pass compilers however, use their call-stack to represent a depth-first traversal of the tree and as such only will use an amount of memory proportional to the greatest depth of the tree. This might be a significant saving, especially given the original platform of the S-algol compiler which was many thousands of times less powerful than today's machines.
+(TODO: maybe not that different given input/output) Space complexities of single and multi-pass compilers are different. Both methods operate on syntax trees which must necessarily have a size that is proportional to the input code. Single pass compilers however, use their call-stack to represent a depth-first traversal of the tree and as such only will use an amount of memory proportional to the greatest depth of the tree. This might be a significant saving, especially given the original platform of the S-algol compiler which was many thousands of times less powerful than today's machines. (TODO: talk about PDP DEC original platform)
 
-Single-pass compilers have limited capabilities in comparison to multi-pass compilers. Single pass compilers lack the ability to check code in relation to code it has not seen yet. For example, they cannot check that a function call is correct if the function is called before it is declared. This is why ALGOL languages often include 'forward' declarations that inform the compiler in advance the name of a function and its type signature. Morrison points out that this is "awkward when recursive procedure definitions are involved" since a function must be available in scope so it can reference itself. The solution to this in S-algol is that "the identifier comes into scope after the parameter list has been specified allowing procedures to call themselves" \cite{morrison1979development}. However, it is trivial to infer forward declarations in a multi-pass compiler since it does type checking after all the code has been seen.
+Single-pass compilers are less capable than multi-pass compilers. They lack the ability to check code in relation to code it has not seen yet. For example, they cannot check that a function call is correct if the function is called before it is declared. This is why ALGOL languages often include 'forward' declarations that inform the compiler in advance the name of a function and its type signature. Morrison points out that this is "awkward when recursive procedure definitions are involved" since a function must be available in scope so it can reference itself. The solution to this in S-algol is that "the identifier comes into scope after the parameter list has been specified allowing procedures to call themselves" \cite{morrison1979development}. In multi-pass copmilers, it is trivial to infer forward declarations since it does type checking after all the code has been seen.
 
-A subjective advantage of multi-pass compiler is that it offers a considerably better structure for drawing abstraction between parts of a compiler. A type-checker might, for example, be an optional component that can be switched in and out for performance reasons. Similarly, if a different target language is chosen, it would be simple to swap the pass that deals with code generation for a different one.
+A more subjective advantage of multi-pass compiler is that it offers a considerably better structure for drawing abstraction between parts of a compiler. A type-checker might, for example, be an optional component that can be switched in and out for performance reasons. Similarly, if a different target language is chosen, it would be simple to swap the pass that deals with code generation for a different one.
 
-Design patterns can also make the multi-pass compiler highly abstract. Norman Neff describes how the visitor pattern can be used to abstract the traversal mechanism of a collection of referenced objects (such as a syntax tree) from the operations on those objects. With reference to compiler design, Neff claims that "the visitor pattern gives the abstract syntax tree responsibility for defining a traversal sequence to be followed by all visitors." \cite{neff1999oo}. Neff points out however that the visitor pattern is limited to fixed orders of traversal, it is only useful if a programmer is doing many traversals using a fixed ordering such as depth-first or breadth-first traversal. 
+Design patterns can also make the multi-pass compiler highly abstract. Norman Neff describes how the visitor pattern can be used to abstract the traversal mechanism of a collection of referenced objects (such as a syntax tree) from the operations on those objects. With reference to compiler design, Neff claims that "the visitor pattern gives the abstract syntax tree responsibility for defining a traversal sequence to be followed by all visitors." \cite{neff1999oo}. Neff points out however that the visitor pattern is limited to fixed orders of traversal, it is only useful if a programmer is doing many traversals using a fixed ordering such as depth-first or breadth-first traversal. (TODO: maybe talk about nano-pass compilers as a absurd? exptrapolation of multi-pass)
 
-The visitor pattern gives the abstract syntax tree responsibility for defining a traversal sequence to be followed by all visitors.
+The visitor pattern gives the abstract syntax tree responsibility for defining a traversal sequence to be followed by all visitors. Concrete examples of the pattern in use will be provided in the implementation details.
 
 \subsection{Code Target}
 
-The original implementation of the S-algol compiler converted S-algol input to 'S-code'. This S-code could then be executed on an S-code machine. This is very similar to Java's model: Java code is compiled to bytecode and run on a JVM. The advantage of this is that such machines maybe be implemented for arbitrary hardware and operating system targets such that code in Java or S-algol could be run on any platform without changing the compiler implementation.
+The original implementation of the S-algol compiler converts S-algol input to 'S-code'. This S-code can then be executed on an S-code machine. This is similar to Java's model: Java code is compiled to bytecode and run on a JVM. The advantage of this approach is that such machines may be implemented for arbitrary hardware and operating system targets such that code in Java or S-algol could be run on any platform without changing the compiler implementation.
 
 It would be possible to implement a similar approach for this compiler implementation. The compiler could emit S-code and an S-code machine could be implemented in javascript.
 
 The advantage of the S-code based approach would be very precise control over execution. The S-code machine would be able to execute instructions atomically and would have full access to the program state. As such, implementation of debuggers and other runtime tools would be trivial. Furthermore, some subtle implementation details of S-Algol could be implemented in the machine rather than the compiler. By compiling straight to javascript, this control is somewhat lost to the javascript virtual machine: all code outputted by the S-Algol compiler must precicisely represent S-Algol paradigms in terms of javascript paradigms.
 
-The advantage of compiling directly to javascript would be a smaller, simpler project. It would allow the features that are already built into most javascript virtual machines to be used such as debugging. It is also likely to offer better performance than an S-code. This is becuase many features would duplicated between the JavaScript machine and the S-code machine. For example, they would both require garbage collection, stack management and heap management.
+The advantage of compiling directly to javascript would be a smaller, simpler project. It would allow the features that are already built into most javascript virtual machines to be used such as debugging. It is also likely to offer better performance than an S-code. This is becuase many features would duplicated between the JavaScript machine and the S-code machine. For example, they would both have to perform garbage collection, stack management and heap management.
 
 Another key advantage of cutting out the S-code component is that the output code can work inline with any external javascript or libraries. The javascript ecosystem has a very established set of libraries and build tools available. 
 
-The simplicity of the direct-to-javascript approach as opposed to attempting to implement the S-code machine was the main justification choosing it for this project.
+The simplicity of the direct-to-javascript approach as opposed to attempting to implement the S-code machine is the main justification choosing it for this project.
 
 \subsection{Final Compiler Design}
 
-The final architecture for the project is a multi-pass implementation. The performance implications of this architecture seemed to be negligible in comparison to the benefits of more abstraction. The advantages of being able to add or remove parts of the compiler arbitrarily would also be useful in case the complete solution was not completed by the end of the project. Furthermore, since the target language is Javascript, not a bytecode, it might be necessary to output symbols not strictly in the order of parsing which would be easier to do given a full intermediate representation.
+The final architecture design for this project is a multi-pass implementation. The performance implications of this architecture seemed to be negligible in comparison to the benefits of more abstraction. The advantages of being able to add or remove parts of the compiler arbitrarily would have been useful in the case that a complete solution was not implemented by the end of the project. Furthermore, since the target language is Javascript, not a bytecode, it might be necessary to output symbols not strictly in the order of parsing which would be easier to do given a full intermediate representation - a task that is more manageable in multi-pass compilers.
 
-The initial implementation involved hand-writing the recursive descent parser stage. This stage was designed to accept a string of symbols from a separate lexer and produce and abstract syntax tree to represent the input code. It would also detect context-free errors in the grammar. After a partial implementation of this, it was clear that the approach was problematic.
+\subsection{Parser Design}
 
-First of all, the process of writing functions to represent syntax is formulaic. The structure of the recursive descent was more or less a direct mapping from the syntax notation to functions. The corrolary of this was that it was easy to be inconsistent and cause confusion, especially with naming conventions and with the design of the objects into which the language was being parsed. It is not clear, nor semantically obvious whether the recursive grammar fragment,
+A core design principal of the original S-Algol compiler was the use of a handwritten recursive descent structure. In respect to this, the initial implementation of this compiler was a handwritten recursive descent parser that implemented a trivial subset of S-Algol. This code was designed to accept a string of symbols from a separate lexer and produce and abstract syntax tree to represent the input code. It would also detect context-free errors in the grammar. After this partial implementation of this, it was clear that this approach was problematic.
 
-<foo> ::= bar<foo> | bar;
+Firstly, the process of writing functions to represent syntax is formulaic. The structure of the recursive descent is a direct mapping from the syntax notation to functions. The corollary of this was that it is easy to be inconsistent and cause confusion, especially with naming conventions and with the design of the classes into which the language was being parsed. It is not clear, nor semantically obvious whether a recursive grammar fragment that represents a string of 'bar's (\lstinline{<foo> ::= bar<foo> | bar}) should be represented as,
 
-should be represented as
-
-public class xs {
+\begin{lstlisting}
+public class foo {
 	bars: string[];
 }
+\end{lstlisting}
 
 or as 
 
-public class xs {
+\begin{lstlisting}
+public class foo {
 	bar: string;
-	xs: xs;
+	foo: foo;
 }
+\end{lstlisting}
 
-Furthermore, should the classes have constructors to initialise the fields? "Modern Compiler Implementation in Java Second Edition" provides a good set of conventions (\ref{fig:classMapping}) for doing this mapping which settles the consistency issue. 
+
+"Modern Compiler Implementation in Java Second Edition" provides a good set of conventions for doing this mapping which settles the consistency issue. These are laid out in Figure \ref{fig:classMapping}
 
 
 \begin{figure}
@@ -239,76 +269,79 @@ mar rule.
 tions), and are never modified after that (until they are eventually discarded).
 \end{enumerate}
 \caption{Conventions for representing tree data structures in Java. \cite{11270520020101}}
-\label{classMapping}
+\label{fig:classMapping}
 \end{figure}
 
-Another point of difficulty was the process of recognising which production could be applied in a given situation. Take for example the simple S-algol program that assigns a to the expression "1".
+Another point of difficulty was the process of recognising which production could be applied in a given situation. Take for example the simple S-algol program in Figure \ref{lst:trivialsal} that assigns a to the expression "1".
 
+\begin{lstlisting}[label={lst:trivialsal}]
 let a = 1?
+\end{lstlisting}
 
-The entry production for S-algol is <program>. The following productions are the subset required to parse the given section of S-algol:
+The entry production for S-algol is \lstinline{<program>}. The following productions are the subset required to parse the given section of S-algol:
 
 \begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod}]
-<program> \&::= <sequence>?
-<sequence> \&::= <declaration>[;<sequence>] | <clause>[;<sequence>]
-<declaration> \&::= <let_decl> | <structure_decl> | <proc_decl> | <forward>
-<let_decl> \&::= let <identifier><init_op><clause>
+<program> ::= <sequence>?
+<sequence> ::= <declaration>[;<sequence>] | <clause>[;<sequence>]
+<declaration> ::= <let_decl> | <structure_decl> | <proc_decl> | <forward>
+<let_decl> ::= let <identifier><init_op><clause>
 \end{lstlisting}
 
-The difficulty parsing this program however, is recognising which productions apply in these cases. The following code represents a fragment of a recursive descent compiler that might being to handle the parsing of a let declaration.
+The difficulty parsing this program however, is recognising which productions apply in these cases. Figure \ref{lst:fixedclauseprod} contains a fragment of a recursive descent compiler that might be able to handle the parsing of a let declaration.
 
-\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod},language=javascript]
-var input = ['let', 'a', '=', '1'];
+\begin{lstlisting}[caption=TODO: caption,label=lst:fixedclauseprod]
 
-function program(): Program {
-	return new Program(sequence());
-}
-
-function sequence(): Sequence {
-	if (isDeclaration(input[0])) {
-		return new Sequence(declaration(), sequence());
-
-	} else if (isClause(input[0])) {
-		return new Sequence(clause(), sequence());
-
-	}
-}
-\end{lstlisting}
-
-
-The implementation difficulty with this code is the implementation of the functions, 'isDeclaration' and 'isClause'. While it is easy to see for isolated incidences which productions should be used to parse a snippet of code, in the general case, it is more complex.
-
-It might be possible to implement 'isDeclaration' as follows:
-
-\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod},language=javascript]
-function isDeclaration(): boolean {
-	return input[0] === "let";
-}
+    var input = ['let', 'a', '=', '1'];
+    
+    function program(): Program {
+    	return new Program(sequence());
+    }
+    
+    function sequence(): Sequence {
+    	if (isDeclaration(input[0])) {
+    		return new Sequence(declaration(), sequence());
+    
+    	} else if (isClause(input[0])) {
+    		return new Sequence(clause(), sequence());
+    
+    	}
+    }
 \end{lstlisting}
 
 
-This seems obviously correct, because we know that if the leading symbol is currently equal to "let", we obviously are dealing with a declaration. But the real definition of 'isDeclaration' should be as follows.
+The difficulty with this code comes with the implementation of the functions, 'isDeclaration' and 'isClause'. While it is easy to see for isolated incidences which productions should be used to parse a snippet of code, in the general case, it is more complex.
 
-\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod},language=javascript]
-function isDeclaration(): boolean {
-	return input[0] === "let" || input[0] === "forward" || input[0] === "procedure" || input[0] === "let";
-}
+It might be possible to implement 'isDeclaration' as in Figure \ref{lst:mayberecog}.
+
+\begin{lstlisting}[caption=TODO: caption, label=lst:mayberecog]
+    function isDeclaration(): boolean {
+    	return input[0] === "let";
+    }
 \end{lstlisting}
 
 
-It seems like it is necessary to write a recognition function for every production which could end up being very time consuming especially for some 'deep' productions.
+This seems correct, because we know that if the leading symbol is currently equal to "let", we obviously are dealing with a declaration. But the real definition of 'isDeclaration' should be as shown in Listing \ref{lst:realrecog} because there are four different ways that a $<declaration>$ production may begin.
 
-All these issues appear to be intellectually trivial; they are easy to understand and solve algorithmically but hard to do by hand. The issues are also very restrictive, such that if the implementation uses one particular approach, it would be very time consuming to change it later on.
 
-It seemed obvious that at least the parser stage should be generated programmatically from the syntax notation. This would have the following advantages:
+\begin{lstlisting}[caption=TODO: caption, label=lst:realrecog]
+    function isDeclaration(): boolean {
+    	return input[0] === "let" || input[0] === "forward" || input[0] === "procedure" || input[0] === "let";
+    }
+\end{lstlisting}
+
+For a complete parser, it is necessary to write such recognition functions for every production. This could end up being very time consuming especially for productions for which the first symbol is a non-terminal, which in turn point to more non-terminals.
+
+All these issues appear to be intellectually trivial; they are easy to understand but arduous to do by hand. This implies that they might be best solved algorithmically. 
+
+Given the repetitive, time-consuming work that is require obvious that at least the parser stage should be generated programmatically from the syntax notation. This would have the following advantages:
 
 \begin{enumerate}
 \item Implementation of parser generator would take equal or less time to hand writing parser.
 \item The generated representation of the concrete syntax would be consistent.
-\item Changes to the conventions explored above would be trivial.
+\item Changes to the conventions explored above would be automated.
+\item  an object-based representation of the grammar syntax would allow production recognisers such as 'isDeclaration' to be generated programatically.
 \end{enumerate}
 
-Furthermore, an object-based representation of the grammar syntax would allow production recognisers such as 'isDeclaration' to be generated programatically.
 
 
 \section{Implementation}
@@ -316,43 +349,74 @@ Furthermore, an object-based representation of the grammar syntax would allow pr
 
 \subsection{Meta-Compiler Design}
 
-The decision to programmatically generate the S-Algol compiler meant that the parser implementation focus had to be changed. The first aspect of the meta-compiler was to implement a small compiler chain for the grammar. This is a simple implementation since the grammar has a simple syntax.  
+The decision to programmatically generate the S-Algol parser changes the approach parser implementation. The first aspect of the meta-compiler was to implement a small compiler chain for the grammar. This is a simple implementation since the grammar has a simple syntax. Non-terminals are surrounded in angle brackets; they are assigned using the '::=' operator; and square brackets represent optional syntax.
 
-The meta-compiler represents the syntax using objects. A production such as 
+The meta-compiler parses this syntax and prodcues a representation using objects.
 
-\begin{lstlisting}[caption={TODO},label={lst:fixedclauseprod}]
+\begin{lstlisting}[caption={Simple production},label={lst:fixedclauseprod}]
 <let_decl> ::= let <identifier><init_op><clause>
 \end{lstlisting}
 
 
-is represented using the following object structure
+The production shown in Figure \ref{lst:fixedclauseprod} is converted into the object structure in Listing \ref{lst:grammarfrag}. The 'grammar' object shown would also contain all other productions in the grammar.
 
-% var grammar = {
-% 	...
-% 	"<let_decl>" : { 
-% 		productions: [
-% 			[{value: "let"}, {value: "<identifier>"}, {value: "<init_op>"}, {value: "<clause>"}]
-% 		]
-% 	}
-% 	...
-% }
+\begin{lstlisting}[caption=TODO, label={lst:grammarfrag}]
+var grammar = {
+	...
+	"<let_decl>" : { 
+		productions: [
+			[
+			    {value: "let"},
+			    {value: "<identifier>"},
+			    {value: "<init_op>"},
+			    {value: "<clause>"}
+		    ]
+		]
+	}
+	...
+}
+\end{lstlisting}
 
-Given this object, it is possible to algorithmically solve the problems encountered whilst hand-writing the parser.
+Given the object-representation of the gramar, it is possible to algorithmically solve the problems encountered whilst hand-writing the parser.
 
-The first thing that was implemented was the production recogniser. This is a function that takes the current expected production (initially, always '\lstinline{<program>}') and the current first value in the input array then outputs which production will parse the current input; just as 'isDeclaration' did. This recogniser uses a pre-computed table that is generated from the grammar. A subset of the table is displayed in Figure \ref{fig:recogniserobj}. Its utility can be demonstrated with an example. A program \lstinline{let a = 1?} is assumed to be a grammar fragment of type \lstinline{<program>}. The leading symbol, "let", is then looked up in the table for \<program\>. In this table, "let" maps to \<sequence\>. This identifies the beginning of the list to be of type \<sequence\>. It is then possible to look up "let" in the \<sequence\> table, to get \<declaration\>. This continues until the fragment is recognised as a \<let_decl\>. Here, the mapping gives a production that starts with 'let'. This allows the parser to consume the 'let' symbol and begin to parse the \<identifier\> in the same way.
+\subsection{Production Recogniser}
+
+The first problem tackled in the meta-compiler is that of production recognition. The meta-compiler provides an automated generation of functions such as 'isDeclaration', shown in Figure \ref{lst:realrecog}. The general task is to find a function that takes the current expected production (initially, always '\lstinline{<program>}') and the current first value in the input array then to output which production will parse the current input; just as 'isDeclaration' did.
+
+Within the meta-compiler, this function mapping is represented by a pre-computed table. A subset example of this table is displayed in Figure \ref{fig:recogniserobj}. Usage of the table is simple:
+
+\begin{enumerate}
+\item Lookup current production in the left hand column.
+\item Lookup first symbol in the input sequence.
+\begin{enumerate}
+\item If the symbol exists and is a non-terminal, use this non-terminal as the current production and return to step 1.
+\item If the symbol exists and is a terminal, consume the first character in the input sequence and move to the next recognisable feature.
+\item If the symbol does not exist, throw a parser error.
+\end{enumerate}
+\end{enumerate}
+
+An example of this alorithm might be. A program \lstinline{let a = 1?} is assumed to be a grammar fragment of type \lstinline{<program>}. The leading symbol, "let", is then looked up in the table for \lstinline{<program>}. In this table, "let" maps to \lstinline{<sequence>}. This identifies the beginning of the list to be of type \lstinline{<sequence>}. It is then possible to look up "let" in the \lstinline{<sequence>} table, to get \lstinline{<declaration>}. This continues until the fragment is recognised as a \lstinline{<let_decl>}. Here, the mapping gives a production that starts with 'let'. This allows the parser to consume the 'let' symbol and begin to parse the \lstinline{<identifier>} in the same way.
 
 \begin{figure}[htbp]
+  \includegraphics[width=\textwidth]{recogniser1.png}
   \centering
-  \includesvg{image}
   \caption{Recogniser table subset}
   \label{fig:recogniserobj}
 \end{figure}
 
-The algorithm represented by this example shows how the recogniser table can be used to effectively 'configure' a generic (and very simple) parser. Details of this parser will be discussed in a later section.
+The algorithm represented by this example shows how the recogniser table can be used to effectively 'configure' a generic (and very simple) parser. Details of this parser will be discussed in a later section. (TODO really, will it?)
 
-When planning the compiler implementation initially, this approach seemed a fool-proof way to get a correct parser up and running. However, unexpected problems were encountered with the implementation.
+\subsection{Grammar Recognition Problems}
 
-The first of these problems occurs when a production is not LL(1). LL(k) is a measure of how many symbols it takes to recognise a production. The implementation thus far is contingent on the premise that all productions can be recognised by their first symbol. This is mostly true for the language except for a few cases. One of these cases exists in the <clause> production, part of which is show in Listing \ref{lst:clauseprod}. 
+This simple meta-compiler design appears to describe an effective parser implementation. Indeed, when planning the design, I anticipated this to be sufficient for a working parser implementation. However, this represented a misunderstanding of how expressive grammars can be.
+
+\subsection{LL-ness of the S-Algol Syntax}
+
+Grammars can be classified based on parsing methods. LL(1) grammars are the simplest category. LL(1) means that a grammar may always be parsed simply by observing the first symbol of the input. An example of an LL(1) part of the English grammar might be the definite article construct: after a 'the' symbol, a string of zero or more adjectives might be expect and then, a noun. The production might be \lstinline{<definite_article>::=the[<adjective>]*<noun>}. Of course human languages, being much less well defined than programming languages are not so clear cut in reality.
+
+The parser implementation approach described above can handle LL(1) languages only. However, recursive descent can handle a strictly larger set.
+
+One non-LL(1) language feature in S-Algol is the clause production. Figure \ref{lst:clauseprod} shows the non-LL(1) fragment. Significantly, it is impossible to tell if an input is an 'if, do' clause or an 'if, then' clause by simply examining the first symbol - both of them begin with 'if'.
 
 \begin{lstlisting}[caption={Fragment of the <clause> production},label={lst:clauseprod}]
 <clause> ::=
@@ -361,16 +425,16 @@ if<clause>then<clause>else<clause> |
 ...
 \end{lstlisting}
 
-Listing \ref{lst:clauseprod} might produce a recogniser table containing the fragment shown in Figure \ref{fig:incorrectrecogniserobj}. 
+Listing \ref{lst:clauseprod} might produce a recogniser table containing the fragment shown in Figure \ref{fig:incorrectrecogniserobj}. This clearly shows the conflict that would make the suggested parsing algorithm not work.
 
 \begin{figure}[htbp]
   \centering
-  \includesvg{image}
+  \includegraphics[width=\textwidth]{recogniser.png}
   \caption{Clause recogniser table subset}
   \label{fig:incorrectrecogniserobj}
 \end{figure}
 
-The problem is obvious, it is impossible to tell whether to expect an 'if do' clause or an 'if then' clause simply by looking at the if symbol. One way to fix this problem is to defer the decision until 'do' or 'then' are encountered. This fix is problematic because it compromises the simplicity of possible compiler implementations. An alternative way to fix this issue is to alter the grammar. Listing \ref{lst:fixedclauseprod} shows how it is possible to alter the grammar in such a way to fix the issue and still accept the same set of strings.
+Fortunately, it is possible to convert some non-LL(1) grammars using factoring. Listing \ref{lst:fixedclauseprod} shows the factored clause production. This effectively defers the decision as to whether an input sequence is an 'if, do' clause or an 'if, then' clause until they actually become distinct - after 'if<clause>'.
 
 \begin{lstlisting}[caption={LL(1) <clause> production},label={lst:fixedclauseprod}]
 <if_tail> ::=
@@ -382,9 +446,13 @@ if<clause><if_tail> |
 ...
 \end{lstlisting}
 
-The next problem with generating an unambiguous recogniser table is that of left recursion.  
+\subsection{Left recursion}
 
-\begin{lstlisting}[caption={Fragment of the <clause> production},label={lst:clauseprod}]
+The next problem with generating an unambiguous recogniser table is that of left recursion. This occurs when there is a cycle in the grammar, appearing in the left hand side of a production. A simple of direct left recursion example is \lstinline{<expression> ::= <expression>() | <number>}. This example produces an infinite loop and thereby a stack over flow in the naïve meta-compiler implementation described above. This is because, to recognise an expression, it must be possible to recognise the first symbol of all of its productions. In this case, one of these is an expression!
+
+The instance of this problem in the S-Algol grammar lies in the expression clause although it is not as obvious as the previous example. Figure \ref{lst:exprprod} shows the expression production and the 'exp' productions that establish operator precedence. By proxy of these 'exp' productions, it is possible that an expression starts with an expression. This is called indirect left recursion. This causes the same infinite-loop problem with the meta-compiler. 
+
+\begin{lstlisting}[caption={Left recursion in expressions},label={lst:exprprod}]
       
 <expression> ::= <exp1>[or<exp1>]*
 <exp1> ::= <exp2>[and<exp2>]*
@@ -398,6 +466,8 @@ The next problem with generating an unambiguous recogniser table is that of left
 <expression>(<dereference>) | 
 ...
 \end{lstlisting}
+
+This exact issue is addressed by Morrison in his book (TODO: find quote?). 
 
 
 \subsection{Grammar Transformations}
@@ -414,8 +484,9 @@ let a = if true then 1 else 2?
 
 An equivalent Javascript program might use the javascript ternary operator as shown in listing \ref{lst:jscondass}
 
-\begin{lstlisting}[caption={Javascript conditional assignment},label={lst:jscondass}, language=javascript]
-var a = true ? 1 : 2;
+\begin{lstlisting}[caption=Javascript conditional assignment, label=lst:jscondass]
+
+    var a = true ? 1 : 2;
 \end{lstlisting}
 
 This might be a fairly good mapping however the javascript ternary operator does not handle more complicated expressions. The code in listing \ref{lst:complexcondass} represents a marginally more complicated statement. Here, the result of the if expression is simply 34, however, two statements have yielded this number rather than just 1 in the previous expression.
@@ -426,25 +497,29 @@ let a = if true then {let a = 34; a} else 2?
 
 There is no perfect equivalent in Javascript: it is not possible to add a block statement to a ternary operation. However, it is possible to use a function instead. This makes sense since a function may be defined as an abstraction over a set of statements; a block statement is the same except it is not re-useable, nor can it accept arguments, it rather inherits the scope of its parent block. As such, the javascript program in listing \ref{lst:jsfncondass} might be an appropriate equivalent to the S-algol in \ref{lst:complexcondass}.
 
-\begin{lstlisting}[caption={Javascript conditional assignment using a function},label={lst:jsfncondass}, language=javascript]
-function temp() {
-    var a = 34;
-    return a;
-}
 
-var a = true ? temp() : 2;
+\begin{lstlisting}[caption=Javascript conditional assignment using a function, label=lst:jsfncondass]
+
+    function temp() {
+        var a = 34;
+        return a;
+    }
+    
+    var a = true ? temp() : 2;
 \end{lstlisting}
 
 Since this 'temp' function will necessarily only be used once, it might be better design to actually remove it from the namespace altogether since a procedure with the same name may be accidentally be overwritten. This is possible with a some syntactic sugar available in Javascript shown in \ref{lst:jsfncondass}. An anonymous function is declared and called in a single expression. Note the application of the anonymous function is triggered by the parentheses on line \ref{line:application}.
 
-\begin{lstlisting}[caption={Javascript conditional assignment using a function},label={lst:jsfncondass}, language=javascript, escapechar="|"]
-var a = true ? function() {
-    var a = 34;
-    return a;
-}() : 2; |\label{line:application}|
+\begin{lstlisting}[caption=Javascript conditional assignment using an inline function, label=lst:jsinlinefncondass]
+
+    var a = true ? function() {
+        var a = 34;
+        return a;
+    }() : 2; \label{line:application}
+
 \end{lstlisting}
 
-There is an advantagous side effect to using javascript functions to express S-Algol blocks. This lies in javascript's scoping paradigm. In the S-algol spec, Morisson describes the languages very simple scoping system: "the scope of an identifier starts immediately after the declaration and continues up to the next unmatched } or 'end'." \ref{TODO} As such, S-algol may have indefinitely-many scopes in a single program. ES5 Javascript's two scopes are decribed in a Microsoft reference document as "global and local. A variable that is declared outside a function definition is a global variable, and its value is accessible and modifiable throughout your program. A variable that is declared inside a function definition is local. It is created and destroyed every time the function is executed, and it cannot be accessed by any code outside the function." \ref{https://msdn.microsoft.com/en-us/library/bzt2dkta(v=vs.94).aspx}.
+There is an advantagous side effect to using javascript functions to express S-Algol blocks. This lies in javascript's scoping paradigm. In the S-algol spec, Morisson describes the languages very simple scoping system: "the scope of an identifier starts immediately after the declaration and continues up to the next unmatched $\}$ or 'end'." \ref{TODO} As such, S-algol may have indefinitely-many scopes in a single program. ES5 Javascript's two scopes are decribed in a Microsoft reference document as "global and local. A variable that is declared outside a function definition is a global variable, and its value is accessible and modifiable throughout your program. A variable that is declared inside a function definition is local. It is created and destroyed every time the function is executed, and it cannot be accessed by any code outside the function." \ref{https://msdn.microsoft.com/en-us/library/bzt2dkta(v=vs.94).aspx}.
 
 In this S-Algol compiler implementation, scope checking is executed statically so it is not necessary in most cases to ensure that the scope is verified. However, there are some cases where the more-permissive javascript scope will cause interference between variables. For example the S-Algol programme in Listing \ref{lst:scoping} would be expected to print 5 then 1.
 
@@ -460,15 +535,16 @@ write a?
 
 The naïvely-compiled javascript program in Listing \ref{lst:jsnaive} would print 5 then 5. This is because the if block is assigning variables in the global scope whereas in S-algol, the if block creates a new scope. (It is important to note that child blocks in S-algol do inherit scope from their parents such that if Line \ref{line:decl} were removed from Listing \ref{lst:scoping}, the program would simply print 1 then 1.)
 
-\begin{lstlisting}[caption={Javascript scoping},label={lst:jsnaive}, language=javascript, escapechar="|"]
-var a = 1;
+\begin{lstlisting}[caption=Javascript scoping,label=lst:jsnaive]
 
-if (true) {
-	var a = 5;
-	console.log(a);
-}
-
-console.log(a);
+    var a = 1;
+    
+    if (true) {
+    	var a = 5;
+    	console.log(a);
+    }
+    
+    console.log(a);
 \end{lstlisting}
 
 To make the javscript program act more like S-Algol, it is possible to take advantage of the function-local variable features of javascript. The Javascript code in Listing \ref{lst:betterscope} prints 5 then 1, just as was expected from the S-Algol program in Listing \ref{lst:scoping}. Furthermore, the inner scope inherits scope from its parents just like S-Algol scopes. As such, you can delete \ref{line:decl} from Listing \ref{lst:scoping} and the program will print 1 then 1;
@@ -488,24 +564,11 @@ console.log(a);
 
 In conclusion, single-use anonymous functions provide S-Algol-like scoping and allow abstraction over block statements such that they can be used as expressions.
 
-
-ES6 has a new block-scoping syntax but this can be simmul
-
-
 \subsection{Implementing 'Abort'}
 
 In S-Algol, the abort keyword stops exectuion permanently. There are a few candidates for replication of abort in javascript. In the node javascript, the environment object called 'process' has a member function called 'exit' which behaves like the posix exit function. It allows a node program to end abruptly with a return value. This does not unfortunately work in the browser. Javascript also has a GOTO-like syntax called a label that allows the execution flow to jump between line numbers, however, this does not allow exit from functions so cannot be used to guaruntee that a program is stopped from anywhere within the control flow.
 
-This S-Algol implementation uses the Javascript exception handling to allow halt execution. I
-
-\begin{lstlisting}[caption={S-Algol-like Javascript scoping},label={lst:betterscope}, language=javascript, escapechar="|"]
-function recurse(x) {
-	if (x == 4) return;
-	recurse(x+!)
-}
-console.log(a);
-\end{lstlisting}
-
+This S-Algol implementation uses the Javascript exception handling to allow halt execution. (TODO: finish)
 
 \subsection{Language specification}
 
@@ -641,29 +704,30 @@ A further implementation detail that seemed appropriate was to use classes to re
 
 Given this method of storing errors, a visitor class is implemented to traverse the tree and output error messages to \lstinline{std.err}. Listing \ref{lst:erroroutput} shows the code that prints the errors. It also demonstrates the terseness of the code that can be written using the visitor pattern: most of the complexity of this feature is wrapped up in the \lstinline{visit} function.
 
-\begin{lstlisting}[caption={Error outputting visitor},label={lst:erroroutput}, language=typescript]
-export class ErrorOutputting extends SuperVisitor {
-    foundErrors = false;
+\begin{lstlisting}[caption=Error outputting visitor, label=lst:erroroutput]
 
-    afterVisitNode(node: A.AbstractSyntaxType) {
-        if (node.errors && node.errors.length > 0) {
-            this.foundErrors = true;
-            for (let error of node.errors) {
-                console.error(error.toString());
+    export class ErrorOutputting extends SuperVisitor {
+        foundErrors = false;
+    
+        afterVisitNode(node: A.AbstractSyntaxType) {
+            if (node.errors && node.errors.length > 0) {
+                this.foundErrors = true;
+                for (let error of node.errors) {
+                    console.error(error.toString());
+                }
             }
         }
     }
-}
-// the visit function comes from a separate module that implements the abstract tree traversal of the visitor pattern
-// the abstractSyntaxTree is an S-Algol program in tree form
-visit(abstractSyntaxTree, new ErrorOutputting());
+    // the visit function comes from a separate module that implements the abstract tree traversal of the visitor pattern
+    // the abstractSyntaxTree is an S-Algol program in tree form
+    visit(abstractSyntaxTree, new ErrorOutputting());
 \end{lstlisting}
 
 \subsection{Scope Checking}
 
 A basic type of context-sensitive checking involves checking for scope irregularities. This might pick up problems such as a variable, procedure or structure being operated on, applied or initialised when it has not already been declared. \lstinline{let a = b + 1?} is an example of a program that might trigger a scoping error. Here, the variable b is referred to despite the fact that it has not been yet been declared. 
 
-S-Algol has a simple block-scoping mechanism. A \lstinline{\{} or \lstinline{begin} keyword starts a scope that continues until the next unmatched \lstinline{\}} or \lstinline{end}. Any variable declared within a scope is available until the end of the scope and in all child scopes that exist within it.
+S-Algol has a simple block-scoping mechanism. A \{ or \lstinline{begin} keyword starts a scope that continues until the next unmatched \} or \lstinline{end}. Any variable declared within a scope is available until the end of the scope and in all child scopes that exist within it.
 
 Listing \ref{lst:correctscope} represents a correctly scoped program. Variable \lstinline{a} is declared and initialised in the outer scope, updated in a child scope and written to std.out. The program will print '2'.
 
@@ -761,7 +825,7 @@ write a(3);
 
 The code in Listing \ref{lst:1ind} compiles to the code in \ref{lst:jsindex}. Line \ref{line:index} shows the storage of the index offset. Line \ref{line:offset} shows the calculation of the offset based in the desired index. This program correctly prints 1.
 
-\begin{lstlisting}[caption={TODO},label={lst:jsindex},language=javascript, escapechar="|"]
+\begin{lstlisting}[caption={TODO},label={lst:jsindex}, escapechar="|"]
 var a = [
     1 + 2, |\label{line:index}|
     1,
@@ -780,37 +844,58 @@ From the perspective of usability, it is not clear why the decision of customisi
 \section{Ethics}
 % Any ethical considerations for the project.
  
-- examination of recursive descent 
-- justification for not choosing recursive descent directly
-    - attempted to write recursive descent by hand
-- reference limitations of not choosing recursive descent
-- talk about nanopass
- http://www.cs.indiana.edu/~dyb/pubs/nano-jfp.pdf
-- argue that it offers better abstraction but perhaps less good performance
-
+TODO: ???
  
 \section{Evaluation and critical appraisal}
 % You should evaluate your own work with respect to your original objectives. You should also critically evaluate your work with respect to related work done by others. You should compare and contrast the project to similar work in the public domain, for example as written about in published papers, or as distributed in software available to you.
 
+I found this project to be a learning curve. This was the first compiler that I had written and I made some assumptions about the design and engineering process that is required.
 
-- compare compiler performance with other transpilers on comparible compilers
-- compare performance of produced code with other transpiled languages
+The first of these misconceptions is the extent to which the grammar of a language provides a definition for that language. It might be assumed that once a parser has been implemented, the syntax tree produced should be a one-to-one mapping of the syntax tree to the output code. However, often context-sensitive analysis must be performed before the tree can be output as code. This confusion manifested itself in excessive focus on the parser implementation during this project. This could have been shortcutted by using a parser generator.
+
+However, the approach adopted in this project, did produce a rock-solid parser implementation. The parse generator that was implemented works very well with typescript and meant that the entire compiler tool chain is written in a type-safe manner and still compilable to javascript. 
+
+The focus on the parser gave me an excellent insight into this section of the compiler design.
+
+
+- TODO: compare compiler performance with other transpilers on comparible compilers
+- TODO: compare performance of produced code with other transpiled languages
+
+\subsection{Comparison between S-Algol and modern-day languages}
+
+In the context survey, it is identified that S-Algol is part of the genus of modern programming languages. It is therefore appropriate to compare it with modern-day languages as a linguist might compare english to latin. And just as English and Latin resemble each other to some extent the basic components of S-Algol are easily recognisable in all modern-day impreative languages.
+
+A key difference in S-Algol to a language such as javascript is the use of first-class syntax to represent fairly high level features. For example, image manipulation is built into the language at a syntax level whereas in javascript, images are simply treated as regular objects. This represents a trend in programming languages as a whole: to move features from the syntax and implement them as libraries. This means that compiler design can be simpler and more portable accross architectures. However, it does make it harder to target optimisation since it might be considered inelegant to target specific libraries within a compiler.
+
+There are also functions that are 'hard-coded' into the grammar which in modern languages might be considered part of standard libraries. This includes finding the bounds of an array and doing io operations.
+
+The handling of clauses as expressions is not seen explicitly in modern languages. Most languages have some basic syntax to do similar things such as ternary operators. It is likely that this approach has been moved away from since it produces cluttered, confusing code.
+
+Similarly, the lack of explicitly returned values is not very clear for programmers of modern day languages. An expression at the end of a block in S-Algol is the returned value of that block. In javascript for example, expressions must be prefixed by 'return'. The implicit return is perhaps a relic of stack-based assmbley (TODO: maybe postscript?) code where a naked expression would push its result to the stack.
 
 \section{Conclusions}
-% You should summarise your project, emphasising your key achievements and significant drawbacks to your work, and discuss future directions your work could be taken in.
+% You should summarise your project, emphasising your key achievements and significant drawbacks to your work, and discuss future directions Your work could be taken in.
 
 
-\section{Appendices}
 
-Testing summary
+\printbibliography
+
+\begin{appendices}
+\section{Testing summary}
 % This should describe the steps taken to debug, test, verify or otherwise confirm the correctness of the various modules and their combination.
 
-
-User manual
- 
+\section{User manual}
 % Instructions on installing, executing and using the system where appropriate.
 
-Other appendices
+\section{Other appendices}
 % If appropriate, you may include other material in appendices which are not suitable for inclusion in the main body of your report.
+
+\section{appendices}
+
+
+
+
+
+
 
 \end{document}

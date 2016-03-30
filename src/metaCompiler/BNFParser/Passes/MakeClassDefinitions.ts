@@ -12,7 +12,7 @@ import {Constants} from "../Constants";
 export class MakeClassDefinitions extends AbstractVisitor {
 
     beforeVisitGrammar(node:Grammar) {
-        this.output.push("import {SalgolParseSymbol, SalgolTerminalClass} from '../GeneratedFileHelpers/SalgolParseSymbol'");
+        this.output.push("import {SalgolParseSymbol, SalgolTerminalClass} from '../generatedFileHelpers/SalgolParseSymbol'");
     }
 
     afterVisitGrammar(node:Grammar) {

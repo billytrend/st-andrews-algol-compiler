@@ -1,6 +1,5 @@
 var readline = require('readline');
-import escodegen = require('escodegen');
-import ArgumentParser = require('argparse');
+let ArgumentParser = require('argparse');
 import {compile} from './Compiler';
 
 //noinspection TypeScriptUnresolvedFunction

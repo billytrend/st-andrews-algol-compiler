@@ -4,7 +4,8 @@
     "module": "commonjs",
     "outDir": "bin",
     "rootDir": "src",
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "react"
   },
   "exclude": ["node_modules", "src/sAlgolCompiler/GeneratedFiles"]
 }

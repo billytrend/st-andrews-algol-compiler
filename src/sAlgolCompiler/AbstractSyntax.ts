@@ -1,28 +1,8 @@
 import E = ESTree;
 import * as CodeGen from "./CodeGenHelpers";
-import {assignVariable} from "./CodeGenHelpers";
-import {binaryOperation} from "./CodeGenHelpers";
-import {operation} from "./CodeGenHelpers";
-import {objectDefinition} from "./CodeGenHelpers";
-import {getIdentifier} from "./CodeGenHelpers";
-import {callFunc} from "./CodeGenHelpers";
-import {functionDefinition} from "./CodeGenHelpers";
-import {raiseToBlockStatement} from "./CodeGenHelpers";
-import {getReturnStatement} from "./CodeGenHelpers";
+import {assignVariable, binaryOperation, operation, objectDefinition, getIdentifier, callFunc, functionDefinition, raiseToBlockStatement, getReturnStatement, getEmptyStatement, getClosure, ifElse, loop, makeBlockReturn, maybeRaiseToExpressionStatement, getArray, getNewObj, varAss, accessObject, getLiteral, getTryCatch} from "./CodeGenHelpers";
 import {ContextSensitiveError} from "./ContextSensitiveError";
-import {getEmptyStatement} from "./CodeGenHelpers";
-import {getClosure} from "./CodeGenHelpers";
-import {ifElse} from "./CodeGenHelpers";
-import {loop} from "./CodeGenHelpers";
-import {makeBlockReturn} from "./CodeGenHelpers";
-import {maybeRaiseToExpressionStatement} from "./CodeGenHelpers";
-import {getArray} from "./CodeGenHelpers";
-import {getNewObj} from "./CodeGenHelpers";
-import {varAss} from "./CodeGenHelpers";
 import * as _ from 'lodash';
-import {accessObject} from "./CodeGenHelpers";
-import {getLiteral} from "./CodeGenHelpers";
-import {getTryCatch} from "./CodeGenHelpers";
 
 export function mergePrograms(a: Program, b: Program): Program {
     let newProg = new Program();
@@ -346,7 +326,7 @@ export class Application extends Expression {
             case declaration_type.CONS_DECL:
                 let out = <E.Identifier|E.CallExpression>getIdentifier(this.identifier);
                 for (let arg of this.args) {
-                    out = callFunc(accessObject(out, getIdentifier("get")), [arg.compile()], false);
+                    out = callFunc(accessObject(out, getIdentifier("get")), [arg.compile()]);
                 }
                 return out;
         }

@@ -30,8 +30,8 @@ export default class PredictionTable {
     }
 
     static allowEmpty(productions: {}, nonTerm: NonTerminal):boolean {
-        let productions: Production[] = productions[nonTerm.prettyValue];
-        for (let production of productions) {
+        let prods: Production[] = productions[nonTerm.prettyValue];
+        for (let production of prods) {
             if (production.sequence.length === 1 && production.sequence[0] instanceof Empty) {
                 return true;
             }

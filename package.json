@@ -2,18 +2,19 @@
   "name": "st-andrews-algol-compiler",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "/bin/sAlgolCompiler/Compiler.js",
   "scripts": {
     "test": "./test.sh",
     "test-debug": "./node_modules/.bin/mocha ./bin/test/**/*.js --debug-brk",
-    "watch": "./node_modules/.bin/tsc -w"
+    "watch": "./node_modules/.bin/tsc -w",
+    "compile": "tsd install; tsc || true",
+    "prepublish": "npm run compile"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/billytrend/st-andrews-algol-compiler.git"
   },
-  "bin": {
-  },
+  "bin": {},
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -21,11 +22,14 @@
   },
   "homepage": "https://github.com/billytrend/st-andrews-algol-compiler#readme",
   "dependencies": {
-    "acorn": "^3.0.2",
-    "argparse": "^1.0.6",
+    "acorn": "^3.0.4",
+    "argparse": "^1.0.7",
+    "awesome-typescript-loader": "^0.15.9",
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
+    "brace": "^0.7.0",
     "canvas": "^1.3.12",
+    "chai": "^3.4.1",
     "escape-html": "^1.0.3",
     "escape-string-regexp": "^1.0.4",
     "escodegen": "^1.8.0",
@@ -33,25 +37,24 @@
     "json-loader": "^0.5.4",
     "lex": "^1.7.9",
     "lodash": "^3.10.1",
-    "mocha": "~2.3.4",
+    "mocha": "^2.3.4",
     "mocha-loader": "^0.7.1",
     "node-emoji": "^1.0.4",
     "promise": "^7.0.4",
     "promises": "^0.2.5",
     "raw-loader": "^0.5.1",
+    "react": "^0.14.7",
+    "react-ace": "^3.2.0",
+    "react-dom": "^0.14.7",
     "readline-sync": "^1.2.21",
     "string-hash": "^1.1.0",
-    "ts-loader": "^0.7.2",
+    "ts-jsx-loader": "^0.2.1",
+    "ts-loader": "^0.8.1",
     "ts-npm-module": "^1.0.5",
     "tsd": "^0.6.5",
-    "typescript": "^1.6.2",
+    "typescript": "^1.8.9",
     "typescript-collections": "^1.0.5",
     "typescript-require": "^0.2.9",
-    "webpack": "^1.12.9"
-  },
-  "devDependencies": {
-    "awesome-typescript-loader": "^0.15.9",
-    "chai": "^3.4.1",
-    "mocha": "^2.3.4"
+    "webpack": "^1.12.14"
   }
 }

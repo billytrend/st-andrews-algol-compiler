@@ -1,5 +1,4 @@
 import * as A from './AbstractSyntax'
-import emoji = require('node-emoji');
 
 export enum error_type {
     not_declared,
@@ -36,7 +35,7 @@ export class ScopeError extends ContextSensitiveError {
 
 export class AppliedArgumentToVariable extends ScopeError {
     get error(): string {
-        return `You tried to apply arguments to '${this.node.identifier}' when it is actually a variable ${emoji.get('information_desk_person')} `;
+        return `You tried to apply arguments to '${this.node.identifier}' when it is actually a variable`;
     }
 }
 

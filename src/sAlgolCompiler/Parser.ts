@@ -1,4 +1,4 @@
-import * as ConcreteSyntax from "./GeneratedFileHelpers/CompilationOverrides";
+import * as ConcreteSyntax from "./generatedFileHelpers/CompilationOverrides";
 import {Grammar} from "../metaCompiler/BNFParser/Parser";
 import {Terminal} from "../metaCompiler/BNFParser/Parser";
 import {NonTerminal} from "../metaCompiler/BNFParser/Parser";
@@ -6,11 +6,13 @@ import {SalgolSymbol} from "./Lexer";
 import PredictionTable from "../metaCompiler/BNFParser/Passes/parsePrediction/PredictionTable";
 import {ParseSymbol} from "../metaCompiler/BNFParser/Parser";
 import {Production} from "../metaCompiler/BNFParser/Parser";
-import {SalgolTerminal} from "./GeneratedFiles/SalgolTerminal";
+import {SalgolTerminal} from "./generatedFiles/SalgolTerminal";
 import {Empty} from "../metaCompiler/BNFParser/Parser";
 import {Constants} from "../metaCompiler/BNFParser/Constants";
-import {program} from "./GeneratedFiles/ConcreteSyntax";
-import {SalgolParseSymbol, SalgolTerminalClass} from "./GeneratedFileHelpers/SalgolParseSymbol"
+import {program} from "./generatedFiles/ConcreteSyntax";
+import {SalgolParseSymbol, SalgolTerminalClass} from "./generatedFileHelpers/SalgolParseSymbol"
+
+
 
 export default class Parser {
     private _input: SalgolSymbol[];

@@ -1,4 +1,4 @@
-import {SalgolParseSymbol, SalgolTerminalClass} from '../GeneratedFileHelpers/SalgolParseSymbol'
+import {SalgolParseSymbol, SalgolTerminalClass} from '../generatedFileHelpers/SalgolParseSymbol'
 export class program extends SalgolParseSymbol {};
 export class program_sequence_question_mark extends program{
     public sequence_0:sequence;

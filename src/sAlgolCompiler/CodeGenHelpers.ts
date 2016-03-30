@@ -1,5 +1,5 @@
 import E = ESTree;
-import {clause} from "./GeneratedFiles/ConcreteSyntax";
+import {clause} from "generatedFiles/ConcreteSyntax";
 import {Literal, operation_type} from "./AbstractSyntax";
 import BlockStatement = ESTree.BlockStatement;
 import Expression = E.Expression;
@@ -167,13 +167,6 @@ export function getLiteral(value:(string|boolean|number|RegExp)): E.Literal {
     return {
         type: "Literal",
         value: value
-    }
-}
-
-export function getBreak(value?:E.Identifier): E.BreakStatement {
-    return {
-        type: "BreakStatement",
-        value: value ? value : null
     }
 }
 

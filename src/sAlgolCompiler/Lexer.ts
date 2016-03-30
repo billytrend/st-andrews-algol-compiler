@@ -1,10 +1,10 @@
 /// <reference path="../../typings/tsd.d.ts" />
 
-import {SalgolTerminal} from './GeneratedFiles/SalgolTerminal';
+import {SalgolTerminal} from './generatedFiles/SalgolTerminal';
 import {
     concreteTerminals, keywords, idTerminals, LexType,
     terminalType, punctuation, sort
-} from "./GeneratedFiles/SalgolConcreteTerminals";
+} from "./generatedFiles/SalgolConcreteTerminals";
 import {Constants} from "../metaCompiler/BNFParser/Constants";
 import escape = require('escape-string-regexp');
 import E = ESTree;

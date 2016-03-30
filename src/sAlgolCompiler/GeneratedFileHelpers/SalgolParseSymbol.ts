@@ -1,5 +1,5 @@
 import * as LookUp from '../CompileLookUp'
-import {SalgolTerminal} from "../GeneratedFiles/SalgolTerminal";
+import {SalgolTerminal} from "../generatedFiles/SalgolTerminal";
 import {SalgolSymbol} from "../Lexer";
 import E = ESTree;
 
