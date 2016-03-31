@@ -23,7 +23,7 @@ body {
 
 .banner {
     height: 400px;
-    background-color: #FFFFCC;
+    background-color: #fff4cb;
     display:flex;
     flex-direction: column;
     flex-wrap: nowrap;
@@ -38,7 +38,7 @@ body {
 
 .logo {
     padding: 10px;
-    width: 400px;
+    width: 300px;
 }
 
 .synopsis {
@@ -78,7 +78,7 @@ code {
 
 #examples-react {
     padding: 20px 5% 20px 5%;
-    background-color: #FFFFCC;
+    background-color: #ffa99d;
 }
 
 .code-panel>div {
