@@ -1,0 +1,11 @@
+{
+  "name": "st-andrews-algol-compiler",
+  "version": false,
+  "ambientDependencies": {
+    "mocha": "github:DefinitelyTyped/DefinitelyTyped/mocha/mocha.d.ts#fe563dff3428bac1260d1794e2c2ecf8f097535a",
+    "chai": "github:DefinitelyTyped/DefinitelyTyped/chai/chai.d.ts#fe563dff3428bac1260d1794e2c2ecf8f097535a",
+    "estree": "github:DefinitelyTyped/DefinitelyTyped/estree/estree.d.ts#70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e",
+    "lodash": "github:DefinitelyTyped/DefinitelyTyped/lodash/lodash.d.ts#70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e",
+    "node": "github:DefinitelyTyped/DefinitelyTyped/node/node.d.ts#70bf7e2bfeb0d5b1b651ef3219bcc65c8eec117e"
+  }
+}
