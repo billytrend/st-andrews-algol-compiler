@@ -5,8 +5,11 @@ module.exports = {
         path: './bin',
         filename: 'bundle.js'
     },
-    debug: true,
-    devtool: 'eval-source-map',
+    devtool: false,
+    plugins: [
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.UglifyJsPlugin()
+    ],
     resolve: {
         extensions: ['', '.tsx', '.ts', '.js']
     },
