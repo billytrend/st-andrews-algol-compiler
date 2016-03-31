@@ -1,4 +1,4 @@
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../../typings/main.d.ts" />
 import React = require('react');
 import {Console} from "./Console";
 let brace = require('brace');

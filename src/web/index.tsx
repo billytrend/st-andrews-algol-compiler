@@ -1,4 +1,4 @@
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../../typings/main.d.ts" />
 import React = require('react');
 import ReactDom = require('react-dom');
 import {Example} from './Example';

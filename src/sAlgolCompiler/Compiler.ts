@@ -20,6 +20,12 @@ export class Config {
     prelude = true;
 }
 
+export class Results {
+
+    generatedCode: string;
+    generatedCode: string;
+}
+
 function compileToAST(lines: string[]): Program {
     let lexer = new SalgolLexer(lines);
     let lexed = lexer.lex();

@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../typings/main.d.ts" />
 
 import {ParseSymbol} from "./Parser";
 import {NonTerminal} from "./Parser";

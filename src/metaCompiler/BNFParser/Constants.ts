@@ -1,4 +1,4 @@
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../typings/main.d.ts" />
 import path = require('path');
 import {ASCII} from "../../assorted/ASCII";
 import {Production} from "./Parser";
