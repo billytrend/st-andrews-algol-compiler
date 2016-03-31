@@ -19,7 +19,7 @@ export class ErrorOutputting extends SuperVisitor {
     afterVisitNode(node: A.AbstractSyntaxType) {
         if (node.errors && node.errors.length > 0) {
             this.errors = this.errors.concat(node.errors);
-            if (print) {
+            if (this.print) {
                 for (let error of node.errors) {
                     console.error(error.toString());
                 }
