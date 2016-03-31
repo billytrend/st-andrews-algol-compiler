@@ -1,4 +1,4 @@
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../../typings/main.d.ts" />
 import {VisitorPass} from "./BNFParser/AbstractManipulators/VisitorPass";
 import {buildVisitor} from './BNFParser/Passes/passIndex';
 import {grammar} from '../meta/grammar';

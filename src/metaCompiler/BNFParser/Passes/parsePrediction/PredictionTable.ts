@@ -1,4 +1,4 @@
-/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/main.d.ts" />
 
 import {AbstractVisitor} from "../../AbstractManipulators/AbstractVisitor";
 import {Grammar} from "../../Parser";
@@ -6,8 +6,6 @@ import {Terminal} from "../../Parser";
 import {GrammarFeature} from "../../Parser";
 import {compile} from "../../Compiler";
 import {grammar} from "../../../../meta/grammar";
-import {Map} from "../../../../assorted/Map";
-import {Set} from "../../../../assorted/Set";
 import {ParseSymbol} from "../../Parser";
 import {NonTerminal} from "../../Parser";
 import {Empty} from "../../Parser";

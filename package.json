@@ -4,7 +4,7 @@
   "description": "",
   "main": "/bin/sAlgolCompiler/Compiler.js",
   "scripts": {
-    "test": "./test.sh",
+    "test": "mocha",
     "test-debug": "./node_modules/.bin/mocha ./bin/test/**/*.js --debug-brk",
     "watch": "./node_modules/.bin/tsc -w",
     "web-compile": "./node_modules/.bin/webpack --config interface.config.js",
@@ -48,7 +48,6 @@
     "ts-jsx-loader": "^0.2.1",
     "ts-loader": "^0.8.1",
     "ts-npm-module": "^1.0.5",
-    "tsd": "^0.6.5",
     "typescript": "^1.8.9",
     "typings": "^0.7.11",
     "webpack": "~1.12.14"
