@@ -1,5 +1,5 @@
 import E = ESTree;
-import {clause} from "generatedFiles/ConcreteSyntax";
+import {clause} from "./generatedFiles/ConcreteSyntax";
 import {Literal, operation_type} from "./AbstractSyntax";
 import BlockStatement = ESTree.BlockStatement;
 import Expression = E.Expression;

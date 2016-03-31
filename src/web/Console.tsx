@@ -17,8 +17,8 @@ export class Console extends React.Component<Props, State> {
     render() {
         return <div className="console">
             {
-                this.props.lines.map((line) => {
-                    return <div style={ { textIndent: (line.indent * 15) + "px"} } className={`line ${LineType[line.type]}`}>{line.line}</div>;
+                this.props.lines.map((line, i) => {
+                    return <div key={i} style={ { textIndent: (line.indent * 15) + "px"} } className={`line ${LineType[line.type]}`}>{line.line}</div>;
                 })
             }
         </div>

@@ -29,9 +29,6 @@ export class Results {
 function compileToAST(lines: string[]): Program {
     let lexer = new SalgolLexer(lines);
     let lexed = lexer.lex();
-    // for (let i of lexed) {
-    //    console.log(SalgolTerminal[i.type]);
-    // }
 
     let grammar = compileDefault();
     let parsed = new Parser(lexed, grammar);

@@ -12,8 +12,6 @@ import {Constants} from "../metaCompiler/BNFParser/Constants";
 import {program} from "./generatedFiles/ConcreteSyntax";
 import {SalgolParseSymbol, SalgolTerminalClass} from "./generatedFileHelpers/SalgolParseSymbol"
 
-
-
 export default class Parser {
     private _input: SalgolSymbol[];
     private _grammar: Grammar;
@@ -49,13 +47,15 @@ export default class Parser {
         this.parseTable = PredictionTable.generatePredictionTable(grammar);
     }
 
+    reachedEndOfInput() {
+        throw `The input program is not complete.`
+    }
+
     expect(expected: Terminal, next: SalgolSymbol): boolean {
         if (!next) {
-            console.log("[ERROR] Reached end of input.");
-            return;
+            this.reachedEndOfInput();
         } else if (!this.accept(expected, next)) {
-            console.log(`Could not understand ${SalgolTerminal[next.type]} on line ${JSON.stringify(next.loc.start.line)} maybe you  meant ${expected.value}.`);
-            return false;
+            throw `Line ${JSON.stringify(next.loc.start.line)}: Unexpected symbol of type '${SalgolTerminal[next.type]}', maybe you  meant ${expected.value}`;
         }
         return true;
     }
@@ -83,9 +83,7 @@ export default class Parser {
         for (let expected of production.sequence) {
             if (expected instanceof Terminal) {
                 let next = this.input[0];
-                if (!this.acceptTerminal(expected)) {
-                    return null;
-                }
+                this.acceptTerminal(expected);
                 let variableToBeFilled = Constants.nonTerminalFieldName(Constants.getEnumFromTerminal(expected.value), encountered);
                 obj[variableToBeFilled] = new SalgolTerminalClass(next);
 
@@ -125,15 +123,13 @@ export default class Parser {
     recogniseAndParseNonTerminal(expected: NonTerminal) {
         let next: SalgolSymbol = this.input[0];
         if (!next) {
-            console.log("[ERROR] Reached end of input.");
-            return null;
+            this.reachedEndOfInput();
         }
         let productionIndex: number = this.recognise(expected, next);
         if (productionIndex === undefined && this.allowEmpty(expected)) {
             return undefined;
         } else if (productionIndex === undefined) {
-            console.log("error on " + expected.prettyValue);
-            return null;
+            throw `Line ${JSON.stringify(next.loc.start.line)}: '${SalgolTerminal[next.type]}' is not a recognisable way of starting a ${expected.prettyValue} production.`
         }
         return this.parseObj(expected, productionIndex);
     }

@@ -31,6 +31,7 @@ let keyword = new RegExp(
 let types = "(int|real|bool|string|pixel|pic|pntr|file|#pixel|#cpixel)(?![a-zA-Z0-9\.])";
 let concType = new RegExp(types);
 let augTypeReg = new RegExp(`^[\\*c]*${types}`);
+let comment = /^\!.*/;
 let stringReg = /"([ -!#-&(-~]|('")|(''))*"/;
 let whiteSpace = /\s*/;
 
@@ -62,7 +63,9 @@ export class SalgolLexer {
     lexTerminal(): boolean {
         let str;
         let begin = this.curColumn;
-        if (str = (this.consumeStringFromHead(keyword)||this.consumeStringFromHead(punc))) {
+        if (this.consumeStringFromHead(comment)) {
+
+        } else if (str = (this.consumeStringFromHead(keyword)||this.consumeStringFromHead(punc))) {
             this.lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(str)], this.getLoc(begin)));
         } else if (str = this.consumeStringFromHead(augTypeReg)) {
             let concrete = str.match(concType);
@@ -86,8 +89,7 @@ export class SalgolLexer {
     while (this.input[this.curLine].length > 0) {
         this.consumeStringFromHead(whiteSpace);
         if (!this.lexTerminal()) {
-            console.log("Couldn't lex the head of " + this.input[this.curLine]);
-            return false;
+            break;
         }
     }
     return true;

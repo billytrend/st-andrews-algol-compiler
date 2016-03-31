@@ -5,10 +5,9 @@ body {
     margin: 0;
 }
 .stripe {
-    width: 70%;
+    width: 80%;
     display: block;
-    padding: 20px 15% 20px 15%
-
+    margin: 20px 10% 20px 10%;
 }
 
 .header {
@@ -32,8 +31,13 @@ body {
     align-items: center;
 }
 
+.yellow {
+
+    background-color: #fff4cb;
+}
+
 .content {
-    padding-top: 75px;
+    padding: 0px 20px 0px 20px;
 }
 
 .logo {
@@ -53,16 +57,17 @@ body {
 }
 
 nav a {
-    margin-right: 40px;
+    margin: 20px;
     text-decoration: none;
+    color: black;
 }
 
 code {
     display: block;
     margin: 20px;
-    background-color: #202020;
+    background-color: #fff4cb;
     padding: 10px;
-    color: white;
+    font-weight: bold;
 }
 
 
@@ -77,8 +82,12 @@ code {
 }
 
 #examples-react {
-    padding: 20px 5% 20px 5%;
-    background-color: #ffa99d;
+    margin-top: 20px;
+    margin-right: 10%;
+    margin-bottom: 20px;
+    margin-left: 10%;
+    background-color: #fff4cb;
+    padding: 30px;
 }
 
 .code-panel>div {
@@ -103,7 +112,7 @@ code {
     background-color: #202020;
     border: none;
     padding: 10px;
-    margin: 20px 20px 20px 0px;
+    margin: 0px 20px 20px 0px;
     color: white;
     cursor: pointer;
     font-size: 12px;
