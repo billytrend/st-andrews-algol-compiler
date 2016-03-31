@@ -7,8 +7,10 @@
     "test": "./test.sh",
     "test-debug": "./node_modules/.bin/mocha ./bin/test/**/*.js --debug-brk",
     "watch": "./node_modules/.bin/tsc -w",
-    "compile": "tsd install; tsc || true",
-    "prepublish": "npm run compile"
+    "web-compile": "./node_modules/.bin/webpack --config interface.config.js",
+    "tsc-compile": "./node_modules/.bin/tsc",
+    "typings-install": "./node_modules/.bin/typings install",
+    "postinstall": " npm run web-compile || npm run tsc-compile || npm run typings-install"
   },
   "repository": {
     "type": "git",
@@ -55,6 +57,7 @@
     "typescript": "^1.8.9",
     "typescript-collections": "^1.0.5",
     "typescript-require": "^0.2.9",
+    "typings": "^0.7.11",
     "webpack": "^1.12.14"
   }
 }
