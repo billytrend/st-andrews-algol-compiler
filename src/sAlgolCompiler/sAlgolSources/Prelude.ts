@@ -22,7 +22,7 @@ function _errorHandler(e) {
         case 1: err += "Program attempted to access array index that is out of bounds."; break;
         default: err += "Unknown error '" + e.message + "'."; break;
     }
-    console.log(err);
+    console.error(err);
 }
 
 function _array(lb, elements) {

@@ -60,10 +60,15 @@ if (args.compile_string) {
 }
 
 function output() {
+    let compiled = compile(lines);
     if (args.exec) {
-        eval(compile(lines));
+        eval(compiled.generatedCode);
+    } else if (compiled.errors) {
+        for (let err of compiled.errors) {
+            console.error(err);
+        }
     } else {
-        console.log(compile(lines));
+        console.log(compiled.generatedCode);
     }
 
 }

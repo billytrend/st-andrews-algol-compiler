@@ -8,6 +8,10 @@ export class ErrorOutputting extends SuperVisitor {
     print = true;
     errors: ContextSensitiveError[]  = [];
 
+    get errorStrings() {
+        return this.errors.map(err => err.toString());
+    }
+
     constructor(print?: boolean) {
         this.print = print;
     }

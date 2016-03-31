@@ -17,7 +17,7 @@ describe('Compiler', function() {
             console.log = function () {
                 output = output.concat(_.values(arguments).map(x => x.toString()));
             };
-            eval(program);
+            eval(program.generatedCode);
             console.log = oldLog;
             expect(program);
             expect(output).to.eql(test.output);

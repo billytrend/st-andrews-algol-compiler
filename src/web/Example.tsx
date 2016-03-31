@@ -35,8 +35,8 @@ export class Example extends React.Component<Props, State> {
     }
 
     doCompile() {
-        let lines = Compiler.simpleCompile(this.state.input.split('\n'));
-        this.setState({output: lines} as State);
+        let result = Compiler.simpleCompile(this.state.input.split('\n'));
+        this.setState({output: result.consoleLines() } as State);
     }
 
     updateCode(newCode) {

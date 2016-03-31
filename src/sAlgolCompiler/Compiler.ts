@@ -21,24 +21,41 @@ export class Config {
 }
 
 export class Results {
+    generatedCode: string;
+    errors: string[] = [];
 
-    generatedCode: string;
-    generatedCode: string;
+    constructor(errors:string[], generatedCode?:string) {
+        this.generatedCode = generatedCode;
+        this.errors = errors;
+    }
+
+    consoleLines(): ConsoleLine[] {
+        if (this.errors.length > 0) {
+            return this.errors.map(err => new ConsoleLine(err, LineType.stderr));
+        }
+        return this.generatedCode.split('\n').map(l => new ConsoleLine(l, LineType.stdout, (l.match(/[\ ]{4}/g) || []).length))
+    }
 }
 
 function compileToAST(lines: string[]): Program {
     let lexer = new SalgolLexer(lines);
     let lexed = lexer.lex();
-
     let grammar = compileDefault();
     let parsed = new Parser(lexed, grammar);
-    let program  = parsed.parse();
+    let program;
+    program  = parsed.parse();
     return flatten(program);
 }
 
-export function compile(lines: string[], config?: Config) {
+export function compile(lines: string[], config?: Config): Results {
     config = config || new Config();
-    let ast = compileToAST(lines);
+    let ast;
+
+    try {
+        ast = compileToAST(lines);
+    } catch (error) {
+        return new Results([`[Parser Error] ${error}`]);
+    }
 
     if (config.prelude) {
          ast = mergePrograms(compilePrelude(), ast);
@@ -49,11 +66,11 @@ export function compile(lines: string[], config?: Config) {
         visit(ast, new TypeChecking());
     }
 
-    let errorReport = new ErrorOutputting();
+    let errorReport = new ErrorOutputting(false);
     visit(ast, errorReport);
 
     if (errorReport.foundErrors) {
-        process.exit(1);
+        return new Results(errorReport.errorStrings);
     }
 
     let estreeObj = ast.compile();
@@ -62,10 +79,10 @@ export function compile(lines: string[], config?: Config) {
     //noinspection TypeScriptUnresolvedFunction
     let outProgram = escodegen.generate(estreeObj);
 
-    return outProgram;
+    return new Results([], outProgram);
 }
 
-export function simpleCompile(lines: string[]): ConsoleLine[] {
+export function simpleCompile(lines: string[]): Results {
     let ast = compileToAST(lines);
 
     //ast = mergePrograms(compilePrelude(), ast);
@@ -75,12 +92,12 @@ export function simpleCompile(lines: string[]): ConsoleLine[] {
     visit(ast, errorReport);
 
     if (errorReport.foundErrors) {
-        return errorReport.errors.map(e => new ConsoleLine(e.toString(), LineType.stderr));
+        return new Results(errorReport.errorStrings);
     }
 
     let outProgram = escodegen.generate(ast.compile());
 
-    return outProgram.split('\n').map(l => new ConsoleLine(l, LineType.stdout, (l.match(/[\ ]{4}/g) || []).length));
+    return new Results([], outProgram);
 }
 
 export function compileAndRun(lines: string[]): ConsoleLine[] {
@@ -94,7 +111,12 @@ export function compileAndRun(lines: string[]): ConsoleLine[] {
     console.log = logger.bind(null, LineType.stdout);
     console.error = logger.bind(null, LineType.stderr);
     let program = compile(lines);
-    eval(program);
+
+    if (program.errors.length > 0) {
+        return program.consoleLines();
+    }
+
+    eval(program.generatedCode);
     console.log = oldLog;
     console.error = oldErr;
     return output;
