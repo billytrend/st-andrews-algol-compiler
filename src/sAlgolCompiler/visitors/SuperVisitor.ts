@@ -159,7 +159,7 @@ export class SuperVisitor {
 
     }
 
-     afterVisitDeclaration(obj: A.Declaration): void {
+    afterVisitDeclaration(obj: A.Declaration): void {
 
     }
 

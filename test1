@@ -1,0 +1,39 @@
+! Program to place 8 queens on a chessboard
+let column := 0;
+let row = vector 1::8 of 0;
+
+procedure add.a.queen; { column := column + 1; row( column ) := 1 };
+
+procedure alter;
+if row( column ) = 8 then
+begin
+     column := column - 1
+     alter
+end else row( column ) := row( column ) + 1;
+
+procedure cantake( int i,j -> bool )
+( row( i ) = row( j ) ) or ( abs( row( i ) - row( j ) ) = abs( i - j ) );
+
+procedure incheck( -> bool );
+begin
+     let check := false ; let i := 1;
+     while i < column and ~check do
+     begin
+          if cantake( i,column ) do check := true;
+          i := i + 1
+     end
+     check
+end;
+
+!************ Main Program ****************
+
+while column < 8 do
+begin
+     add.a.queen;
+     while incheck do alter
+end;
+
+write "The solution to the 8 queens problem is";
+for i = 1 to 8 do write row( i ) : 3
+?
+

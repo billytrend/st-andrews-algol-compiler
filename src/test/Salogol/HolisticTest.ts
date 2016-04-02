@@ -23,4 +23,5 @@ describe('Compiler', function() {
             expect(output).to.eql(test.output);
         });
     });
+
 });

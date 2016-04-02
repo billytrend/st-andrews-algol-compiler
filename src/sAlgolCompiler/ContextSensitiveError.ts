@@ -1,4 +1,5 @@
 import * as A from './AbstractSyntax'
+import {AbstractSyntaxType} from "./AbstractSyntax";
 
 export enum error_type {
     not_declared,
@@ -24,11 +25,24 @@ export class ContextSensitiveError {
     }
 }
 
+export class GeneralError extends ContextSensitiveError {
+    private _error: string;
+
+    constructor(node:AbstractSyntaxType, error:string) {
+        super(node);
+        this._error = error;
+    }
+
+    get error(): string {
+        return `No function or variable named '${this.node.identifier}' found in scope`;
+    }
+}
+
 export class ScopeError extends ContextSensitiveError {
     node: A.Application;
 
     get error(): string {
-        return `No function or variable named ${this.node.identifier} found in scope`;
+        return `No function or variable named '${this.node.identifier}' found in scope`;
     }
 }
 
@@ -55,6 +69,32 @@ export class OperationTypeError extends ContextSensitiveError {
     }
 }
 
+export class MissMatchedClauses extends ContextSensitiveError {
+}
+
+export class ConditionalError extends MissMatchedClauses {
+    node: A.Conditional;
+    thenCl: A.Clause;
+    elseCl: A.Clause;
+    constructor(node: A.Conditional) {
+        super(node);
+        this.thenCl = node.thenCl;
+        this.elseCl = node.elseCl;
+    }
+
+    get error(): string {
+        return `The 'then' clause returns '${this.thenCl.returnType.toString()}' and the 'else' clause returns
+        '${this.elseCl.returnType.toString()}'. These should be the same, not different.`;
+    }
+}
+
+export class NonVoidReturn extends ContextSensitiveError {
+}
+
+export class ConditionalNonVoid extends MissMatchedClauses {
+
+}
+
 export class ArgumentError extends TypeError {
     node: A.Declaration;
     application: A.Application;
@@ -68,7 +108,7 @@ export class ArgumentError extends TypeError {
     get error(): string {
         return `Could not apply expression of type ${this.application.args[this.index].returnType.toString()} to`
         + ` argument of type ${this.node.args[this.index].returnType.toString()} as argument number ${this.index + 1} in`
-        + ` the method ${this.node.identifier}`;
+        + ` the method '${this.node.identifier}'`;
     }
 }
 
@@ -127,6 +167,6 @@ export class DimensionError extends TypeError {
     }
 
     get error(): string {
-        return `The vector '${this.vector.identifier}' only has ${this.vector.returnType.dimensions()} dimensions. You tried to access dimension ${this.node.args.length}`;
+        return `The vector '${this.vector.identifier}' only has ${this.vector.returnType.dimensions()} dimension(s). You tried to access dimension ${this.node.args.length}`;
     }
 }

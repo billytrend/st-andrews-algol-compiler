@@ -81,8 +81,9 @@ export default class Parser {
         let className = Constants.className(entry.value, index, production);
         let obj: SalgolParseSymbol = new ConcreteSyntax[className]();
         for (let expected of production.sequence) {
+            let next = this.input[0];
+
             if (expected instanceof Terminal) {
-                let next = this.input[0];
                 this.acceptTerminal(expected);
                 let variableToBeFilled = Constants.nonTerminalFieldName(Constants.getEnumFromTerminal(expected.value), encountered);
                 obj[variableToBeFilled] = new SalgolTerminalClass(next);

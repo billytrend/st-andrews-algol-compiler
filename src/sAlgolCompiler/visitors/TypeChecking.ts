@@ -7,6 +7,8 @@ import {
 import {ScopeError} from "../ContextSensitiveError";
 import {AppliedArgumentToVariable} from "../ContextSensitiveError";
 import {Vector} from "../AbstractSyntax";
+import {ConditionalError} from "../ContextSensitiveError";
+import {GeneralError} from "../ContextSensitiveError";
 
 export class TypeChecking extends SuperVisitor {
 
@@ -84,6 +86,20 @@ export class TypeChecking extends SuperVisitor {
         obj.returnType = obj.clauses[obj.clauses.length - 1].returnType;
     }
 
+    afterVisitConditional(obj: A.Conditional): void {
+        if (obj.elseCl && !obj.thenCl.returnType.equals(obj.elseCl.returnType)) {
+            obj.addError(new ConditionalError(obj));
+        } else if (!obj.elseCl) {
+            if (obj.thenCl.returnType.type != A.concrete_type.void) {
+                //obj.addError(new ConditionalError(obj));
+            }
+            obj.returnType = new A.Type(A.concrete_type.void);
+        } else {
+            obj.returnType = obj.thenCl.returnType;
+        }
+    }
+
+
     afterVisitApplication(appl: A.Application) {
         if (appl.shouldTypeCheck === false) {
             return;
@@ -101,17 +117,29 @@ export class TypeChecking extends SuperVisitor {
                 case A.declaration_type.PROC:
                 case A.declaration_type.STRUCT:
                 case A.declaration_type.FORWARD:
-                    if (appl.args.length != decl.args.length) {
+                    if (appl.args.length < decl.args.length ||
+                        (decl.returnType.isVector() && appl.args.length > decl.args.length + decl.returnType.dimensions())) {
                         appl.addError(new WrongNumberOfArguments(appl, decl));
                         break;
                     }
 
-                    for (let i = 0; i < appl.args.length; i++) {
+                    for (let i = 0; i < decl.args.length; i++) {
                         if (!appl.args[i].returnType.equals(decl.args[i].returnType)) {
                             appl.addError(new ArgumentError(decl, appl, i));
                         }
                     }
                     appl.returnType = decl.returnType;
+
+                    for (let i = 0; i < (appl.args.length - decl.args.length); i++) {
+                        appl.returnType = appl.returnType.dereference(1);
+                        if (appl.args[i].returnType.type !== A.concrete_type.int) {
+                            appl.addError(new GeneralError(null, "Dereference error."));
+                        }
+                    }
+
+                    appl.accesses = appl.args.slice(decl.args.length, appl.args.length);
+                    appl.args = appl.args.slice(0, decl.args.length);
+
                     break;
                 case A.declaration_type.VAR_DECL:
                 case A.declaration_type.CONS_DECL:
@@ -124,6 +152,9 @@ export class TypeChecking extends SuperVisitor {
                         } else {
                             appl.addError(new DimensionError(appl, decl));
                         }
+
+                        appl.accesses = appl.args;
+                        appl.args = [];
                     } else {
                         if (appl.args.length > 0) {
                             appl.addError(new AppliedArgumentToVariable(appl));
@@ -168,7 +199,7 @@ export class TypeChecking extends SuperVisitor {
                 }
             case A.operation_type.EQ:
             case A.operation_type.NEQ:
-                if (!this.isWithinTypeClass(A.concrete_type.ordered, left.returnType.type)) {
+                if (!this.isWithinTypeClass(A.concrete_type.ordered, left.returnType .type)) {
                     obj.addError(new OperationTypeError(obj));
                 }
 
@@ -201,7 +232,9 @@ export class TypeChecking extends SuperVisitor {
                 return;
             case A.operation_type.MUL:
             case A.operation_type.DIV:
-                if (!this.isWithinTypeClass(A.concrete_type.arith, left.type)) {
+            case A.operation_type.INTDIV:
+            case A.operation_type.MOD:
+                if (!this.isWithinTypeClass(A.concrete_type.arith, left.returnType.type)) {
                     return null;
                 }
 
@@ -216,8 +249,6 @@ export class TypeChecking extends SuperVisitor {
             // if (left.type === A.concrete_type.pntr &&
             //     right instanceof A.Application){ //TODO
             // }
-            case A.operation_type.INTDIV:
-            case A.operation_type.MOD:
             case A.operation_type.JOIN:
             case A.operation_type.SHIFT:
             case A.operation_type.SCALE:
@@ -235,6 +266,7 @@ export class TypeChecking extends SuperVisitor {
         }
         return null;
     }
+
 
 
 }

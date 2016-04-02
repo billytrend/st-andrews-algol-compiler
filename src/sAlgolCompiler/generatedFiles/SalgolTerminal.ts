@@ -1,4 +1,5 @@
 export enum SalgolTerminal {
+    new_line,
     question_mark,
     semi_colon,
     let,

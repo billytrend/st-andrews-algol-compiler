@@ -121,3 +121,8 @@ code {
 .exampleDropdown {
     margin-left: 10px;
 }
+
+.code-input {
+    font-family: monospace !important;
+    font-size: 15px !important;
+}

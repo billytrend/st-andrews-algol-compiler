@@ -267,6 +267,16 @@ export function getArray(elements:E.Expression[]): E.ArrayExpression {
     arr.elements = elements;
     return arr;
 }
+
+export function getForLoop(incrementer: E.Identifier, start: E.Expression, end: E.Expression, inc: E.Expression, body: E.Expression) {
+    let loop = <E.ForStatement>getASTNode('ForStatement');
+    loop.init = assignVariable(incrementer, start);
+    loop.test = operation([incrementer, end], operation_type.LT);
+    loop.update = binaryOperation(incrementer, inc, "+=");
+    loop.body = raiseToBlockStatement([body]);
+    return loop;
+}
+
 // export function forLoop(varId: E.Identifier, assignment: E.Expression[], limit: E.Expression[], increment: E.Expression[], body: E.Expression[]): E.Statement[] {
 //     let ass = varDecl(varId, assignment);
 //     let test = binOp(assignExpressionResult([varId]), limit, "==");

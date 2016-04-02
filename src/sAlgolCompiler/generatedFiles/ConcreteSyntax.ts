@@ -4,28 +4,21 @@ export class program_sequence_question_mark extends program{
     public sequence_0:sequence;
     public question_mark_1: SalgolTerminalClass;
 }
-export class maybe_1tjxbj6 extends SalgolParseSymbol {};
-export class maybe_1tjxbj6_empty extends maybe_1tjxbj6{
+export class maybe_9tcgc8 extends SalgolParseSymbol {};
+export class maybe_9tcgc8_empty extends maybe_9tcgc8{
 }
-export class maybe_1tjxbj6_maybe_underscore_semi_underscore_colon_sequence extends maybe_1tjxbj6{
-    public maybe_semi_colon_0:maybe_semi_colon;
+export class maybe_9tcgc8_semi_colon_sequence extends maybe_9tcgc8{
+    public semi_colon_0: SalgolTerminalClass;
     public sequence_1:sequence;
 }
 export class sequence extends SalgolParseSymbol {};
-export class sequence_declaration_maybe_underscore_1tjxbj6 extends sequence{
+export class sequence_declaration_maybe_underscore_9tcgc8 extends sequence{
     public declaration_0:declaration;
-    public maybe_1tjxbj6_1:maybe_1tjxbj6;
+    public maybe_9tcgc8_1:maybe_9tcgc8;
 }
-export class sequence_clause_maybe_underscore_1tjxbj6 extends sequence{
+export class sequence_clause_maybe_underscore_9tcgc8 extends sequence{
     public clause_0:clause;
-    public maybe_1tjxbj6_1:maybe_1tjxbj6;
-}
-export class maybe_semi_colon extends SalgolParseSymbol {};
-export class maybe_semi_colon_semi_colon extends maybe_semi_colon{
-    public semi_colon_0: SalgolTerminalClass;
-}
-export class maybe_semi_colon_new_line extends maybe_semi_colon{
-    public new_line_0: SalgolTerminalClass;
+    public maybe_9tcgc8_1:maybe_9tcgc8;
 }
 export class declaration extends SalgolParseSymbol {};
 export class declaration_let_underscore_decl extends declaration{
@@ -74,18 +67,18 @@ export class structure_decl_structure_identifier_maybe_underscore_1digw99 extend
     public identifier_1:identifier;
     public maybe_1digw99_2:maybe_1digw99;
 }
-export class maybe_8qhu82 extends SalgolParseSymbol {};
-export class maybe_8qhu82_empty extends maybe_8qhu82{
+export class maybe_syz3x4 extends SalgolParseSymbol {};
+export class maybe_syz3x4_empty extends maybe_syz3x4{
 }
-export class maybe_8qhu82_maybe_underscore_semi_underscore_colon_field_underscore_list extends maybe_8qhu82{
-    public maybe_semi_colon_0:maybe_semi_colon;
+export class maybe_syz3x4_semi_colon_field_underscore_list extends maybe_syz3x4{
+    public semi_colon_0: SalgolTerminalClass;
     public field_list_1:field_list;
 }
 export class field_list extends SalgolParseSymbol {};
-export class field_list_type1_identifier_underscore_list_maybe_underscore_8qhu82 extends field_list{
+export class field_list_type1_identifier_underscore_list_maybe_underscore_syz3x4 extends field_list{
     public type1_0:type1;
     public identifier_list_1:identifier_list;
-    public maybe_8qhu82_2:maybe_8qhu82;
+    public maybe_syz3x4_2:maybe_syz3x4;
 }
 export class maybe_1yynizo extends SalgolParseSymbol {};
 export class maybe_1yynizo_empty extends maybe_1yynizo{
@@ -110,24 +103,24 @@ export class maybe_1uryuqr_open_parenthesis_maybe_underscore_1yynizo_maybe_under
     public close_parenthesis_3: SalgolTerminalClass;
 }
 export class proc_decl extends SalgolParseSymbol {};
-export class proc_decl_procedure_identifier_maybe_underscore_1uryuqr_maybe_underscore_semi_underscore_colon_clause extends proc_decl{
+export class proc_decl_procedure_identifier_maybe_underscore_1uryuqr_semi_colon_clause extends proc_decl{
     public procedure_0: SalgolTerminalClass;
     public identifier_1:identifier;
     public maybe_1uryuqr_2:maybe_1uryuqr;
-    public maybe_semi_colon_3:maybe_semi_colon;
+    public semi_colon_3: SalgolTerminalClass;
     public clause_4:clause;
 }
-export class maybe_1p6j2w9 extends SalgolParseSymbol {};
-export class maybe_1p6j2w9_empty extends maybe_1p6j2w9{
+export class maybe_9w498z extends SalgolParseSymbol {};
+export class maybe_9w498z_empty extends maybe_9w498z{
 }
-export class maybe_1p6j2w9_maybe_underscore_semi_underscore_colon_parameter_underscore_list extends maybe_1p6j2w9{
-    public maybe_semi_colon_0:maybe_semi_colon;
+export class maybe_9w498z_semi_colon_parameter_underscore_list extends maybe_9w498z{
+    public semi_colon_0: SalgolTerminalClass;
     public parameter_list_1:parameter_list;
 }
 export class parameter_list extends SalgolParseSymbol {};
-export class parameter_list_parameter_maybe_underscore_1p6j2w9 extends parameter_list{
+export class parameter_list_parameter_maybe_underscore_9w498z extends parameter_list{
     public parameter_0:parameter;
-    public maybe_1p6j2w9_1:maybe_1p6j2w9;
+    public maybe_9w498z_1:maybe_9w498z;
 }
 export class parameter extends SalgolParseSymbol {};
 export class parameter_type1_identifier_underscore_list extends parameter{

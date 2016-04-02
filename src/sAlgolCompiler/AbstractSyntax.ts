@@ -3,6 +3,7 @@ import * as CodeGen from "./CodeGenHelpers";
 import {assignVariable, binaryOperation, operation, objectDefinition, getIdentifier, callFunc, functionDefinition, raiseToBlockStatement, getReturnStatement, getEmptyStatement, getClosure, ifElse, loop, makeBlockReturn, maybeRaiseToExpressionStatement, getArray, getNewObj, varAss, accessObject, getLiteral, getTryCatch} from "./CodeGenHelpers";
 import {ContextSensitiveError} from "./ContextSensitiveError";
 import * as _ from 'lodash';
+import {getForLoop} from "./CodeGenHelpers";
 
 export function mergePrograms(a: Program, b: Program): Program {
     let newProg = new Program();
@@ -163,7 +164,7 @@ export class Declaration extends Clause {
     body: Clause;
     args: Declaration[] = [];
     declType: declaration_type;
-    
+
     constructor(identifier: string, type: declaration_type, ret?:Type) {
         this.identifier = identifier;
         this.declType = type;
@@ -238,6 +239,14 @@ export class ForLoop extends Clause {
     final: Clause;
     increment: Clause;
     body: Clause;
+    
+    compile() {
+        return getForLoop(getIdentifier(this.initial.identifier),
+            this.initial.body.compile(),
+            this.final.compile(),
+            this.increment.compile(),
+            this.body.compile());
+    }
 }
 
 export class Expression extends Clause {
@@ -308,6 +317,7 @@ export class Operation extends Expression {
 
 export class Application extends Expression {
     args: Clause[] = [];
+    accesses: Clause[] = [];
     identifier: string;
     applType: declaration_type;
 
@@ -316,16 +326,17 @@ export class Application extends Expression {
     }
 
     compile(): E.Expression {
+        let out;
         switch (this.applType) {
-            case declaration_type.PROC:
-            case declaration_type.FORWARD:
-                return callFunc(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
             case declaration_type.STRUCT:
                 return getNewObj(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
+            case declaration_type.PROC:
+            case declaration_type.FORWARD:
+                out = callFunc(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
             case declaration_type.VAR_DECL:
             case declaration_type.CONS_DECL:
-                let out = <E.Identifier|E.CallExpression>getIdentifier(this.identifier);
-                for (let arg of this.args) {
+                out = out || <E.Identifier|E.CallExpression>getIdentifier(this.identifier);
+                for (let arg of this.accesses) {
                     out = callFunc(accessObject(out, getIdentifier("get")), [arg.compile()]);
                 }
                 return out;

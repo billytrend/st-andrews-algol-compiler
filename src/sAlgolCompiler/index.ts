@@ -63,7 +63,7 @@ function output() {
     let compiled = compile(lines);
     if (args.exec) {
         eval(compiled.generatedCode);
-    } else if (compiled.errors) {
+    } else if (compiled.errors.length > 0) {
         for (let err of compiled.errors) {
             console.error(err);
         }

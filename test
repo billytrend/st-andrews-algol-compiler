@@ -1,0 +1,22 @@
+procedure fibpair( int n -> *int );
+if n = 1 then @1 of int[ 1,0 ] else
+if n = 2 then @1 of int[ 1,1 ] else
+if n rem 2 = 0 then
+begin
+     let fg = fibpair( n div 2 );
+     let f = fg( 1 );
+     let g = fg( 2 );
+     let s = f * f;
+     let t = g * g;
+     @1 of int[ s + 2 * f * g,s + t ]
+end else
+begin
+     let fg = fibpair( n - 1 );
+     @1 of int[ fg( 1 ) + fg( 2 ),fg( 1 ) ]
+end;
+
+procedure fib( int n -> int );
+if n = 0 then 0 else fibpair( n )( 1 );
+
+for i = 0 to 15 do write i,fib( i )?
+

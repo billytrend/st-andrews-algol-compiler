@@ -7,6 +7,7 @@ var expect = chai.expect;
 let escodegen = require('escodegen');
 let acorn = require('acorn');
 import {compile} from "../../sAlgolCompiler/Compiler";
+import {simpleCompile} from "../../sAlgolCompiler/Compiler";
 
 describe('Salgol Parser', () => {
     describe('parse', () => {
@@ -15,17 +16,9 @@ describe('Salgol Parser', () => {
             let gram = compileDefault();
 
             //let grammar = LeftFactoring.leftFactorGrammar(gram);
-            console.log(compile([ "write 1, 1, 1?" ]));
-            //     [
-            //     //"forward console.log(int);",
-            //     //"console.log(1)?",
-            //     // "procedure lol(int x); {let b = x+1; b}; lol(1)?"
-            //     // "forward console.log(int); console.log(1); procedure lol(int a); a?"
-            //     // "forward console.log(int); console.log(if ~true then {let a = 1; a} else 2)?"
-            //     // "true?"
-            //     // "let a = if true then {let a = 34; a} else 2?"
-            //     // "procedure sin(int x ); {x}; sin(1)?",
-            // ]
+            console.log(simpleCompile([ "procedure fibpair( int n -> *int );\nif n = 1 then @1 of int[ 1,0 ] else\nif n = 2 then @1 of int[ 1,1 ] else\nif n rem 2 = 0 then\nbegin\n     let fg = fibpair( n div 2 );\n     let f = fg( 1 );\n     let g = fg( 2 );\n     let s = f * f;\n     let t = g * g;\n     @1 of int[ s + 2 * f * g,s + t ]\nend else\nbegin\n     let fg = fibpair( n - 1 );\n     @1 of int[ fg( 1 ) + fg( 2 ),fg( 1 ) ]\nend;\nprocedure fib( int n -> int );\nif n = 0 then 0 else fibpair( n )( 1 );\nfor i = 0 to 5 do write i,fib( i ),\"'n\"?" ]));
+
+
 
             // var parser: Parser<SalgolSymbol> = new Parser<SalgolSymbol>(input, gram);
             // let obj = parser.parse();

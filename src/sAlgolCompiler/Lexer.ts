@@ -92,6 +92,7 @@ export class SalgolLexer {
             break;
         }
     }
+    //this.lexed.push(new SalgolSymbol(SalgolTerminal.new_line, this.getLoc(this.curColumn)));
     return true;
 };
 
