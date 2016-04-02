@@ -21,21 +21,21 @@ function sequence(seq: C.sequence): A.Sequence {
     let out: A.Sequence = new A.Sequence();
 
     while (true) {
-        if (seq instanceof C.sequence_declaration_maybe_underscore_9tcgc8) {
-            let tight = <C.sequence_declaration_maybe_underscore_9tcgc8>seq;
+        if (seq instanceof C.sequence_declaration_maybe_underscore_1tjxbj6) {
+            let tight = <C.sequence_declaration_maybe_underscore_1tjxbj6>seq;
             out.clauses.push(thing_declaration(tight.declaration_0));
 
-            if (tight.maybe_9tcgc8_1 instanceof C.maybe_9tcgc8_semi_colon_sequence) {
-                seq = (<C.maybe_9tcgc8_semi_colon_sequence>tight.maybe_9tcgc8_1).sequence_1;
+            if (tight.maybe_1tjxbj6_1 instanceof C.maybe_1tjxbj6_maybe_underscore_semi_underscore_colon_sequence) {
+                seq = (<C.maybe_1tjxbj6_maybe_underscore_semi_underscore_colon_sequence>tight.maybe_1tjxbj6_1).sequence_1;
             } else {
                 break;
             }
-        } else if (seq instanceof C.sequence_clause_maybe_underscore_9tcgc8) {
-            let tight = <C.sequence_clause_maybe_underscore_9tcgc8>seq;
+        } else if (seq instanceof C.sequence_clause_maybe_underscore_1tjxbj6) {
+            let tight = <C.sequence_clause_maybe_underscore_1tjxbj6>seq;
             out.clauses.push(clause(tight.clause_0));
 
-            if (tight.maybe_9tcgc8_1 instanceof C.maybe_9tcgc8_semi_colon_sequence) {
-                seq = (<C.maybe_9tcgc8_semi_colon_sequence>tight.maybe_9tcgc8_1).sequence_1;
+            if (tight.maybe_1tjxbj6_1 instanceof C.maybe_1tjxbj6_maybe_underscore_semi_underscore_colon_sequence) {
+                seq = (<C.maybe_1tjxbj6_maybe_underscore_semi_underscore_colon_sequence>tight.maybe_1tjxbj6_1).sequence_1;
             } else {
                 break;
             }
@@ -226,7 +226,7 @@ function type1(t: C.type1): A.Type {
 }
 
 function field_list(list: C.field_list): A.Declaration[] {
-    let tight = <C.field_list_type1_identifier_underscore_list_maybe_underscore_syz3x4>list;
+    let tight = <C.field_list_type1_identifier_underscore_list_maybe_underscore_8qhu82>list;
     let out: A.Declaration[] = [];
 
     while (true) {
@@ -238,9 +238,9 @@ function field_list(list: C.field_list): A.Declaration[] {
             out.push(decl);
         }
 
-        if (tight.maybe_syz3x4_2 instanceof  C.maybe_syz3x4_semi_colon_field_underscore_list) {
-            let tight1 = <C.maybe_syz3x4_semi_colon_field_underscore_list>tight.maybe_syz3x4_2;
-            tight = <C.field_list_type1_identifier_underscore_list_maybe_underscore_syz3x4>tight1.field_list_1;
+        if (tight.maybe_8qhu82_2 instanceof  C.maybe_8qhu82_maybe_underscore_semi_underscore_colon_field_underscore_list) {
+            let tight1 = <C.maybe_8qhu82_maybe_underscore_semi_underscore_colon_field_underscore_list>tight.maybe_8qhu82_2;
+            tight = <C.field_list_type1_identifier_underscore_list_maybe_underscore_8qhu82>tight1.field_list_1;
         } else {
             break;
         }
@@ -271,7 +271,7 @@ function thing_declaration(decl: C.declaration): A.Declaration {
             }
         }
     } else if (decl instanceof C.declaration_proc_underscore_decl) {
-        let proc_decl = <C.proc_decl_procedure_identifier_maybe_underscore_1uryuqr_semi_colon_clause>decl.proc_decl_0;
+        let proc_decl = <C.proc_decl_procedure_identifier_maybe_underscore_1uryuqr_maybe_underscore_semi_underscore_colon_clause>decl.proc_decl_0;
         out = new A.Declaration(proc_decl.identifier_1.flatten(), A.declaration_type.PROC);
 
         if (proc_decl.maybe_1uryuqr_2 instanceof C.maybe_1uryuqr_open_parenthesis_maybe_underscore_1yynizo_maybe_underscore_154oq1b_close_parenthesis) {
@@ -382,15 +382,15 @@ function parameter(parameter: C.parameter): A.Declaration[] {
 }
 
 function parameter_list(list: C.parameter_list): A.Declaration[] {
-    let tight = <C.parameter_list_parameter_maybe_underscore_9w498z>list;
+    let tight = <C.parameter_list_parameter_maybe_underscore_1p6j2w9>list;
     let out: A.Declaration[] = [];
 
     while (true) {
         out = out.concat(parameter(tight.parameter_0));
 
-        if (tight.maybe_9w498z_1 instanceof C.maybe_9w498z_semi_colon_parameter_underscore_list) {
-            let tight1 = <C.maybe_9w498z_semi_colon_parameter_underscore_list>tight.maybe_9w498z_1;
-            tight = <C.parameter_list_parameter_maybe_underscore_9w498z>tight1.parameter_list_1;
+        if (tight.maybe_1p6j2w9_1 instanceof C.maybe_1p6j2w9_maybe_underscore_semi_underscore_colon_parameter_underscore_list) {
+            let tight1 = <C.maybe_1p6j2w9_maybe_underscore_semi_underscore_colon_parameter_underscore_list>tight.maybe_1p6j2w9_1;
+            tight = <C.parameter_list_parameter_maybe_underscore_1p6j2w9>tight1.parameter_list_1;
         } else {
             break;
         }

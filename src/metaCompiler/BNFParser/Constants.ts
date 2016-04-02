@@ -43,7 +43,10 @@ export class Constants {
         return "maybe_" + this.hashProductions(productions);
     }
 
-    static getEnumFromTerminal(symbol: string, regex?: RegExp) {
+    static getEnumFromTerminal(symbol: string, regex?: RegExp): string {
+        if (symbol === '\\n') {
+            return 'new_line';
+        }
         regex = regex ? regex : /[ -@[-`{-~]/g;
         symbol = symbol.replace(regex, function (substring) {
             return "_" + ASCII[substring] + "_";
