@@ -114,7 +114,8 @@ function switch_statment(stmt: C.clause_case_clause_of_case_underscore_list_defa
 
 function write_clause(wr_clause:C.clause_write_underscore_clause) {
     if (wr_clause.write_clause_0 instanceof  C.write_clause_write_write_underscore_list) {
-        let out = new A.Application("write");
+        let out = new A.Application(new A.Identifier("write"));
+        out.target.shouldTypeCheck = false;
         out.shouldTypeCheck = false;
         out.returnType = new A.Type(A.concrete_type.void);
         out.applType = A.declaration_type.PROC;
@@ -151,7 +152,7 @@ function raster_op(rast:C.clause_raster): A.Operation {
 }
 
 function abort(): A.Application {
-    let out = new A.Application("abort");
+    let out = new A.Application(new A.Identifier("abort"));
     out.shouldTypeCheck = false;
     out.applType = A.declaration_type.PROC;
     return out;
@@ -464,7 +465,7 @@ function val_cons(value_constructor:C.value_constructor):A.Expression {
 
 function std_expr(standard_exp:C.standard_exp):A.Expression {
     let standard_exp = <C.standard_exp_standard_underscore_name_maybe_underscore_1bo5n98>standard_exp;
-    let out = new A.Application(standard_exp.standard_name_0.flatten());
+    let out = new A.Application(new A.Identifier(standard_exp.standard_name_0.flatten()));
     if (standard_exp.maybe_1bo5n98_1 instanceof C.maybe_1bo5n98_open_parenthesis_clause_close_parenthesis) {
         let args = <C.maybe_1bo5n98_open_parenthesis_clause_close_parenthesis>standard_exp.maybe_1bo5n98_1;
         out.args = [clause(args.clause_1)];
@@ -490,55 +491,24 @@ function clause_list(list: C.clause_list): A.Clause[] {
     return clauses;
 }
 
-function application(application:C.application):A.Expression {
-    let tightened = <C.application_identifier_maybe_underscore_254f26> application;
-    let tight1 = tightened.maybe_254f26_1;
-    let out;
 
-    if (tight1 instanceof C.maybe_254f26_app_underscore_tail) {
-        let tail = tight1.app_tail_0;
-        if (tail instanceof C.app_tail_colon_equals_clause) {
-            out = new A.Declaration(tightened.identifier_0.flatten(), A.declaration_type.VAR_ASS);
-            out.body = clause(tail.clause_1);
-            out.returnType = new A.Type(A.concrete_type.void);
-        } else if (tail instanceof C.app_tail_maybe_underscore_1cr5dkj) {
-            out = new A.Application(tightened.identifier_0.flatten());
-            let brackets = tail.maybe_1cr5dkj_0;
-            while (true) {
-                if (brackets instanceof C.maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis_maybe_underscore_1cr5dkj) {
-                    let tight = <C.maybe_1cr5dkj_open_parenthesis_maybe_underscore_bk760w_close_parenthesis_maybe_underscore_1cr5dkj>brackets;
-                    let maybeClauseList = <C.maybe_bk760w>brackets.maybe_bk760w_1;
-
-                    if (maybeClauseList instanceof C.maybe_bk760w_clause_underscore_list) {
-                        out.args = out.args.concat(clause_list(brackets.maybe_bk760w_1.clause_list_0));
-                    }
-
-                    brackets = tight.maybe_1cr5dkj_3;
-                } else {
-                    break;
-                }
-            }
-        }
-    } else {
-        out = new A.Application(tightened.identifier_0.flatten());
-    }
-
-
-    return out;
-}
 
 function bounds(bounds:C.exp6_bounds_underscore_op_open_parenthesis_clause_close_parenthesis):A.Expression {
     return null;
 }
 
-function  expr(expObject: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.exp5|C.exp6)): A.Expression {
+function  expr(expObject: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.exp5|C.exp5a|C.exp5b|C.exp6)): A.Expression {
 
     if (expObject['maybe_1muzyql_1'] ||
         expObject['maybe_bsxeh4_1']||
         (expObject['maybe_11y77da_0'] || expObject['maybe_u2lq49_2']) ||
         expObject['maybe_1p6ahk4_1']||
         expObject['maybe_hufv7o_1']||
-        expObject['maybe_ihpz75_']) {
+        expObject['maybe_ihpz75_0']||
+        expObject['maybe_254f26_1']||
+        expObject['maybe_b8vt06_1']||
+        expObject['maybe_ihpz75_']
+        ) {
 
         return operation(expObject);
     }
@@ -563,8 +533,16 @@ function  expr(expObject: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.exp5|C.exp
         return expr(expObject.exp5_0);
     }
 
-    if (expObject instanceof C.exp5_maybe_underscore_ihpz75_exp6) {
-        return expr(expObject.exp6_1);
+    if (expObject instanceof C.exp5a_exp5b_maybe_underscore_b8vt06) {
+        return expr(expObject.exp5b_0);
+    }
+
+    if (expObject instanceof C.exp5_maybe_underscore_ihpz75_exp5a) {
+        return expr(expObject.exp5a_1);
+    }
+
+    if (expObject instanceof C.exp5b_exp6_maybe_underscore_254f26) {
+        return expr(expObject.exp6_0);
     }
 
     if (expObject instanceof C.exp6_standard_underscore_exp) {
@@ -579,6 +557,10 @@ function  expr(expObject: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.exp5|C.exp
         let typed = <C.exp6_value_underscore_constructor>expObject;
         return val_cons(typed.value_constructor_0);
 
+    } else if (expObject instanceof C.exp6_identifier) {
+        let typed = <C.exp6_identifier>expObject;
+        return new A.Identifier(typed.identifier_0.flatten());
+
     } else if (expObject instanceof C.exp6_open_parenthesis_clause_close_parenthesis) {
         let typed = <C.exp6_open_parenthesis_clause_close_parenthesis>expObject;
         return clause(typed.clause_1);
@@ -590,10 +572,6 @@ function  expr(expObject: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.exp5|C.exp
         } else {
             return new A.Sequence();
         }
-    } else if (expObject instanceof C.exp6_application) {
-        let typed = <C.exp6_application>expObject;
-        return application(typed.application_0);
-
     } else if (expObject instanceof C.exp6_bounds_underscore_op_open_parenthesis_clause_close_parenthesis) {
         let typed = <C.exp6_bounds_underscore_op_open_parenthesis_clause_close_parenthesis>expObject;
         return bounds(typed);
@@ -720,7 +698,61 @@ function operation(inputExpression: (C.expression|C.exp1|C.exp2|C.exp3|C.exp4|C.
         return mul_tail(out, exp.maybe_hufv7o_1);
     }
 
+    if(inputExpression instanceof C.exp4_exp5_maybe_underscore_hufv7o) {
+        let tight = <C.maybe_hufv7o_mult_underscore_op_exp5_maybe_underscore_hufv7o>inputExpression.maybe_hufv7o_1;
+        let exp = <C.exp4_exp5_maybe_underscore_hufv7o>inputExpression;
+        let out = new A.Operation([expr(exp.exp5_0)], whichMulOp(tight.mult_op_0));
+        return mul_tail(out, exp.maybe_hufv7o_1);
+    }
+
+    if(inputExpression instanceof C.exp5_maybe_underscore_ihpz75_exp5a) {
+        let tight = <C.maybe_ihpz75_add_underscore_op>inputExpression.maybe_ihpz75_0;
+        let add_op = whichAddOp(tight.add_op_0);
+        return new A.Operation([expr(inputExpression.exp5a_1)], add_op);
+    }
+
+    if (inputExpression instanceof C.exp5a_exp5b_maybe_underscore_b8vt06) {
+        let tight = <C.exp5a_exp5b_maybe_underscore_b8vt06>inputExpression;
+        let arg = <C.maybe_b8vt06_colon_equals_clause>tight.maybe_b8vt06_1;
+        return new A.Assignment(expr(tight.exp5b_0), clause(arg.clause_1));
+    }
+
+    if (inputExpression instanceof C.exp5b_exp6_maybe_underscore_254f26) {
+        return app_tail(inputExpression);
+    }
+
     return null;
+}
+
+function app_tail(application:C.exp5b_exp6_maybe_underscore_254f26):A.Expression {
+    let tightened = <C.exp5b_exp6_maybe_underscore_254f26> application;
+    let args = [];
+
+    let tight1 = <C.maybe_254f26_app_underscore_tail_maybe_underscore_254f26>tightened.maybe_254f26_1;
+    let tail = <C.app_tail_open_parenthesis_maybe_underscore_5farnh_maybe_underscore_613fhs_close_parenthesis>tight1.app_tail_0;
+    if (tail.maybe_5farnh_1 instanceof C.maybe_5farnh_clause) {
+        let tight2 = <C.maybe_5farnh_clause>tail.maybe_5farnh_1;
+        args.push(clause(tight2.clause_0));
+    }
+
+    if (tail.maybe_613fhs_2 instanceof C.maybe_613fhs_app_underscore_inner) {
+        let tight3 = <C.maybe_613fhs_app_underscore_inner>tail.maybe_613fhs_2;
+
+        if (tight3.app_inner_0 instanceof C.app_inner_vertical_bar_clause) {
+            let tight4 = <C.app_inner_vertical_bar_clause>tight3.app_inner_0;
+            args.push(clause(tight4.clause_1));
+        } else if (tight3.app_inner_0 instanceof C.app_inner_comma_maybe_underscore_bk760w) {
+            let tight4 = <C.app_inner_comma_maybe_underscore_bk760w> tight3.app_inner_0;
+            if (tight4.maybe_bk760w_1 instanceof C.maybe_bk760w_clause_underscore_list_maybe_underscore_bk760w) {
+                let tight5 = <C.maybe_bk760w_clause_underscore_list_maybe_underscore_bk760w>tight4.maybe_bk760w_1;
+                args = args.concat(clause_list(tight5.clause_list_0));
+            }
+        }
+    }
+
+    let out = new A.Application(expr(application.exp6_0));
+    out.args = args;
+    return out;
 }
 
 function whichAddOp(add: C.add_op) {

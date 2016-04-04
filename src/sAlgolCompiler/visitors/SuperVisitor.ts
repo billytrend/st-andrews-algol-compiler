@@ -35,6 +35,8 @@ export class SuperVisitor {
             this.beforeVisitNullFile(obj);
         } else if (obj instanceof A.Vector) {
             this.beforeVisitVector(obj);
+        } else if (obj instanceof A.Identifier) {
+            this.beforeVisitIdentifier(obj);
         }
     }
 
@@ -71,6 +73,8 @@ export class SuperVisitor {
             this.afterVisitNullFile(obj);
         } else if (obj instanceof A.Vector) {
             this.afterVisitVector(obj);
+        } else if (obj instanceof A.Identifier) {
+            this.afterVisitIdentifier(obj);
         }
     }
 
@@ -152,6 +156,14 @@ export class SuperVisitor {
     }
 
     afterVisitProgram(obj: A.Program): void {
+
+    }
+
+    beforeVisitIdentifier(obj: A.Identifier): void {
+
+    }
+
+    afterVisitIdentifier(obj: A.Identifier): void {
 
     }
 

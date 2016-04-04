@@ -99,13 +99,26 @@ export class TypeChecking extends SuperVisitor {
         }
     }
 
+    afterVisitLoop(obj: A.Loop) {
+        obj.returnType = new A.Type(A.concrete_type.void);
+    }
+
+    afterVisitIdentifier(id: A.Identifier) {
+        if (id.shouldTypeCheck === false) {
+            return;
+        }
+
+        let decl = this.findInScope(id.identifier);
+        id.declaration = decl;
+        id.returnType = decl.returnType;
+    }
 
     afterVisitApplication(appl: A.Application) {
         if (appl.shouldTypeCheck === false) {
             return;
         }
 
-        let decl = this.findInScope(appl.identifier);
+        let decl = appl.target.declaration;
         if (decl === null) {
             appl.addError(new ScopeError(appl));
         } else {

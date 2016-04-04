@@ -199,6 +199,22 @@ export class Declaration extends Clause {
     }
 }
 
+export class Assignment extends Clause {
+    left: Expression;
+    right: Clause;
+
+    constructor(left:Expression, right:Clause) {
+        this.left = left;
+        this.right = right;
+        this.returnType = new Type(concrete_type.void);
+    }
+
+    compile() {
+        return varAss(this.left.compile(), this.right.compile());
+
+    }
+}
+
 export class Conditional extends Clause {
     test: Clause;
     thenCl: Clause;
@@ -318,29 +334,42 @@ export class Operation extends Expression {
 export class Application extends Expression {
     args: Clause[] = [];
     accesses: Clause[] = [];
-    identifier: string;
+    target: Identifier;
     applType: declaration_type;
 
-    constructor(identifier: string) {
-        this.identifier = identifier.replace(/\./g, "_");
+    constructor(target: Identifier) {
+        this.target = target;
     }
 
     compile(): E.Expression {
         let out;
         switch (this.applType) {
             case declaration_type.STRUCT:
-                return getNewObj(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
+                return getNewObj(this.target.compile(), this.args.map(arg => arg.compile()));
             case declaration_type.PROC:
             case declaration_type.FORWARD:
-                out = callFunc(getIdentifier(this.identifier), this.args.map(arg => arg.compile()));
+                out = callFunc(this.target.compile(), this.args.map(arg => arg.compile()));
             case declaration_type.VAR_DECL:
             case declaration_type.CONS_DECL:
-                out = out || <E.Identifier|E.CallExpression>getIdentifier(this.identifier);
+                out = out || this.target.compile();
                 for (let arg of this.accesses) {
                     out = callFunc(accessObject(out, getIdentifier("get")), [arg.compile()]);
                 }
                 return out;
         }
+    }
+}
+
+export class Identifier extends Expression {
+    identifier: string;
+    declaration: Declaration;
+
+    constructor(identifier: string) {
+        this.identifier = identifier.replace(/\./g, "_");
+    }
+
+    compile() {
+        return getIdentifier(this.identifier);
     }
 }
 
@@ -357,8 +386,9 @@ export class Literal extends Expression {
 
 export class Number extends Literal {
     value:number;
+    minus: boolean;
 
-    constructor(value, isReal) {
+    constructor(value:number, isReal:boolean, minus?:boolean) {
         super(value);
         this.returnType = isReal ? new Type(concrete_type.real) : new Type(concrete_type.int);
     }

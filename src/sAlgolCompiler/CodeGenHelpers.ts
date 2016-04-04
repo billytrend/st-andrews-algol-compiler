@@ -98,8 +98,12 @@ export function assignVariable(id: E.Pattern, literal: E.Literal): E.Statement {
 }
 
 export function operation(exps: E.Expression[], operation: operation_type): E.Expression {
-    if (compileBinOp(operation)) {
+    if (exps.length === 2 && compileBinOp(operation)) {
         return binaryOperation(exps[0], exps[1], compileBinOp(operation));
+    } else if (exps.length === 1 && compileBinOp(operation)) {
+        return unaryOperation(exps[0], compileBinOp(operation));
+    } else {
+        throw "Cannot produce code for operation";
     }
 }
 
@@ -107,6 +111,12 @@ export function binaryOperation(left: E.Expression, right: E.Expression, operati
     let op = <E.BinaryExpression>getASTNode("BinaryExpression");
     op.left = left;
     op.right = right;
+    op.operator = operation;
+    return op;
+}
+export function unaryOperation(left: E.Expression, operation: E.BinaryOperator): E.UnaryExpression {
+    let op = <E.UnaryExpression>getASTNode("UnaryExpression");
+    op.argument = left;
     op.operator = operation;
     return op;
 }

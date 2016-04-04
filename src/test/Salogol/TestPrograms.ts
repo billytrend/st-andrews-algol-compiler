@@ -16,10 +16,10 @@ export var testCases = [
     { input: "procedure a(real b -> real); b;\nwrite(a(4.12))?", output: ['4.12'] , name:"Real type", description:""},
     { input: "let a = @ 0 of int [1,2,3,4];\nprocedure b(*int arr -> int); arr(2);\nwrite(b(a))?", output: ['3'] , name:"Array assignment and passing", description:""},
     { input: "let a := -1;\nwrite abs(a)?", output: ['1'], name:"ABS standard library function", description:"" },
-    { input: "procedure writer(); write 1;\nlet a = test?", output: ['1'], name:"Function application without brackets", description:"" },
+    { input: "procedure writer(); write 1;\nwriter?", output: ['1'], name:"Function application without brackets", description:"" },
     { input: "let a = 1;\nlet b = if a > 0 then 3 else 4;\nwrite b?", output: ['3'], name:"Use of conditional clause as an expression", description:"" },
     { input: "let a = {let q = 1; q + 2};\nwrite a?", output: ['3'], name:"Assigning a block to a variable", description:"" },
-    { input: "let x = 0;\nlet y = while x < 10 do  {x:=x+1; x}\nwrite y?", output: ['3'], name:"Loop as an expression", description:"" },
+    { input: "let x = 0; while x < 10 do x:=x+1; write 10?", output: ['10'], name:"Loop as an expression", description:"" },
 ];
 
 export var errorCases = [

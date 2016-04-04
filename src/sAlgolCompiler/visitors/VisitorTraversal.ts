@@ -102,6 +102,7 @@ function visitOperation(obj: A.Operation, visitor: SuperVisitor) {
 }
 
 function visitApplication(obj: A.Application, visitor: SuperVisitor) {
+    visit(obj.target, visitor);
     for (let arg of obj.args) {
         visit(arg, visitor);
     }
