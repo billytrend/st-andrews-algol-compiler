@@ -20,6 +20,7 @@ export var testCases = [
     { input: "let a = 1;\nlet b = if a > 0 then 3 else 4;\nwrite b?", output: ['3'], name:"Use of conditional clause as an expression", description:"" },
     { input: "let a = {let q = 1; q + 2};\nwrite a?", output: ['3'], name:"Assigning a block to a variable", description:"" },
     { input: "let x = 0; while x < 10 do x:=x+1; write 10?", output: ['10'], name:"Loop as an expression", description:"" },
+    { input: "procedure fibpair( int n -> *int );\nif n = 1 then @1 of int[ 1,0 ] else\nif n = 2 then @1 of int[ 1,1 ] else\nif n rem 2 = 0 then\nbegin\n     let fg = fibpair( n div 2 );\n     let f = fg( 1 );\n     let g = fg( 2 );\n     let s = f * f;\n     let t = g * g;\n     @1 of int[ s + 2 * f * g,s + t ]\nend else\nbegin\n     let fg = fibpair( n - 1 );\n     @1 of int[ fg( 1 ) + fg( 2 ),fg( 1 ) ]\nend;\nprocedure fib( int n -> int );\nif n = 0 then 0 else fibpair( n )( 1 );\nfor i = 0 to 5 do write i,fib( i )?", output: [ '0 0', '1 1', '2 1', '3 2', '4 3' ], name:"Loop as an expression", description:"" },
 ];
 
 export var errorCases = [
