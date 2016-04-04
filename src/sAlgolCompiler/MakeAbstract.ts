@@ -729,24 +729,34 @@ function app_tail(application:C.exp5b_exp6_maybe_underscore_254f26):A.Expression
     let args = [];
 
     let tight1 = <C.maybe_254f26_app_underscore_tail_maybe_underscore_254f26>tightened.maybe_254f26_1;
-    let tail = <C.app_tail_open_parenthesis_maybe_underscore_5farnh_maybe_underscore_613fhs_close_parenthesis>tight1.app_tail_0;
-    if (tail.maybe_5farnh_1 instanceof C.maybe_5farnh_clause) {
-        let tight2 = <C.maybe_5farnh_clause>tail.maybe_5farnh_1;
-        args.push(clause(tight2.clause_0));
-    }
+    while (true) {
+        let tail = <C.app_tail_open_parenthesis_maybe_underscore_5farnh_maybe_underscore_613fhs_close_parenthesis>tight1.app_tail_0;
+        if (tail.maybe_5farnh_1 instanceof C.maybe_5farnh_clause) {
+            let tight2 = <C.maybe_5farnh_clause>tail.maybe_5farnh_1;
+            args.push(clause(tight2.clause_0));
+        }
 
-    if (tail.maybe_613fhs_2 instanceof C.maybe_613fhs_app_underscore_inner) {
-        let tight3 = <C.maybe_613fhs_app_underscore_inner>tail.maybe_613fhs_2;
 
-        if (tight3.app_inner_0 instanceof C.app_inner_vertical_bar_clause) {
-            let tight4 = <C.app_inner_vertical_bar_clause>tight3.app_inner_0;
-            args.push(clause(tight4.clause_1));
-        } else if (tight3.app_inner_0 instanceof C.app_inner_comma_maybe_underscore_bk760w) {
-            let tight4 = <C.app_inner_comma_maybe_underscore_bk760w> tight3.app_inner_0;
-            if (tight4.maybe_bk760w_1 instanceof C.maybe_bk760w_clause_underscore_list_maybe_underscore_bk760w) {
-                let tight5 = <C.maybe_bk760w_clause_underscore_list_maybe_underscore_bk760w>tight4.maybe_bk760w_1;
-                args = args.concat(clause_list(tight5.clause_list_0));
+        if (tail.maybe_613fhs_2 instanceof C.maybe_613fhs_app_underscore_inner) {
+            let tight3 = <C.maybe_613fhs_app_underscore_inner>tail.maybe_613fhs_2;
+
+            if (tight3.app_inner_0 instanceof C.app_inner_vertical_bar_clause) {
+                let tight4 = <C.app_inner_vertical_bar_clause>tight3.app_inner_0;
+                args.push(clause(tight4.clause_1));
+            } else if (tight3.app_inner_0 instanceof C.app_inner_comma_maybe_underscore_bk760w) {
+                let tight4 = <C.app_inner_comma_maybe_underscore_bk760w> tight3.app_inner_0;
+                if (tight4.maybe_bk760w_1 instanceof C.maybe_bk760w_clause_underscore_list_maybe_underscore_bk760w) {
+                    let tight5 = <C.maybe_bk760w_clause_underscore_list_maybe_underscore_bk760w>tight4.maybe_bk760w_1;
+                    args = args.concat(clause_list(tight5.clause_list_0));
+                }
             }
+        }
+
+        if (tight1.maybe_254f26_1 instanceof C.maybe_254f26_app_underscore_tail_maybe_underscore_254f26) {
+            let tight6 = <C.maybe_254f26_app_underscore_tail_maybe_underscore_254f26>tight1;
+            tight1 = <C.maybe_254f26_app_underscore_tail_maybe_underscore_254f26>tight6.maybe_254f26_1;
+        } else {
+            break;
         }
     }
 

@@ -36,7 +36,7 @@ export var errorCases = [
     { input: "structure test(int a);\n let a = test(\"test\")?", name: "Wrong type of argument for structure."},
     { input: "structure test(int a);\n let a = test(1, 2)?", name: "Too many arguments."},
     { input: "structure test(int a);\n let a = test(\"wrongargtype\")?", name: "Wrong argument type."}
-]
+];
 
 
 
