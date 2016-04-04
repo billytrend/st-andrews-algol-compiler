@@ -123,6 +123,8 @@ export function unaryOperation(left: E.Expression, operation: E.BinaryOperator):
 
 export function compileBinOp(sym: operation_type): E.BinaryOperator {
     switch (sym) {
+        case operation_type.AND: return "&&";
+        case operation_type.OR: return "||";
         case operation_type.EQ: return "===";
         case operation_type.NEQ: return "!==";
         case operation_type.LEQ: return "<=";
@@ -133,7 +135,6 @@ export function compileBinOp(sym: operation_type): E.BinaryOperator {
         case operation_type.SUB: return "-";
         case operation_type.MUL: return "*";
         case operation_type.DIV: return "/";
-        case operation_type.AND: return "&";
         case operation_type.XOR: return "^";
         case operation_type.MOD: return "%";
     }

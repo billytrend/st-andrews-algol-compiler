@@ -787,7 +787,11 @@ function whichMulOp(add: C.mult_op) {
 
 function whichRelOp(rel: C.rel_op): A.operation_type{
     let str = rel.flatten();
-    if (/\!=/.test(str)) {
+    if (/&&/.test(str)) {
+        return A.operation_type.AND;
+    } else if (/||/.test(str)) {
+        return A.operation_type.OR;
+    } else if (/\!=/.test(str)) {
         return A.operation_type.NEQ;
     } else if (/<=/.test(str)) {
         return A.operation_type.LEQ;
