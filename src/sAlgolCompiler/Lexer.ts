@@ -63,8 +63,13 @@ export class SalgolLexer {
     lexTerminal(): boolean {
         let str;
         let begin = this.curColumn;
+
         if (this.consumeStringFromHead(comment)) {
 
+        } else if (str = this.consumeStringFromHead(stringReg)) {
+            this.lexed = this.lexed.concat(str.split('').map(item => {
+                return new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(item)], this.getLoc(begin));
+            }));
         } else if (str = (this.consumeStringFromHead(keyword)||this.consumeStringFromHead(punc))) {
             this.lexed.push(new SalgolSymbol(SalgolTerminal[Constants.getEnumFromTerminal(str)], this.getLoc(begin)));
         } else if (str = this.consumeStringFromHead(augTypeReg)) {
