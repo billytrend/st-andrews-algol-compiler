@@ -134,6 +134,7 @@ export function compileBinOp(sym: operation_type): E.BinaryOperator {
         case operation_type.ADD: return "+";
         case operation_type.SUB: return "-";
         case operation_type.MUL: return "*";
+        case operation_type.NOT: return "!";
         case operation_type.DIV: return "/";
         case operation_type.XOR: return "^";
         case operation_type.MOD: return "%";

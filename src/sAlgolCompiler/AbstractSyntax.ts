@@ -216,7 +216,6 @@ export class Assignment extends Clause {
 
     compile() {
         return varAss(this.left.compile(), this.right.compile());
-
     }
 }
 

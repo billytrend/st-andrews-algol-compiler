@@ -32,7 +32,7 @@ let types = "(int|real|bool|string|pixel|pic|pntr|file|#pixel|#cpixel)(?![a-zA-Z
 let concType = new RegExp(types);
 let augTypeReg = new RegExp(`^[\\*c]*${types}`);
 let comment = /^\!.*/;
-let stringReg = /"([ -!#-&(-~]|('")|(''))*"/;
+let stringReg = /^"([ -!#-&(-~]|('")|(''))*"/;
 let whiteSpace = /\s*/;
 
 
@@ -45,8 +45,8 @@ export class SalgolLexer {
     getLoc(begin: number): E.SourceLocation {
         return <E.SourceLocation>{
             source: "test",
-            start: { line: this.curLine, column: begin },
-            end:  { line: this.curLine, column: this.curColumn }
+            start: { line: this.curLine + 1, column: begin },
+            end:  { line: this.curLine + 1, column: this.curColumn }
         }
     }
 

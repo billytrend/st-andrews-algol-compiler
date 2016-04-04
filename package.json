@@ -4,8 +4,7 @@
   "description": "",
   "main": "/bin/sAlgolCompiler/Compiler.js",
   "scripts": {
-    "test": "mocha",
-    "test-debug": "./node_modules/.bin/mocha ./bin/test/**/*.js --debug-brk",
+    "test": "./node_modules/.bin/mocha ./bin/test/**/*.js",
     "watch": "./node_modules/.bin/tsc -w",
     "web-compile": "./node_modules/.bin/webpack --config interface.config.js",
     "tsc-compile": "./node_modules/.bin/tsc",

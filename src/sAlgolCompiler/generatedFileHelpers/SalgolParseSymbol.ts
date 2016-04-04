@@ -205,6 +205,7 @@ export class SalgolTerminalClass extends SalgolParseSymbol {
             case SalgolTerminal['let']: return "var ";
 
             case SalgolTerminal['equals']:
+            case SalgolTerminal['=']:
             case SalgolTerminal['colon_equals']: return " = ";
 
 

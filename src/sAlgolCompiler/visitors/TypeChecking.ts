@@ -109,6 +109,11 @@ export class TypeChecking extends SuperVisitor {
         }
 
         let decl = this.findInScope(id.identifier);
+        if (decl === null) {
+            id.addError(new ScopeError(id));
+            return;
+        }
+
         id.declaration = decl;
         id.returnType = decl.returnType;
     }
@@ -119,8 +124,9 @@ export class TypeChecking extends SuperVisitor {
         }
 
         let decl = appl.target.declaration;
-        if (decl === null) {
+        if (!decl) {
             appl.addError(new ScopeError(appl));
+            return;
         } else {
             if (!appl.applType) {
                 appl.applType = decl.declType;
@@ -131,7 +137,7 @@ export class TypeChecking extends SuperVisitor {
                 case A.declaration_type.STRUCT:
                 case A.declaration_type.FORWARD:
                     if (appl.args.length < decl.args.length ||
-                        (decl.returnType.isVector() && appl.args.length > decl.args.length + decl.returnType.dimensions())) {
+                        (decl.returnType && decl.returnType.isVector() && appl.args.length > decl.args.length + decl.returnType.dimensions())) {
                         appl.addError(new WrongNumberOfArguments(appl, decl));
                         break;
                     }
@@ -144,8 +150,9 @@ export class TypeChecking extends SuperVisitor {
                     appl.returnType = decl.returnType;
 
                     for (let i = 0; i < (appl.args.length - decl.args.length); i++) {
-                        appl.returnType = appl.returnType.dereference(1);
-                        if (appl.args[i].returnType.type !== A.concrete_type.int) {
+                        if (appl.returnType && appl.args[i].returnType.type === A.concrete_type.int) {
+                            appl.returnType = appl.returnType.dereference(1);
+                        } else {
                             appl.addError(new GeneralError(null, "Dereference error."));
                         }
                     }
@@ -248,11 +255,11 @@ export class TypeChecking extends SuperVisitor {
             case A.operation_type.INTDIV:
             case A.operation_type.MOD:
                 if (!this.isWithinTypeClass(A.concrete_type.arith, left.returnType.type)) {
-                    return;
+                    return null;
                 }
 
                 if (right.type !== left.type) {
-                    return;
+                    return null;
                 }
 
                 obj.returnType = left.returnType;

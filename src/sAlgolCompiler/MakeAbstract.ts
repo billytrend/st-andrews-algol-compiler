@@ -789,7 +789,7 @@ function whichRelOp(rel: C.rel_op): A.operation_type{
     let str = rel.flatten();
     if (/&&/.test(str)) {
         return A.operation_type.AND;
-    } else if (/||/.test(str)) {
+    } else if (/\|\|/.test(str)) {
         return A.operation_type.OR;
     } else if (/\!=/.test(str)) {
         return A.operation_type.NEQ;

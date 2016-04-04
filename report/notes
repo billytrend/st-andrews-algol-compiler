@@ -1,2 +1,0 @@
-- found mistake in bnf, ptype missing square bracket
-- implemented fake single dispatch for visitor pattern

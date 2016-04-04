@@ -34,12 +34,12 @@ export class GeneralError extends ContextSensitiveError {
     }
 
     get error(): string {
-        return `No function or variable named '${this.node.identifier}' found in scope`;
+        return this._error;
     }
 }
 
 export class ScopeError extends ContextSensitiveError {
-    node: A.Application;
+    node: A.Identifier;
 
     get error(): string {
         return `No function or variable named '${this.node.identifier}' found in scope`;

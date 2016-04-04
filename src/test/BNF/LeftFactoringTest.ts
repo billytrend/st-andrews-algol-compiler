@@ -100,22 +100,5 @@ describe('Left factoring tests:', () => {
             done();
         });
 
-        it('should left factor whole grammar', (done) => {
-            var g: Grammar = compileDefault();
-            expect(LeftFactoring.grammarIsAmbiguous(g)).to.be.true;
-            let lFac = LeftFactoring.leftFactorGrammar(g);
-            expect(LeftFactoring.grammarIsAmbiguous(lFac)).to.be.false;
-            //let visitor = new ReformatBNF();
-            //let visitorPass = new VisitorPass(visitor);
-            //visitorPass.visit(lFac);
-            //var a = "";
-            //for (var lol of visitor.output) {
-            //    a+=lol;
-            //}
-            //console.log(a);
-            done();
-        });
-
-
     });
 });

@@ -1,7 +1,0 @@
-- io
-- time in 60ths of second from undefined reference point
-- typing
-- = -> ==
-- := -> =
-- tail recursion optimisation
-- stdi/o callbacks
