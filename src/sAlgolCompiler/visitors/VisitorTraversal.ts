@@ -52,7 +52,9 @@ function visitDeclaration(obj: A.Declaration, visitor: SuperVisitor) {
 function visitConditional(obj: A.Conditional, visitor: SuperVisitor) {
     visit(obj.test, visitor);
     visit(obj.thenCl, visitor);
-    visit(obj.elseCl, visitor);
+    if (obj.elseCl) {
+        visit(obj.elseCl, visitor);
+    }
 }
 
 function visitSwitch(obj: A.Switch, visitor: SuperVisitor) {

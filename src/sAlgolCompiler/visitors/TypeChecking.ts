@@ -188,20 +188,20 @@ export class TypeChecking extends SuperVisitor {
             case A.operation_type.OR:
             case A.operation_type.XOR:
                 if (left.returnType.equals(right.returnType) && left.returnType.type === A.concrete_type.bool) {
-                    return A.concrete_type.bool;
+                    obj.returnType = new A.Type(A.concrete_type.bool);
+                    return;
                 }
 
                 obj.addError(new OperationTypeError(obj));
                 return;
-
             case A.operation_type.NOT:
                 if (left.returnType.type === A.concrete_type.bool) {
-                    return A.concrete_type.bool;
+                    obj.returnType = new A.Type(A.concrete_type.bool);
+                    return;
                 }
 
                 obj.addError(new OperationTypeError(obj));
                 return;
-
             case A.operation_type.LT:
             case A.operation_type.LEQ:
             case A.operation_type.GT:
@@ -248,11 +248,11 @@ export class TypeChecking extends SuperVisitor {
             case A.operation_type.INTDIV:
             case A.operation_type.MOD:
                 if (!this.isWithinTypeClass(A.concrete_type.arith, left.returnType.type)) {
-                    return null;
+                    return;
                 }
 
                 if (right.type !== left.type) {
-                    return null;
+                    return;
                 }
 
                 obj.returnType = left.returnType;

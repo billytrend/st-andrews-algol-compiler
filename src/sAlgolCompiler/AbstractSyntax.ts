@@ -74,7 +74,12 @@ export class Type extends AbstractSyntaxType {
     }
 
     equals(other: Type): boolean {
-        return this.type === other.type && _.isEqual(this.constantStack, other.constantStack);
+        let canBe = false;
+        if (this.constantStack[0] === type_prefix.constant || other.constantStack[0] === type_prefix.constant) {
+            canBe = _.isEqual(this.constantStack.slice(1), other.constantStack)
+                || _.isEqual(this.constantStack, other.constantStack.slice(1));
+        }
+        return this.type === other.type && (_.isEqual(this.constantStack, other.constantStack) || canBe);
     }
 
     references(other: Type): boolean {
